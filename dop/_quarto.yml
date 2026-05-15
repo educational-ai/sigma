@@ -49,8 +49,8 @@ toc-depth: 3
 format:
   html:
     theme:
-      light: cosmo
-      dark: darkly
+      light: journal
+      dark: cyborg
     toc: true
     toc-depth: 3
     code-fold: false
