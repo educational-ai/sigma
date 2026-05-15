@@ -26,7 +26,7 @@ book:
         - planned/c11_ch3_rl.qmd
         - planned/c11_ch4_generative.qmd
         - planned/c11_app_ai_in_life.qmd
-    - part: "Текущая Overleaf-сборка"
+    - part: "Дополнительный учебник (к 10 и 11 кл.)"
       chapters:
         - converted/ch01_intro.qmd
         - converted/ch02_newton.qmd

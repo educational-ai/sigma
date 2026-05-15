@@ -97,6 +97,83 @@ figure figcaption, .figure-caption { text-align: center; font-style: italic; col
   color: #888;
   margin-left: 8px;
 }
+
+/* Mega section titles */
+.hm-section-title {
+  margin-top: 32px;
+  margin-bottom: 4px;
+  font-size: 1.4em;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 6px;
+}
+.hm-section-sub {
+  font-size: 0.65em;
+  font-weight: 400;
+  color: #888;
+}
+.hm-section-meta {
+  margin: 0 0 14px 0;
+  color: #6b7280;
+  font-size: 0.88em;
+}
+
+/* Chapter card */
+.hm-chapter {
+  margin: 10px 0 18px 0;
+  padding: 8px 12px 12px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fcfcfd;
+}
+.hm-chapter-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none !important;
+  margin-bottom: 8px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.hm-chapter-head:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.hm-chapter-num { font-weight: 700; }
+.hm-chapter-title { font-weight: 600; font-size: 1.05em; }
+.hm-meta { margin-left: auto; font-size: 0.78em; opacity: 0.75; }
+
+/* Sub-grid: smaller cells inside each chapter */
+.hm-sub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 4px;
+}
+.hm-sub-cell {
+  padding: 8px 8px;
+  border-radius: 6px;
+  font-size: 0.78em;
+  line-height: 1.25;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.hm-sub-cell.hm-0 { background: #ececec; color: #6b7280; }
+.hm-sub-cell.hm-1 { background: #dbeafe; color: #1e3a8a; }
+.hm-sub-cell.hm-2 { background: #fef3c7; color: #92400e; }
+.hm-sub-cell.hm-3 { background: #fed7aa; color: #7c2d12; }
+.hm-sub-cell.hm-4 { background: #bbf7d0; color: #064e3b; }
+.hm-sub-cell.hm-5 { background: #4ade80; color: #052e16; font-weight: 600; }
+
+/* Dark mode sub-cells */
+.quarto-dark .hm-chapter { background: #1c1f24; border-color: #353a42; }
+.quarto-dark .hm-sub-cell.hm-0 { background: #2a2e35; color: #8b95a5; }
+.quarto-dark .hm-sub-cell.hm-1 { background: #1e3a8a; color: #c7d8ff; }
+.quarto-dark .hm-sub-cell.hm-2 { background: #78350f; color: #ffe4a1; }
+.quarto-dark .hm-sub-cell.hm-3 { background: #7c2d12; color: #ffd2b0; }
+.quarto-dark .hm-sub-cell.hm-4 { background: #064e3b; color: #b6f4d4; }
+.quarto-dark .hm-sub-cell.hm-5 { background: #15803d; color: #d3ffd9; }
 .hm-cell {
   padding: 12px 10px;
   border-radius: 8px;

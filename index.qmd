@@ -9,7 +9,7 @@ page-layout: full
 
 # Учебн🤖к
 
-**Учебник по искусственному интеллекту** для 10–11 классов, **углублённый уровень**.
+**Учебник по искусственному интеллекту** — углублённый уровень, 10–11 классы.
 Команда Альянса ИИ, идеолог — А. В. Гасников.
 
 [📕 PDF (текущая сборка)](book.pdf){.btn .btn-primary} &nbsp;
@@ -33,7 +33,7 @@ Edit в Overleaf или в репо → `scripts/build.sh` → сайт обно
 
 ---
 
-## Карта проекта — heatmap готовности
+## Карта проекта
 
 ```{=html}
 <div class="hm-legend">
@@ -45,37 +45,277 @@ Edit в Overleaf или в репо → `scripts/build.sh` → сайт обно
   <span class="hm-pill hm-5">5 · Финал</span>
 </div>
 
-<h3>📘 10 класс — Введение в ИИ <span class="hm-sub">(~40 уроков, 2 теории + 1 практика в неделю)</span></h3>
-<div class="hm-grid">
-  <a class="hm-cell hm-2" href="planned/c10_ch1_intro_data.html" title="Воронцов, Соколов, Марков, Яроцкий · 12 уроков (7+5)">Гл 1. Введение в интеллектуальный анализ данных</a>
-  <a class="hm-cell hm-2" href="planned/c10_ch2_neuron.html" title="Яроцкий, Воронцов, Марков, Соколов, Гасников · 14 уроков (8+6)">Гл 2. От Нейрона до нейронной сети</a>
-  <a class="hm-cell hm-2" href="planned/c10_ch3_cnn_linalg.html" title="Марков, Гасников, Оселедец, Яроцкий · 14 уроков (8+6)">Гл 3. Свёрточные сети и линейная алгебра</a>
-  <a class="hm-cell hm-0" href="planned/c10_app_history.html" title="Марков, Гасников · приложение">Прил. Биологические и исторические предпосылки ИИ</a>
+<!-- ============================================== -->
+<h2 class="hm-section-title">📘 Учебник для 10 класса — Введение в ИИ</h2>
+<p class="hm-section-meta">~40 уроков · 2 теории + 1 практика в неделю</p>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="planned/c10_ch1_intro_data.html">
+    <span class="hm-chapter-num">Гл 1.</span>
+    <span class="hm-chapter-title">Введение в интеллектуальный анализ данных</span>
+    <span class="hm-meta">12 уроков (7+5) · Воронцов, Соколов, Марков, Яроцкий</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">ИИ как область науки и технологии</div>
+    <div class="hm-sub-cell hm-1">Цели и задачи; ИИ vs мат. моделирование</div>
+    <div class="hm-sub-cell hm-1">Тьюринг-полнота, тест Тьюринга</div>
+    <div class="hm-sub-cell hm-1">Матстатистика, ML, ИИ — связи</div>
+    <div class="hm-sub-cell hm-1">Классификация постановок задач</div>
+    <div class="hm-sub-cell hm-1">Дата-инженерия, датасеты</div>
+  </div>
 </div>
 
-<h3>📗 11 класс — Математические основы ML и ИИ <span class="hm-sub">(~50 уроков)</span></h3>
-<div class="hm-grid">
-  <a class="hm-cell hm-2" href="planned/c11_ch1_stats.html" title="Николенко, Гасников, Двинских · 16 уроков (10+6)">Гл 1. Матстатистика и байесовский вывод</a>
-  <a class="hm-cell hm-0" href="planned/c11_ch2_ml_basics.html" title="Двинских, Гасников, Соколов · 8 уроков (6+2)">Гл 2. Основы машинного обучения</a>
-  <a class="hm-cell hm-0" href="planned/c11_ch3_rl.html" title="Двинских, Гасников · 8 уроков (6+2)">Гл 3. Вероятностные основы RL</a>
-  <a class="hm-cell hm-1" href="planned/c11_ch4_generative.html" title="Кузнецов, Димитров, Марков · 18 уроков (9+9)">Гл 4. Генеративный ИИ</a>
-  <a class="hm-cell hm-0" href="planned/c11_app_ai_in_life.html" title="Марков, Кузнецов, Воронцов, Турдаков, Гомбалевский · приложение">Прил. ИИ в жизни</a>
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="planned/c10_ch2_neuron.html">
+    <span class="hm-chapter-num">Гл 2.</span>
+    <span class="hm-chapter-title">От Нейрона до нейронной сети</span>
+    <span class="hm-meta">14 уроков (8+6) · Яроцкий, Воронцов, Марков, Соколов, Гасников</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">Нейрон Мак-Каллока–Питтса</div>
+    <div class="hm-sub-cell hm-1">Кибернетика (Эшби, Шимбел)</div>
+    <div class="hm-sub-cell hm-1">Перцептрон Розенблатта</div>
+    <div class="hm-sub-cell hm-1">Ограничения однослойного перцептрона</div>
+    <div class="hm-sub-cell hm-1">Сигмоида и важность нелинейности</div>
+    <div class="hm-sub-cell hm-1">Простейшие нейронные сети</div>
+    <div class="hm-sub-cell hm-0">★ Теорема Цыбенко</div>
+    <div class="hm-sub-cell hm-0">★ Колмогоров–Арнольд</div>
+    <div class="hm-sub-cell hm-2">Оптимизация: выпукл/невыпукл</div>
+    <div class="hm-sub-cell hm-2">Принцип Ферма, градиент</div>
+    <div class="hm-sub-cell hm-2">Лагранж, l1-шар</div>
+    <div class="hm-sub-cell hm-2">GD, SGD</div>
+    <div class="hm-sub-cell hm-0">★ Автодифференцирование</div>
+    <div class="hm-sub-cell hm-1">Экстракторы признаков (LeCun)</div>
+    <div class="hm-sub-cell hm-2">★ Матричные игры (Бекларян)</div>
+    <div class="hm-sub-cell hm-0">★ Седловые задачи</div>
+  </div>
 </div>
 
-<h3>📐 Текущая Overleaf-сборка <span class="hm-sub">(что уже написано в .tex)</span></h3>
-<div class="hm-grid">
-  <a class="hm-cell hm-1" href="converted/ch01_intro.html" title="30 строк .tex — стаб">Что такое ИИ</a>
-  <a class="hm-cell hm-3" href="converted/ch02_newton.html" title="537 строк .tex — метод Ньютона">Численные методы оптимизации</a>
-  <a class="hm-cell hm-3" href="converted/ch03_ds.html" title="3.6K строк .tex — самая объёмная глава">Анализ данных и ИИ (§ 3.1–3.5)</a>
-  <a class="hm-cell hm-3" href="converted/ch04_numtheory.html" title="6 параграфов: теория чисел, шифры, RSA, ДХ, хеширование, HyperLogLog">Теория чисел и шифрование</a>
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="planned/c10_ch3_cnn_linalg.html">
+    <span class="hm-chapter-num">Гл 3.</span>
+    <span class="hm-chapter-title">Свёрточные нейронные сети и линейная алгебра</span>
+    <span class="hm-meta">14 уроков (8+6) · Марков, Гасников, Оселедец, Яроцкий</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-0">★ Хьюбел–Визель, зрительная кора</div>
+    <div class="hm-sub-cell hm-1">От Розенблатта к Фукусиме → CNN</div>
+    <div class="hm-sub-cell hm-1">Минский–Пейперт «Перцептроны»</div>
+    <div class="hm-sub-cell hm-2">Разбор MNIST</div>
+    <div class="hm-sub-cell hm-2">Train/val/test, переобучение</div>
+    <div class="hm-sub-cell hm-0">★ Семантическая сегментация</div>
+    <div class="hm-sub-cell hm-1">Матрицы, линейные преобразования</div>
+    <div class="hm-sub-cell hm-0">★ Штрассен, тензорные разложения</div>
+    <div class="hm-sub-cell hm-0">★ Симметричные/ортогональные матрицы</div>
+    <div class="hm-sub-cell hm-2">PCA, метод главных компонент</div>
+    <div class="hm-sub-cell hm-2">Энкодер–декодер, автокодировщики</div>
+    <div class="hm-sub-cell hm-2">Эмбеддинги, сиамские сети</div>
+    <div class="hm-sub-cell hm-0">★ Работа со звуком</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="planned/c10_app_history.html">
+    <span class="hm-chapter-num">Прил.</span>
+    <span class="hm-chapter-title">Биологические и исторические предпосылки ИИ</span>
+    <span class="hm-meta">опциональное · Марков, Гасников</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-0">Древнейшая история ИИ</div>
+    <div class="hm-sub-cell hm-0">Бионический подход 1930-х</div>
+    <div class="hm-sub-cell hm-0">Эволюция мозга и мемов</div>
+    <div class="hm-sub-cell hm-0">От аплизии до человека</div>
+    <div class="hm-sub-cell hm-0">Бутылочное горлышко фон Неймана</div>
+    <div class="hm-sub-cell hm-0">Будущие платформы: фотоника, wetware</div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<h2 class="hm-section-title">📗 Учебник для 11 класса — Математические основы ML и ИИ</h2>
+<p class="hm-section-meta">~50 уроков · акцент на вероятностные основы</p>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="planned/c11_ch1_stats.html">
+    <span class="hm-chapter-num">Гл 1.</span>
+    <span class="hm-chapter-title">Элементы матстатистики и байесовский вывод</span>
+    <span class="hm-meta">16 уроков (10+6) · Николенко, Гасников, Двинских</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">Базовые понятия теорвер и матстат</div>
+    <div class="hm-sub-cell hm-1">Формула Байеса, условные вероятности</div>
+    <div class="hm-sub-cell hm-1">Когнитивные искажения</div>
+    <div class="hm-sub-cell hm-2">★ Нормальное распределение, ЦПТ</div>
+    <div class="hm-sub-cell hm-3">★ ОМП (теорема Фишера)</div>
+    <div class="hm-sub-cell hm-0">★ Доверительный интервал</div>
+    <div class="hm-sub-cell hm-1">Байесовский вывод</div>
+    <div class="hm-sub-cell hm-0">★ Сопряжённые распр., правило Лапласа</div>
+    <div class="hm-sub-cell hm-3">Линейная регрессия</div>
+    <div class="hm-sub-cell hm-1">Полиномиальная и локальные признаки</div>
+    <div class="hm-sub-cell hm-1">Регуляризация: Ridge, Lasso</div>
+    <div class="hm-sub-cell hm-0">★ Байесовская лин. регрессия</div>
+    <div class="hm-sub-cell hm-1">Классификация, разделяющие поверхности</div>
+    <div class="hm-sub-cell hm-0">LDA и QDA</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="planned/c11_ch2_ml_basics.html">
+    <span class="hm-chapter-num">Гл 2.</span>
+    <span class="hm-chapter-title">Основы машинного обучения</span>
+    <span class="hm-meta">8 уроков (6+2) · Двинских, Гасников, Соколов</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">ML vs матстат</div>
+    <div class="hm-sub-cell hm-1">Минимизация эмпирического риска</div>
+    <div class="hm-sub-cell hm-1">Оффлайн/онлайн (SGD)</div>
+    <div class="hm-sub-cell hm-0">Размер датасета и параметры</div>
+    <div class="hm-sub-cell hm-1">Переобучение, ёмкость классов</div>
+    <div class="hm-sub-cell hm-0">Оракульные неравенства</div>
+    <div class="hm-sub-cell hm-0">Проклятие размерности, NFL</div>
+    <div class="hm-sub-cell hm-0">★ SGD с доказательством</div>
+    <div class="hm-sub-cell hm-0">★ AdaGrad, Adam</div>
+    <div class="hm-sub-cell hm-0">★ Батчирование, ранняя остановка</div>
+    <div class="hm-sub-cell hm-0">Распределённая/федеративная оптимизация</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="planned/c11_ch3_rl.html">
+    <span class="hm-chapter-num">Гл 3.</span>
+    <span class="hm-chapter-title">Вероятностные основы обучения с подкреплением</span>
+    <span class="hm-meta">8 уроков (6+2) · Двинских, Гасников</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">Марковские цепи, PageRank</div>
+    <div class="hm-sub-cell hm-0">★ Случайные блуждания, Винер</div>
+    <div class="hm-sub-cell hm-1">MCMC, Метрополис–Гастингс</div>
+    <div class="hm-sub-cell hm-1">Пример Перси Диакониса</div>
+    <div class="hm-sub-cell hm-0">★ МДП, уравнение Беллмана</div>
+    <div class="hm-sub-cell hm-0">★ Многорукие бандиты</div>
+    <div class="hm-sub-cell hm-0">★ Индексы Гиттинса</div>
+    <div class="hm-sub-cell hm-0">★ Разборчивая невеста</div>
+    <div class="hm-sub-cell hm-0">Q-learning</div>
+    <div class="hm-sub-cell hm-0">★★ A2C, actor-critic</div>
+    <div class="hm-sub-cell hm-0">★★ Meta-RL: RL², MAML</div>
+    <div class="hm-sub-cell hm-0">Аппроксимация value/policy через NN</div>
+    <div class="hm-sub-cell hm-0">GRPO, AlphaGo/AlphaZero</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-1" href="planned/c11_ch4_generative.html">
+    <span class="hm-chapter-num">Гл 4.</span>
+    <span class="hm-chapter-title">Генеративный ИИ</span>
+    <span class="hm-meta">18 уроков (9+9) · Кузнецов, Димитров, Марков</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">RNN, LSTM (Шмидхубер)</div>
+    <div class="hm-sub-cell hm-1">Механизм внимания (Bahdanau)</div>
+    <div class="hm-sub-cell hm-1">Трансформеры (язык, изображения)</div>
+    <div class="hm-sub-cell hm-1">LLM</div>
+    <div class="hm-sub-cell hm-0">★ DPO, Bradley–Terry</div>
+    <div class="hm-sub-cell hm-0">RLHF (GRPO, PPO)</div>
+    <div class="hm-sub-cell hm-1">Chinchilla — законы масштабирования</div>
+    <div class="hm-sub-cell hm-0">★ GAN, StyleGAN</div>
+    <div class="hm-sub-cell hm-0">★ Состязательные модели, атаки</div>
+    <div class="hm-sub-cell hm-1">Мультимодальное обучение</div>
+    <div class="hm-sub-cell hm-0">★ VAE</div>
+    <div class="hm-sub-cell hm-0">★ Диффузионные модели, Ито</div>
+    <div class="hm-sub-cell hm-0">★ Видеогенерация</div>
+    <div class="hm-sub-cell hm-0">★ GenCV, deep-fakes, AI safety</div>
+    <div class="hm-sub-cell hm-0">Фундаментальные модели</div>
+    <div class="hm-sub-cell hm-0">Мультиагентные системы</div>
+    <div class="hm-sub-cell hm-0">В сторону AGI</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="planned/c11_app_ai_in_life.html">
+    <span class="hm-chapter-num">Прил.</span>
+    <span class="hm-chapter-title">ИИ в жизни</span>
+    <span class="hm-meta">опциональное · Марков, Кузнецов, Воронцов, Турдаков, Гомбалевский</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-0">ИИ в жизни современного человека</div>
+    <div class="hm-sub-cell hm-0">Важность ИИ для общества</div>
+    <div class="hm-sub-cell hm-0">Этика ИИ, интерпретируемость</div>
+    <div class="hm-sub-cell hm-0">DeepFake и детектирование</div>
+    <div class="hm-sub-cell hm-0">ИИ в науке</div>
+    <div class="hm-sub-cell hm-0">ИИ в медицине</div>
+    <div class="hm-sub-cell hm-0">AutoML</div>
+    <div class="hm-sub-cell hm-0">Перспективы и фантазии</div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<h2 class="hm-section-title">📐 Дополнительный учебник <span class="hm-section-sub">(к 10 и 11 кл., текущая Overleaf-сборка)</span></h2>
+<p class="hm-section-meta">Углублённые сюжеты, расширяющие основной курс</p>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-1" href="converted/ch01_intro.html">
+    <span class="hm-chapter-num">Гл 1.</span>
+    <span class="hm-chapter-title">Что такое искусственный интеллект</span>
+    <span class="hm-meta">стаб · 30 строк .tex</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">1.1 Краткая история идеи</div>
+    <div class="hm-sub-cell hm-1">1.2 Чему мы научимся в этой книге</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-3" href="converted/ch02_newton.html">
+    <span class="hm-chapter-num">Гл 2.</span>
+    <span class="hm-chapter-title">Численные методы оптимизации</span>
+    <span class="hm-meta">537 строк .tex · метод касательных Ньютона</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-3">2.1.1 От Ньютона до Канторовича</div>
+    <div class="hm-sub-cell hm-3">2.1.2 Метод Ньютона для оптимизации</div>
+    <div class="hm-sub-cell hm-3">2.1.3 Пример: извлечение √x</div>
+    <div class="hm-sub-cell hm-3">2.1.4 Пример: вычисление 1/x</div>
+    <div class="hm-sub-cell hm-3">2.1.5 Python и численный эксперимент</div>
+    <div class="hm-sub-cell hm-2">2.1.6 ★ Сверхлинейная сходимость</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-3" href="converted/ch03_ds.html">
+    <span class="hm-chapter-num">Гл 3.</span>
+    <span class="hm-chapter-title">Введение в анализ данных и ИИ</span>
+    <span class="hm-meta">3.6K строк .tex · самая объёмная глава</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-3">3.1 Принцип максимума правдоподобия</div>
+    <div class="hm-sub-cell hm-3">3.2 Линейная регрессия и МНК</div>
+    <div class="hm-sub-cell hm-3">3.3 Классификация и нейронные сети</div>
+    <div class="hm-sub-cell hm-3">3.4 Обучение без учителя (Netflix, PCA, эмбеддинги)</div>
+    <div class="hm-sub-cell hm-3">3.5 Как ИИ меняет мир (AlphaGo, трансформеры, AlphaFold)</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-3" href="converted/ch04_numtheory.html">
+    <span class="hm-chapter-num">Гл 4.</span>
+    <span class="hm-chapter-title">Элементы теории чисел и шифрование</span>
+    <span class="hm-meta">6 параграфов · 2.7K строк .tex</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-3">4.1 Элементы теории чисел</div>
+    <div class="hm-sub-cell hm-3">4.2 Шифрование: что и как</div>
+    <div class="hm-sub-cell hm-3">4.3 RSA и Диффи–Хеллман</div>
+    <div class="hm-sub-cell hm-3">4.4 Применения RSA</div>
+    <div class="hm-sub-cell hm-3">4.5 Хеширование</div>
+    <div class="hm-sub-cell hm-3">4.6 HyperLogLog и Стенли Мильграм</div>
+  </div>
 </div>
 ```
 
 ---
 
-## Идеи и материалы
+## Идеи и черновики в работе
 
-Дополнительные параграфы и черновики из переписки, ждут встраивания:
+Дополнительные параграфы и материалы из переписки, ждут встраивания:
 
 | Тема | Источник в `raw_materials/` | Статус |
 |---|---|---|
@@ -88,19 +328,10 @@ Edit в Overleaf или в репо → `scripts/build.sh` → сайт обно
 | Ошибка выжившего | `2.7._Ошибка_выжившего.docx` | 🟡 |
 | Парадокс формулы Байеса | `2.10._Парадокс_формулы_Байеса.docx` | 🟡 |
 | Клеточные автоматы | промпт от Николая, 15.05 | 🟠 |
-| ИИ как новый виток эволюции (Гл. 4 § ...) | промпт Гасникова, 13.05 | 🟠 |
-| Скилл генерации параграфов | `math-for-managers-paragraph.skill` | 🟠 |
-
----
-
-## Материалы и эталоны
-
-**77 файлов** raw-материалов (плоско в `raw_materials/`): концепции от Гасникова, ноутбук Яроцкого, эталонные учебники Альянса (5–6 / 7–8 / 9 кл.), референсные учебники по информатике 10–11, промпты, шаблоны.
-
-[Полный список — в репозитории](https://github.com/MerkulovDaniil/uchebniik/tree/main/raw_materials)
+| ИИ как новый виток эволюции | промпт Гасникова, 13.05 | 🟠 |
 
 ---
 
 ::: {.callout-note appearance="minimal"}
-**Карта по состоянию на {{< meta date >}}**. Структура взята из `03_Uchebnik_po_II_10_klass.md` (план Гасникова). Цвета клеток — приблизительные, корректируй через TG.
+**Карта по состоянию на {{< meta date >}}**. Структура взята из `03_Uchebnik_po_II_10_klass.md` (план Гасникова). Звёздочкой ★ помечены опциональные темы. Цвета клеток приблизительные — корректируй через TG.
 :::
