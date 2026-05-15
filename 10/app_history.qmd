@@ -1,6 +1,7 @@
 ---
 title: "Приложение. Биологические и исторические предпосылки ИИ"
 subtitle: "10 класс · Учебник по ИИ — углублённый уровень"
+unnumbered: true
 ---
 
 ::: {.callout-note appearance="minimal"}

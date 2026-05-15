@@ -22,6 +22,7 @@ book:
   page-navigation: true
   reader-mode: true
 
+number-sections: false
 number-depth: 3
 toc-depth: 3
 
@@ -36,6 +37,7 @@ format:
     fig-cap-location: bottom
     css: ../styles.css
     html-math-method: katex
+    number-sections: false
     grid:
       sidebar-width: 320px
       body-width: 920px

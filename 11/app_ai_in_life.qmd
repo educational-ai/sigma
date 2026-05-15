@@ -1,6 +1,7 @@
 ---
 title: "Приложение. ИИ в жизни"
 subtitle: "11 класс · Учебник по ИИ — углублённый уровень"
+unnumbered: true
 ---
 
 ::: {.callout-note appearance="minimal"}

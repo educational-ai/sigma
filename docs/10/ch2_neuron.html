@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Глава 2. От Нейрона до нейронной сети – Учебник 10 класса</title>
+<title>Глава 2. От Нейрона до нейронной сети – Учебник 10 класса</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -84,7 +84,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch2_neuron.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Глава 2. От Нейрона до нейронной сети</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch2_neuron.html"><span class="chapter-title">Глава 2. От Нейрона до нейронной сети</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -119,32 +119,27 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Учебник 10 класса — Введение в ИИ</span></span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Учебник 10 класса — Введение в ИИ</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch1_intro_data.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Глава 1. Введение в интеллектуальный анализ данных</span></span></a>
+  <a href="./ch1_intro_data.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Глава 1. Введение в интеллектуальный анализ данных</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch2_neuron.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Глава 2. От Нейрона до нейронной сети</span></span></a>
+  <a href="./ch2_neuron.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Глава 2. От Нейрона до нейронной сети</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch3_cnn_linalg.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Глава 3. Свёрточные нейронные сети и элементы линейной алгебры</span></span></a>
+  <a href="./ch3_cnn_linalg.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Глава 3. Свёрточные нейронные сети и элементы линейной алгебры</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./app_history.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Приложение. Биологические и исторические предпосылки ИИ</span></span></a>
+  <a href="./app_history.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Приложение. Биологические и исторические предпосылки ИИ</span></a>
   </div>
 </li>
     </ul>
@@ -157,15 +152,15 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#содержание" id="toc-содержание" class="nav-link active" data-scroll-target="#содержание"><span class="header-section-number">3.1</span> Содержание</a>
+  <li><a href="#содержание" id="toc-содержание" class="nav-link active" data-scroll-target="#содержание">Содержание</a>
   <ul class="collapse">
-  <li><a href="#биология-и-история" id="toc-биология-и-история" class="nav-link" data-scroll-target="#биология-и-история"><span class="header-section-number">3.1.1</span> Биология и история</a></li>
-  <li><a href="#от-нейрона-к-сети" id="toc-от-нейрона-к-сети" class="nav-link" data-scroll-target="#от-нейрона-к-сети"><span class="header-section-number">3.1.2</span> От нейрона к сети</a></li>
-  <li><a href="#обучение-как-оптимизация" id="toc-обучение-как-оптимизация" class="nav-link" data-scroll-target="#обучение-как-оптимизация"><span class="header-section-number">3.1.3</span> Обучение как оптимизация</a></li>
-  <li><a href="#введение-в-матричные-игры" id="toc-введение-в-матричные-игры" class="nav-link" data-scroll-target="#введение-в-матричные-игры"><span class="header-section-number">3.1.4</span> ★ Введение в матричные игры</a></li>
+  <li><a href="#биология-и-история" id="toc-биология-и-история" class="nav-link" data-scroll-target="#биология-и-история">Биология и история</a></li>
+  <li><a href="#от-нейрона-к-сети" id="toc-от-нейрона-к-сети" class="nav-link" data-scroll-target="#от-нейрона-к-сети">От нейрона к сети</a></li>
+  <li><a href="#обучение-как-оптимизация" id="toc-обучение-как-оптимизация" class="nav-link" data-scroll-target="#обучение-как-оптимизация">Обучение как оптимизация</a></li>
+  <li><a href="#введение-в-матричные-игры" id="toc-введение-в-матричные-игры" class="nav-link" data-scroll-target="#введение-в-матричные-игры">★ Введение в матричные игры</a></li>
   </ul></li>
-  <li><a href="#большой-оптимизационный-практикум" id="toc-большой-оптимизационный-практикум" class="nav-link" data-scroll-target="#большой-оптимизационный-практикум"><span class="header-section-number">3.2</span> Большой оптимизационный практикум</a></li>
-  <li><a href="#связанные-материалы" id="toc-связанные-материалы" class="nav-link" data-scroll-target="#связанные-материалы"><span class="header-section-number">3.3</span> Связанные материалы</a></li>
+  <li><a href="#большой-оптимизационный-практикум" id="toc-большой-оптимизационный-практикум" class="nav-link" data-scroll-target="#большой-оптимизационный-практикум">Большой оптимизационный практикум</a></li>
+  <li><a href="#связанные-материалы" id="toc-связанные-материалы" class="nav-link" data-scroll-target="#связанные-материалы">Связанные материалы</a></li>
   </ul>
 </nav>
     </div>
@@ -174,7 +169,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Глава 2. От Нейрона до нейронной сети</span></h1>
+<h1 class="title"><span class="chapter-title">Глава 2. От Нейрона до нейронной сети</span></h1>
 <p class="subtitle lead">10 класс · Учебник по ИИ — углублённый уровень</p>
 </div>
 
@@ -202,10 +197,10 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<section id="содержание" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="содержание"><span class="header-section-number">3.1</span> Содержание</h2>
-<section id="биология-и-история" class="level3" data-number="3.1.1">
-<h3 data-number="3.1.1" class="anchored" data-anchor-id="биология-и-история"><span class="header-section-number">3.1.1</span> Биология и история</h3>
+<section id="содержание" class="level2">
+<h2 class="anchored" data-anchor-id="содержание">Содержание</h2>
+<section id="биология-и-история" class="level3">
+<h3 class="anchored" data-anchor-id="биология-и-история">Биология и история</h3>
 <ul>
 <li><strong>Нейрон Мак-Каллока и Питтса</strong> — простейшие элементы реализуют любую логическую операцию (предтечи: Рашевский, сети Тьюринга)</li>
 <li>Кибернетика, У. Росс Эшби, гомеостат, Шимбел, Рапопорт</li>
@@ -214,8 +209,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Ограничения однослойного перцептрона: невозможность нелинейного разделения</li>
 </ul>
 </section>
-<section id="от-нейрона-к-сети" class="level3" data-number="3.1.2">
-<h3 data-number="3.1.2" class="anchored" data-anchor-id="от-нейрона-к-сети"><span class="header-section-number">3.1.2</span> От нейрона к сети</h3>
+<section id="от-нейрона-к-сети" class="level3">
+<h3 class="anchored" data-anchor-id="от-нейрона-к-сети">От нейрона к сети</h3>
 <ul>
 <li>Сигмоида, важность нелинейности</li>
 <li>Простейшие нейронные сети</li>
@@ -223,8 +218,8 @@ ul.task-list li input[type="checkbox"] {
 <li>★ Теорема Колмогорова–Арнольда</li>
 </ul>
 </section>
-<section id="обучение-как-оптимизация" class="level3" data-number="3.1.3">
-<h3 data-number="3.1.3" class="anchored" data-anchor-id="обучение-как-оптимизация"><span class="header-section-number">3.1.3</span> Обучение как оптимизация</h3>
+<section id="обучение-как-оптимизация" class="level3">
+<h3 class="anchored" data-anchor-id="обучение-как-оптимизация">Обучение как оптимизация</h3>
 <ul>
 <li>Задача обучения как задача оптимизации в многомерном пространстве</li>
 <li>Выпуклые/невыпуклые задачи, гладкие/негладкие</li>
@@ -237,8 +232,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Экстракторы признаков: обучаемые vs ручные (LeCun, 2019); пример с буквами C и D (или С и О)</li>
 </ul>
 </section>
-<section id="введение-в-матричные-игры" class="level3" data-number="3.1.4">
-<h3 data-number="3.1.4" class="anchored" data-anchor-id="введение-в-матричные-игры"><span class="header-section-number">3.1.4</span> ★ Введение в матричные игры</h3>
+<section id="введение-в-матричные-игры" class="level3">
+<h3 class="anchored" data-anchor-id="введение-в-матричные-игры">★ Введение в матричные игры</h3>
 <ul>
 <li>Антагонистические матричные игры, смешанные стратегии</li>
 <li>Дилемма заключённого с ненулевой вероятностью повторения</li>
@@ -247,12 +242,12 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
-<section id="большой-оптимизационный-практикум" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="большой-оптимизационный-практикум"><span class="header-section-number">3.2</span> Большой оптимизационный практикум</h2>
+<section id="большой-оптимизационный-практикум" class="level2">
+<h2 class="anchored" data-anchor-id="большой-оптимизационный-практикум">Большой оптимизационный практикум</h2>
 <p>Лабораторные и теоретические задания по вычислению производных и градиентов (включая softmax).</p>
 </section>
-<section id="связанные-материалы" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="связанные-материалы"><span class="header-section-number">3.3</span> Связанные материалы</h2>
+<section id="связанные-материалы" class="level2">
+<h2 class="anchored" data-anchor-id="связанные-материалы">Связанные материалы</h2>
 <ul>
 <li><strong>Ноутбук Яроцкого:</strong> <a href="https://github.com/MerkulovDaniil/uchebniik/blob/main/raw_materials/04_AI_book_NNs_Yarotsky_March_8_2026.ipynb">04_AI_book_NNs_Yarotsky_March_8_2026.ipynb</a></li>
 <li><strong>Главы из tg:</strong> <code>neural_networks.pdf</code>, <code>Глава_ИИ_и_нейронные_сети.pdf</code>, <code>Глава_Динамика_дискретных_систем.docx</code></li>
@@ -829,12 +824,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./ch1_intro_data.html" class="pagination-link" aria-label="Глава 1. Введение в интеллектуальный анализ данных">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Глава 1. Введение в интеллектуальный анализ данных</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Глава 1. Введение в интеллектуальный анализ данных</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="./ch3_cnn_linalg.html" class="pagination-link" aria-label="Глава 3. Свёрточные нейронные сети и элементы линейной алгебры">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Глава 3. Свёрточные нейронные сети и элементы линейной алгебры</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Глава 3. Свёрточные нейронные сети и элементы линейной алгебры</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

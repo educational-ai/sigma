@@ -1,8 +1,6 @@
 project:
   type: book
   output-dir: ../docs/dop
-  resources:
-    - "../overleaf_export/figures"
 
 book:
   title: "Дополнительный учебник"
@@ -21,10 +19,22 @@ book:
         - ch02_newton.qmd
     - part: "Часть III. Анализ данных и ИИ"
       chapters:
-        - ch03_ds.qmd
+        - ch03_0_intro.qmd
+        - ch03_1_prosteyshie-primery-zadach-anali.qmd
+        - ch03_2_lineynaya-regressiya-i-metod-nai.qmd
+        - ch03_3_zadacha-klassifikacii-i-neyronny.qmd
+        - ch03_4_zadachi-obucheniya-bez-uchitelya.qmd
+        - ch03_5_kak-iskusstvennyy-intellekt-meny.qmd
     - part: "Часть IV. Дискретная математика и криптография"
       chapters:
-        - ch04_numtheory.qmd
+        - ch04_0_intro.qmd
+        - ch04_1_elementy-teorii-chisel.qmd
+        - ch04_2_shifrovanie-ot-taynopisi-k-matem.qmd
+        - ch04_3_kriptosistemy-rsa-i-diffi-hellma.qmd
+        - ch04_4_primeneniya-rsa-autentifikaciya.qmd
+        - ch04_5_heshirovanie-teoriya-chisel-vstr.qmd
+        - ch04_6_schetchiki-s-korotkoy-pamyatyu-h.qmd
+        - ch04_7_podvedenie-itogov-glavy.qmd
   search: true
   sidebar:
     style: docked
@@ -32,6 +42,7 @@ book:
   page-navigation: true
   reader-mode: true
 
+number-sections: false
 number-depth: 3
 toc-depth: 3
 
@@ -46,6 +57,7 @@ format:
     fig-cap-location: bottom
     css: ../styles.css
     html-math-method: katex
+    number-sections: false
     grid:
       sidebar-width: 320px
       body-width: 920px

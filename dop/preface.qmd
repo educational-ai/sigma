@@ -1,9 +1,7 @@
 ---
 title: "Предисловие"
 number-sections: false
-format:
-  html:
-    number-sections: false
+unnumbered: true
 ---
 
 Учебник адресован школьникам 10–11 классов, изучающим информатику на
