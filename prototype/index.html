@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Учебник информатики — прототип</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #faf7f2;
+    --fg: #1d1d1f;
+    --muted: #6b6b6b;
+    --accent: #7253ED;          /* fmin.xyz signature purple */
+    --accent-strong: #381885;
+    --accent-fg: #ffffff;
+    --hl: #fff3a3;
+    --card: #ffffff;
+    --border: #e6e2d8;
+    --side-bg: #f3efe6;
+    --shadow: 0 10px 30px rgba(20,20,20,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.65 ui-serif, Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+    transition: grid-template-columns .22s ease;
+  }
+  .app.collapsed { grid-template-columns: 0 1fr; }
+  aside {
+    background: var(--side-bg);
+    border-right: 1px solid var(--border);
+    padding: 22px 16px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100vh;
+    position: sticky; top: 0;
+    font: 14px/1.45 ui-sans-serif, -apple-system, "Inter", sans-serif;
+    transition: padding .22s ease, opacity .22s ease;
+    white-space: nowrap;
+  }
+  .app.collapsed aside {
+    padding-left: 0; padding-right: 0;
+    border-right: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sidebar-toggle {
+    position: fixed;
+    top: 14px; left: 14px;
+    z-index: 35;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    transition: left .22s ease, background .15s;
+    font-size: 18px; line-height: 1;
+    color: var(--fg);
+  }
+  .sidebar-toggle:hover { background: #fff; }
+  .app:not(.collapsed) .sidebar-toggle { left: 232px; }
+  @media (max-width: 760px) {
+    .app:not(.collapsed) .sidebar-toggle { left: 14px; top: 14px; }
+  }
+  aside .brand {
+    font-weight: 700; font-size: 15px;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  aside .meta {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  aside .meta .model { font-family: ui-monospace, Menlo, monospace; }
+  aside .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 14px 8px 6px;
+  }
+  aside .search {
+    margin: 6px 0 4px;
+    position: relative;
+  }
+  aside .search input {
+    width: 100%;
+    padding: 8px 30px 8px 30px;
+    font: 13px/1.3 ui-sans-serif, -apple-system, "Inter", sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--fg);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  aside .search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(114, 83, 237, 0.15);
+  }
+  aside .search::before {
+    content: "⌕";
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  aside .search .clear {
+    position: absolute;
+    right: 6px; top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    line-height: 1;
+    display: none;
+  }
+  aside .search.has-query .clear { display: block; }
+  aside .toc li.hidden { display: none; }
+  aside .toc-empty {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 8px 10px;
+    font-style: italic;
+    display: none;
+  }
+  aside .toc-empty.show { display: block; }
+  aside ul.toc { list-style: none; padding: 0; margin: 0; }
+  aside ul.toc li button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font: inherit;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  aside ul.toc li button:hover { background: rgba(0,0,0,0.05); }
+  aside ul.toc li button.active {
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-weight: 600;
+  }
+  aside ul.toc li.subtitle { color: var(--muted); font-size: 12px; padding: 0 10px 6px; margin-top: -3px; }
+
+  main { padding: 28px 40px 80px 64px; max-width: 880px; }
+  .app.collapsed main { padding-left: 64px; }
+  main .crumbs {
+    color: var(--muted);
+    font: 13px/1.4 ui-sans-serif, -apple-system, sans-serif;
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  main h1.chapter-title {
+    font: 700 30px/1.2 ui-sans-serif, -apple-system, "Inter", sans-serif;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  main .chapter-subtitle {
+    color: var(--muted);
+    font: 14px/1.4 ui-sans-serif, sans-serif;
+    margin-bottom: 24px;
+  }
+  article h1 {
+    font: 700 26px/1.25 ui-sans-serif, -apple-system, sans-serif;
+    margin: 32px 0 10px;
+  }
+  article h2 {
+    font: 700 22px/1.3 ui-sans-serif, -apple-system, sans-serif;
+    margin: 28px 0 8px;
+  }
+  article h3 {
+    font: 600 18px/1.35 ui-sans-serif, -apple-system, sans-serif;
+    margin: 22px 0 6px;
+  }
+  article p { margin: 0 0 14px; }
+  article ul, article ol { padding-left: 24px; margin: 0 0 14px; }
+  article code {
+    background: #ece6d7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.92em;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  article pre code { background: transparent; padding: 0; }
+  article pre {
+    background: #f4efe4;
+    padding: 12px 14px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  article a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
+  article a:hover { border-bottom-style: solid; }
+  article .callout {
+    background: #f0ece2;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+    font-size: 15px;
+  }
+  article .callout > p:last-child { margin-bottom: 0; }
+  article .video { margin: 16px 0; }
+  article .video video {
+    width: 100%;
+    max-width: 720px;
+    border-radius: 8px;
+    background: #000;
+    display: block;
+  }
+  article .katex-display { margin: 1em 0; }
+  article blockquote {
+    margin: 16px 0;
+    padding: 6px 16px;
+    border-left: 3px solid var(--border);
+    color: var(--muted);
+    font-style: italic;
+  }
+  article table {
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 15px;
+  }
+  article th, article td {
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    text-align: left;
+  }
+
+  /* hint + ask button + modal — same as before */
+  .hint {
+    position: fixed; right: 20px; bottom: 20px;
+    background: rgba(20,20,20,0.85); color: #fff;
+    font: 13px/1.4 ui-sans-serif, sans-serif;
+    padding: 10px 14px; border-radius: 8px;
+    max-width: 260px; pointer-events: none;
+    opacity: 0; transition: opacity .2s; z-index: 20;
+  }
+  .hint.show { opacity: 1; }
+
+  #ask-btn {
+    position: absolute; z-index: 30;
+    background: var(--accent); color: var(--accent-fg);
+    border: none;
+    font: 600 13px/1 ui-sans-serif, sans-serif;
+    padding: 8px 12px; border-radius: 999px;
+    box-shadow: var(--shadow);
+    cursor: pointer; display: none;
+  }
+  #ask-btn::before { content: "✦ "; }
+
+  #modal {
+    position: fixed; inset: 0;
+    background: rgba(20,20,20,0.45);
+    display: none; align-items: flex-end; justify-content: center;
+    z-index: 40;
+  }
+  #modal.open { display: flex; }
+  #modal .panel {
+    background: var(--card);
+    width: min(720px, 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 22px 24px 26px;
+    box-shadow: 0 -20px 50px rgba(20,20,20,0.18);
+    max-height: 86vh; overflow-y: auto;
+  }
+  @media (min-width: 720px) {
+    #modal { align-items: center; }
+    #modal .panel { border-radius: 16px; }
+  }
+  #modal h3 {
+    margin: 0 0 4px;
+    font: 600 14px/1.2 ui-sans-serif, sans-serif;
+    color: var(--muted);
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  #modal .fragment {
+    background: var(--hl);
+    padding: 12px 14px; border-radius: 8px;
+    font-size: 15px; margin: 4px 0 16px;
+    max-height: 160px; overflow-y: auto;
+    line-height: 1.5;
+  }
+  #modal textarea {
+    width: 100%; min-height: 70px;
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px;
+    font: 16px/1.5 ui-sans-serif, sans-serif;
+    resize: vertical; background: #fafafa;
+  }
+  #modal textarea:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+  #modal .row {
+    display: flex; gap: 10px; align-items: center;
+    margin-top: 12px; flex-wrap: wrap;
+  }
+  #modal button.primary {
+    background: var(--accent); color: var(--accent-fg);
+    border: none; padding: 10px 18px;
+    border-radius: 999px;
+    font: 600 14px/1 ui-sans-serif, sans-serif; cursor: pointer;
+  }
+  #modal button.ghost {
+    background: transparent; color: var(--muted);
+    border: none; padding: 10px 14px; cursor: pointer;
+    font: 500 14px/1 ui-sans-serif, sans-serif;
+  }
+  #modal .answer {
+    margin-top: 18px; background: #f6f3ec;
+    border-radius: 10px; padding: 14px 16px;
+    font: 16px/1.6 ui-serif, Georgia, serif;
+  }
+  #modal .answer.error { background: #ffe9e9; color: #8b1a1a; white-space: pre-wrap; }
+  #modal .answer p { margin: 0 0 10px; }
+  #modal .answer p:last-child { margin-bottom: 0; }
+  #modal .answer ul, #modal .answer ol { margin: 0 0 10px; padding-left: 22px; }
+  #modal .answer code {
+    background: #ece6d7; padding: 1px 5px;
+    border-radius: 4px; font-size: 0.92em;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  #modal .answer .katex-display { margin: 0.6em 0; }
+  #modal .answer table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 15px;
+    width: 100%;
+  }
+  #modal .answer th, #modal .answer td {
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  #modal .answer th { background: #ece6d7; font-weight: 600; }
+  #modal .answer tr:nth-child(even) td { background: #fbf8f1; }
+  #modal .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid #ccc; border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite;
+    vertical-align: -2px; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .quick-q {
+    background: #efeae0; border: none;
+    padding: 6px 10px; border-radius: 999px;
+    font: 13px/1 ui-sans-serif, sans-serif;
+    cursor: pointer; color: #333;
+  }
+  .quick-q:hover { background: #e3ddd0; }
+
+  @media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; }
+    main { padding: 20px 18px 80px; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Свернуть/развернуть оглавление" title="Свернуть оглавление">≡</button>
+
+<aside>
+  <div class="brand">Учебник информатики</div>
+  <div class="meta">прототип · модель: <span class="model" id="model-name">…</span></div>
+
+  <div class="search" id="search-box">
+    <input type="search" id="search-input" placeholder="Поиск по главам…" autocomplete="off" spellcheck="false">
+    <button class="clear" id="search-clear" aria-label="Очистить" title="Очистить (Esc)">×</button>
+  </div>
+
+  <div class="section-label">Главы</div>
+  <ul class="toc" id="toc"></ul>
+  <div class="toc-empty" id="toc-empty">Ничего не найдено</div>
+</aside>
+
+<main>
+  <div class="crumbs" id="crumbs">Глава</div>
+  <h1 class="chapter-title" id="chapter-title">Загрузка…</h1>
+  <div class="chapter-subtitle" id="chapter-subtitle"></div>
+  <article id="content"></article>
+</main>
+
+</div>
+
+<button id="ask-btn">Спросить</button>
+
+<div id="modal" role="dialog" aria-modal="true">
+  <div class="panel">
+    <h3>Спросить про выделенный фрагмент</h3>
+    <div class="fragment" id="modal-fragment"></div>
+
+    <div class="row" style="margin: 0 0 10px;">
+      <button class="quick-q" data-q="Объясни этот фрагмент простыми словами">Объясни проще</button>
+      <button class="quick-q" data-q="Приведи пример из жизни">Пример из жизни</button>
+      <button class="quick-q" data-q="Дай задачу для самопроверки по этому фрагменту с решением">Задача с решением</button>
+    </div>
+
+    <textarea id="question" placeholder="Свой вопрос про этот фрагмент..."></textarea>
+    <div class="row">
+      <button class="primary" id="ask-send">Спросить ИИ</button>
+      <button class="ghost" id="ask-close">Закрыть</button>
+      <span style="color:#888; font-size:13px;">Enter — отправить · Esc — закрыть</span>
+    </div>
+
+    <div class="answer" id="answer" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="hint" id="hint">Выделите фрагмент текста — и нажмите «Спросить»</div>
+
+<script>
+// ---------------- KaTeX config + helpers ----------------
+const KATEX_OPTS = {
+  delimiters: [
+    {left: '$$', right: '$$', display: true},
+    {left: '$',  right: '$',  display: false},
+    {left: '\\[', right: '\\]', display: true},
+    {left: '\\(', right: '\\)', display: false}
+  ],
+  throwOnError: false,
+  errorColor: '#cc0000',
+  strict: false
+};
+function renderMath(el) {
+  if (window.renderMathInElement) renderMathInElement(el, KATEX_OPTS);
+}
+
+// ---------------- DOM refs ----------------
+const tocEl = document.getElementById('toc');
+const titleEl = document.getElementById('chapter-title');
+const subEl = document.getElementById('chapter-subtitle');
+const crumbsEl = document.getElementById('crumbs');
+const contentEl = document.getElementById('content');
+
+const askBtn = document.getElementById('ask-btn');
+const modal = document.getElementById('modal');
+const modalFragment = document.getElementById('modal-fragment');
+const questionEl = document.getElementById('question');
+const answerEl = document.getElementById('answer');
+const sendBtn = document.getElementById('ask-send');
+const closeBtn = document.getElementById('ask-close');
+const modelNameEl = document.getElementById('model-name');
+const hintEl = document.getElementById('hint');
+const searchBox = document.getElementById('search-box');
+const searchInput = document.getElementById('search-input');
+const searchClear = document.getElementById('search-clear');
+const tocEmpty = document.getElementById('toc-empty');
+
+let currentFragment = '';
+let currentChapter = '';
+
+function showHint(text, ms=2500) {
+  hintEl.textContent = text;
+  hintEl.classList.add('show');
+  clearTimeout(showHint._t);
+  showHint._t = setTimeout(() => hintEl.classList.remove('show'), ms);
+}
+
+// ---------------- Chapter loading ----------------
+async function loadChapterList() {
+  const r = await fetch('/api/chapters');
+  const d = await r.json();
+  const chapters = d.chapters || [];
+  tocEl.innerHTML = '';
+  chapters.forEach((c, idx) => {
+    const li = document.createElement('li');
+    const haystack = ((c.title || '') + ' ' + (c.subtitle || '') + ' ' + (c.slug || ''))
+      .toLowerCase();
+    li.dataset.search = haystack;
+    const btn = document.createElement('button');
+    btn.textContent = c.title;
+    btn.dataset.slug = c.slug;
+    btn.addEventListener('click', () => loadChapter(c.slug));
+    li.appendChild(btn);
+    tocEl.appendChild(li);
+  });
+  applySearch(searchInput.value);
+  // open first
+  if (chapters.length) loadChapter(chapters[0].slug);
+}
+
+function applySearch(query) {
+  const q = (query || '').trim().toLowerCase();
+  searchBox.classList.toggle('has-query', q.length > 0);
+  let visible = 0;
+  tocEl.querySelectorAll('li').forEach(li => {
+    if (!q || (li.dataset.search || '').includes(q)) {
+      li.classList.remove('hidden');
+      visible++;
+    } else {
+      li.classList.add('hidden');
+    }
+  });
+  tocEmpty.classList.toggle('show', q.length > 0 && visible === 0);
+}
+
+searchInput.addEventListener('input', e => applySearch(e.target.value));
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  applySearch('');
+  searchInput.focus();
+});
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (searchInput.value) {
+      searchInput.value = '';
+      applySearch('');
+    } else {
+      searchInput.blur();
+    }
+  }
+});
+// global "/" shortcut focuses search (skip when typing in inputs)
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+});
+
+async function loadChapter(slug) {
+  currentChapter = slug;
+  // mark active
+  tocEl.querySelectorAll('button').forEach(b => {
+    b.classList.toggle('active', b.dataset.slug === slug);
+  });
+  titleEl.textContent = 'Загрузка…';
+  subEl.textContent = '';
+  contentEl.innerHTML = '';
+  try {
+    const r = await fetch('/api/chapter/' + encodeURIComponent(slug));
+    const d = await r.json();
+    if (d.error) {
+      titleEl.textContent = 'Ошибка';
+      contentEl.textContent = d.error;
+      return;
+    }
+    titleEl.textContent = d.title || slug;
+    subEl.textContent = d.subtitle || '';
+    crumbsEl.textContent = 'Глава · ' + (d.title || slug);
+    contentEl.innerHTML = d.html;
+    renderMath(contentEl);
+    window.scrollTo(0, 0);
+  } catch (e) {
+    titleEl.textContent = 'Ошибка сети';
+    contentEl.textContent = e.message;
+  }
+}
+
+// ---------------- Selection + ask ----------------
+function getSelectionLaTeX() {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return '';
+  const range = sel.getRangeAt(0);
+  const frag = range.cloneContents();
+  frag.querySelectorAll('.katex').forEach(el => {
+    const ann = el.querySelector('annotation[encoding="application/x-tex"]');
+    const src = ann ? ann.textContent : el.textContent;
+    const isDisplay = el.closest('.katex-display');
+    const wrapped = isDisplay ? `$$${src}$$` : `$${src}$`;
+    el.parentNode.replaceChild(document.createTextNode(wrapped), el);
+  });
+  return frag.textContent.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+document.addEventListener('mouseup', e => {
+  // ignore selections initiated in modal/sidebar
+  if (e.target.closest('#modal') || e.target.closest('aside')) {
+    askBtn.style.display = 'none';
+    return;
+  }
+  const sel = window.getSelection();
+  const text = getSelectionLaTeX();
+  if (!text || text.length < 3) { askBtn.style.display = 'none'; return; }
+  const range = sel.getRangeAt(0);
+  const container = range.commonAncestorContainer;
+  if (!contentEl.contains(container.nodeType === 1 ? container : container.parentNode)) {
+    askBtn.style.display = 'none';
+    return;
+  }
+  const rect = range.getBoundingClientRect();
+  askBtn.style.display = 'block';
+  askBtn.style.top = (window.scrollY + rect.top - 40) + 'px';
+  askBtn.style.left = (window.scrollX + rect.left + rect.width/2 - 50) + 'px';
+  currentFragment = text;
+});
+
+askBtn.addEventListener('click', () => {
+  if (!currentFragment) return;
+  openModal(currentFragment);
+});
+
+function openModal(fragment) {
+  modalFragment.textContent = fragment;
+  renderMath(modalFragment);
+  questionEl.value = '';
+  answerEl.style.display = 'none';
+  answerEl.classList.remove('error');
+  answerEl.innerHTML = '';
+  modal.classList.add('open');
+  setTimeout(() => questionEl.focus(), 50);
+  askBtn.style.display = 'none';
+}
+
+closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') modal.classList.remove('open');
+});
+questionEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendBtn.click();
+  }
+});
+
+document.querySelectorAll('.quick-q').forEach(b => {
+  b.addEventListener('click', () => {
+    questionEl.value = b.dataset.q;
+    sendBtn.click();
+  });
+});
+
+// minimal markdown → HTML for answers (keeps math regions intact)
+function renderAnswer(src) {
+  const math = [];
+  const stash = (m) => { math.push(m); return `\x01M${math.length-1}\x01`; };
+  let s = src;
+  s = s.replace(/\$\$[\s\S]+?\$\$/g, stash);
+  s = s.replace(/\\\[[\s\S]+?\\\]/g, stash);
+  s = s.replace(/\\\([\s\S]+?\\\)/g, stash);
+  s = s.replace(/\$[^\n$]+?\$/g, stash);
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  s = s.replace(/\*\*([^\n*][^*]*?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^\n*][^*]*?)\*(?!\*)/g, '$1<em>$2</em>');
+  const lines = s.split(/\n/);
+  const out = [];
+  let inList = null;
+  let para = [];
+  const flushPara = () => {
+    if (para.length) { out.push('<p>' + para.join(' ') + '</p>'); para = []; }
+  };
+  const closeList = () => { if (inList) { out.push(`</${inList}>`); inList = null; } };
+  const splitRow = (row) => {
+    // strip leading/trailing | and split (no escaped-| support — overkill here)
+    let t = row.trim();
+    if (t.startsWith('|')) t = t.slice(1);
+    if (t.endsWith('|')) t = t.slice(0, -1);
+    return t.split('|').map(c => c.trim());
+  };
+  const SEP_RE = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$/;
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.trim();
+    // GFM table: header | sep | row+
+    if (line.startsWith('|') && i + 1 < lines.length && SEP_RE.test(lines[i + 1])) {
+      flushPara(); closeList();
+      const headers = splitRow(line);
+      const seps = splitRow(lines[i + 1]);
+      const aligns = seps.map(c => {
+        const l = c.startsWith(':'), r = c.endsWith(':');
+        if (l && r) return 'center';
+        if (r) return 'right';
+        if (l) return 'left';
+        return null;
+      });
+      const styleFor = (idx) => aligns[idx] ? ` style="text-align:${aligns[idx]}"` : '';
+      let html = '<table><thead><tr>';
+      headers.forEach((c, ci) => { html += `<th${styleFor(ci)}>${c}</th>`; });
+      html += '</tr></thead><tbody>';
+      i += 2;
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        const cells = splitRow(lines[i]);
+        html += '<tr>';
+        cells.forEach((c, ci) => { html += `<td${styleFor(ci)}>${c}</td>`; });
+        html += '</tr>';
+        i++;
+      }
+      html += '</tbody></table>';
+      out.push(html);
+      i--; // outer loop will i++
+      continue;
+    }
+    const ul = line.match(/^[-*]\s+(.+)$/);
+    const ol = line.match(/^(\d+)\.\s+(.+)$/);
+    if (ul) {
+      flushPara();
+      if (inList !== 'ul') { closeList(); out.push('<ul>'); inList = 'ul'; }
+      out.push('<li>' + ul[1] + '</li>');
+    } else if (ol) {
+      flushPara();
+      if (inList !== 'ol') { closeList(); out.push('<ol>'); inList = 'ol'; }
+      out.push('<li>' + ol[2] + '</li>');
+    } else if (!line) {
+      flushPara();
+      closeList();
+    } else {
+      closeList();
+      para.push(line);
+    }
+  }
+  flushPara();
+  closeList();
+  let html = out.join('\n');
+  html = html.replace(/ \x01M(\d+)\x01 /g, (_, i) => math[+i]);
+  return html;
+}
+
+sendBtn.addEventListener('click', async () => {
+  const q = questionEl.value.trim();
+  if (!q) { questionEl.focus(); return; }
+  answerEl.style.display = 'block';
+  answerEl.classList.remove('error');
+  answerEl.innerHTML = '<span class="spinner"></span>Думаю…';
+  sendBtn.disabled = true;
+  try {
+    const resp = await fetch('/api/ask', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({fragment: currentFragment, question: q})
+    });
+    const data = await resp.json();
+    if (data.answer) {
+      answerEl.innerHTML = renderAnswer(data.answer);
+      renderMath(answerEl);
+      if (data.model) modelNameEl.textContent = data.model;
+    } else {
+      answerEl.classList.add('error');
+      answerEl.textContent = 'Ошибка: ' + (data.error || 'неизвестно');
+    }
+  } catch (e) {
+    answerEl.classList.add('error');
+    answerEl.textContent = 'Сетевая ошибка: ' + e.message;
+  } finally {
+    sendBtn.disabled = false;
+  }
+});
+
+// ---------------- bootstrap ----------------
+fetch('/api/model').then(r => r.json()).then(d => {
+  if (d.model) modelNameEl.textContent = d.model;
+}).catch(() => modelNameEl.textContent = '—');
+
+// Sidebar toggle (persisted)
+const appEl = document.getElementById('app');
+const toggleBtn = document.getElementById('sidebar-toggle');
+function applySidebarState(collapsed) {
+  appEl.classList.toggle('collapsed', collapsed);
+  toggleBtn.title = collapsed ? 'Развернуть оглавление' : 'Свернуть оглавление';
+}
+applySidebarState(localStorage.getItem('sidebar-collapsed') === '1');
+toggleBtn.addEventListener('click', () => {
+  const collapsed = !appEl.classList.contains('collapsed');
+  applySidebarState(collapsed);
+  localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0');
+});
+
+window.addEventListener('load', () => {
+  loadChapterList();
+  setTimeout(() => showHint('Подсказка: выделите фразу мышкой — появится кнопка «Спросить»', 4000), 800);
+});
+</script>
+</body>
+</html>
