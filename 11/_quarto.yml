@@ -34,6 +34,13 @@ format:
     toc: true
     toc-depth: 3
     code-fold: false
+    code-copy: true
+    code-overflow: wrap
+    code-block-bg: true
+    code-block-border-left: "#31BAE9"
+    highlight-style:
+      light: github
+      dark: github-dark
     fig-cap-location: bottom
     css: ../styles.css
     html-math-method: katex

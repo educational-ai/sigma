@@ -56,6 +56,8 @@ fi
 echo "[3/5] split chapters (ch03_ds, ch04_numtheory → per-section files)"
 # -----------------------------------------------------------------
 /root/.venv/bin/python "${REPO_ROOT}/scripts/split_chapters.py" 2>&1 | head -20
+echo "  fix code blocks (add {.python} where missing)"
+/root/.venv/bin/python "${REPO_ROOT}/scripts/fix_code_blocks.py"
 
 # -----------------------------------------------------------------
 echo "[4/5] render landing → docs/index.html"

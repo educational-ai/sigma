@@ -289,7 +289,7 @@ $A^{-1}$ без обращения матриц на каждом шаге — �
 максимальное число итераций; `tol` — точность остановки;
 функция возвращает массив `xs` с историей итераций.
 
-``` {#lst:newton label="lst:newton"}
+```{.python #lst:newton label="lst:newton"}
 import numpy as np
 import matplotlib.pyplot as plt
 
