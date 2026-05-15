@@ -1,34 +1,41 @@
 project:
   type: book
-  output-dir: _site
+  output-dir: docs
   resources:
     - "figures/"
 
 book:
   title: "Учебн🤖к"
-  subtitle: "Школьный учебник по информатике (10-11 классы)"
+  subtitle: "Учебник по искусственному интеллекту — углублённый уровень, 10–11 классы"
   author: "Альянс ИИ"
   date: today
   date-format: "YYYY-MM-DD"
   chapters:
     - index.qmd
     - converted/preface.qmd
-    - part: "I. Введение в искусственный интеллект"
+    - part: "10 класс — Введение в ИИ"
+      chapters:
+        - planned/c10_ch1_intro_data.qmd
+        - planned/c10_ch2_neuron.qmd
+        - planned/c10_ch3_cnn_linalg.qmd
+        - planned/c10_app_history.qmd
+    - part: "11 класс — Математические основы ML и ИИ"
+      chapters:
+        - planned/c11_ch1_stats.qmd
+        - planned/c11_ch2_ml_basics.qmd
+        - planned/c11_ch3_rl.qmd
+        - planned/c11_ch4_generative.qmd
+        - planned/c11_app_ai_in_life.qmd
+    - part: "Текущая Overleaf-сборка"
       chapters:
         - converted/ch01_intro.qmd
-    - part: "II. Математические основы"
-      chapters:
         - converted/ch02_newton.qmd
-    - part: "III. Анализ данных и искусственный интеллект"
-      chapters:
         - converted/ch03_ds.qmd
-    - part: "IV. Дискретная математика и криптография"
-      chapters:
         - converted/ch04_numtheory.qmd
   search: true
   sidebar:
     style: docked
-    collapse-level: 1
+    collapse-level: 2
   page-navigation: true
   reader-mode: true
   twitter-card: true
