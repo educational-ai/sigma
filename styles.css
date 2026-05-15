@@ -2,20 +2,24 @@
 /*  BOOK-LIKE TYPOGRAPHY — Computer Modern Unicode, как в Overleaf PDF  */
 /*  (см. overleaf_export/structure.tex: CMU Serif / CMU Sans / CMU TT)  */
 /* ================================================================== */
-/* cm-web-fonts: оригинальные Computer Modern для web (Aakash Kothari)  */
-@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/fonts.css');
-/* Fallback с хорошим Cyrillic (на случай если CMU web не покроет глиф) */
-@import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=PT+Sans:wght@400;700&display=swap');
+/* STIX Two Text — академический serif из stixfonts.org, тот же fontstack,  */
+/* что использует KaTeX для рендеринга формул → body и math выглядят родными */
+@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
+/* Computer Modern Sans — для заголовков (как в LaTeX) */
+@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/font/Sans/cmun-sans.css');
+@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/font/Typewriter/cmun-typewriter.css');
 
 /* Accent цвет из structure.tex (\definecolor{accent}{HTML}{1F4E79}) */
 
-/* Chapter body — Computer Modern Serif, scope: только страницы глав */
+/* Chapter body — STIX Two Text (того же семейства, что KaTeX-математика) */
 body:not(.quarto-listing) main#quarto-document-content {
-  font-family: "Computer Modern Serif", "CMU Serif", "Latin Modern Roman",
-               "Libertinus Serif", "Linux Libertine O", "PT Serif", serif;
-  font-size: 19px;
-  line-height: 1.55;
+  font-family: "STIX Two Text", "Libertinus Serif", "PT Serif", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.6;
   color: #1f1f1f;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Justified paragraphs + first-line indent (книжный стиль LaTeX) */
