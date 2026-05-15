@@ -1,49 +1,22 @@
 /* ================================================================== */
-/*  BOOK-LIKE TYPOGRAPHY — Computer Modern Unicode, как в Overleaf PDF  */
-/*  (см. overleaf_export/structure.tex: CMU Serif / CMU Sans / CMU TT)  */
+/*  TYPOGRAPHY — Adobe Source family (Serif 4 + Sans 3 + Code Pro)      */
+/*  Открытое семейство, harmonized pair, полное Cyrillic.               */
+/*  Accent #1F4E79 — из overleaf_export/structure.tex (для consistency) */
 /* ================================================================== */
-/* Computer Modern Unicode — точно те же шрифты, что в Overleaf PDF        */
-/* cm-web-fonts (Aakash Kothari) — включает Cyrillic (cmun-* = unicode)    */
-@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/fonts.css');
-/* Fallback для глифов, которых нет в CMU (на всякий) */
-@import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=Source+Sans+3:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* Accent цвет из structure.tex (\definecolor{accent}{HTML}{1F4E79}) */
-
-/* Chapter body — Computer Modern Serif.                                   */
-/* Веб-рендер CMU тонкий по сравнению с PDF — добавляем text-stroke,       */
-/* чтобы получить «насыщенный» латеховский вид.                            */
+/* Chapter body — Source Serif 4 на 18pt optical size (для длинного текста) */
 body:not(.quarto-listing) main#quarto-document-content {
-  font-family: "Computer Modern Serif", "CMU Serif", "Latin Modern Roman",
-               "Libertinus Serif", "PT Serif", serif;
-  font-size: 19px;
-  line-height: 1.55;
-  color: #1f1f1f;
+  font-family: "Source Serif 4", "Source Serif Pro", Charter, Georgia, serif;
+  font-size: 18px;
+  line-height: 1.65;
+  color: #2b2b2b;
   font-weight: 400;
+  font-variation-settings: "opsz" 18;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Веб-CMU значительно тоньше PDF (там CM при 300dpi). Усиливаем     */
-  /* штрихи через text-stroke — это видно как «жирность» в браузере.    */
-  -webkit-text-stroke: 0.45px currentColor;
-  font-synthesis: weight style;
-}
-
-/* Италик чуть слабее по stroke — иначе становится «толстым» */
-main#quarto-document-content em,
-main#quarto-document-content i,
-main#quarto-document-content blockquote {
-  -webkit-text-stroke: 0.3px currentColor;
-}
-
-/* Bold элементы — НЕ удваиваем толщину (cmunbx сам жирный) */
-main#quarto-document-content strong,
-main#quarto-document-content b,
-main#quarto-document-content h1,
-main#quarto-document-content h2,
-main#quarto-document-content h3,
-main#quarto-document-content h4 {
-  -webkit-text-stroke: 0;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
 }
 
 /* Justified paragraphs + first-line indent (книжный стиль LaTeX) */
@@ -62,9 +35,7 @@ main#quarto-document-content h1,
 main#quarto-document-content h2,
 main#quarto-document-content h3,
 main#quarto-document-content h4 {
-  font-family: "Computer Modern Sans", "CMU Sans Serif",
-               "Latin Modern Sans", "Libertinus Sans", "PT Sans",
-               system-ui, sans-serif;
+  font-family: "Source Sans 3", "Source Sans Pro", "Inter", system-ui, sans-serif;
   color: #1F4E79;
   font-weight: 700;
 }
@@ -93,8 +64,7 @@ main#quarto-document-content h4 {
 .sidebar-item-text,
 .sidebar-title,
 #TOC, nav[role="doc-toc"] {
-  font-family: "Computer Modern Sans", "CMU Sans Serif",
-               "Latin Modern Sans", "PT Sans", system-ui, sans-serif;
+  font-family: "Source Sans 3", "Source Sans Pro", "Inter", system-ui, sans-serif;
 }
 .sidebar-title { font-weight: 700; }
 #TOC, nav[role="doc-toc"] { font-size: 0.92em; }
@@ -103,9 +73,7 @@ main#quarto-document-content h4 {
 main#quarto-document-content code,
 main#quarto-document-content pre,
 main#quarto-document-content .sourceCode {
-  font-family: "Computer Modern Typewriter", "CMU Typewriter Text",
-               "Latin Modern Mono", "JetBrains Mono", "Fira Code",
-               "Consolas", monospace;
+  font-family: "JetBrains Mono", "Source Code Pro", "Fira Code", "Consolas", monospace;
   font-size: 0.92em;
 }
 
@@ -133,7 +101,7 @@ main#quarto-document-content .figure-caption {
 
 /* Callouts — серифом, как тело книги */
 main#quarto-document-content .callout {
-  font-family: "Computer Modern Serif", "CMU Serif", "PT Serif", serif;
+  font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif;
 }
 
 /* ================================================================== */
