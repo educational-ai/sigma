@@ -44,6 +44,9 @@ figure figcaption, .figure-caption { text-align: center; font-style: italic; col
 .hero h1 { margin-top: 0; font-size: 2.4em; }
 .hero p { font-size: 1.08em; }
 .hero .btn { margin-top: 8px; }
+.hero-dop { background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); border-color: #fdba74; }
+.hero-10  { background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); border-color: #93c5fd; }
+.hero-11  { background: linear-gradient(135deg, #ecfdf5 0%, #bbf7d0 100%); border-color: #6ee7b7; }
 
 /* Status legend strip */
 .legend {

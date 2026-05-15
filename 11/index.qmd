@@ -1,22 +1,145 @@
 ---
 title: "Учебник 11 класса — Математические основы ML и ИИ"
 subtitle: "Углублённый уровень · ~50 уроков · акцент на вероятностные основы"
+toc: false
+number-sections: false
+page-layout: full
 ---
 
-[← Назад ко всем учебникам](../)
+::: {.hero .hero-11}
 
-## Концепция
+# 📗 Учебник 11 класса — Математические основы ML и ИИ
 
-ИИ как часть машинного обучения; ML — как продолжение математической статистики. Стартуем с **принципа максимума правдоподобия**, приходим к задачам ML, которые становятся задачами ИИ при глубокой нейросетевой параметризации. В отличие от 10 класса (упор на оптимизацию и линейную алгебру), здесь акцент на **вероятностные основы**. Курс органично дополняет курс Вероятности и Статистики.
+**Углублённый уровень**, ~50 уроков. ИИ как часть ML; ML — как продолжение математической статистики. Стартуем с **принципа максимума правдоподобия**, приходим к задачам ML, которые становятся задачами ИИ при глубокой нейросетевой параметризации. Акцент на **вероятностные основы**. Органично дополняет курс Вероятности и Статистики.
 
-## Главы
+[← Все учебники](../){.btn .btn-outline-secondary} &nbsp;
+[📐 Дополнительный учебник](../dop/){.btn .btn-outline-secondary} &nbsp;
+[📘 10 класс](../10/){.btn .btn-outline-secondary}
 
-1. [Элементы матстатистики и байесовский вывод](ch1_stats.html) — 16 уроков
-2. [Основы машинного обучения](ch2_ml_basics.html) — 8 уроков
-3. [Вероятностные основы обучения с подкреплением](ch3_rl.html) — 8 уроков
-4. [Генеративный ИИ](ch4_generative.html) — 18 уроков
-- [Приложение. ИИ в жизни](app_ai_in_life.html) — опциональное
+:::
 
-## Сопровождающие материалы
+## Карта глав
 
-Дополнительные сюжеты — в [Дополнительном учебнике](../dop/).
+```{=html}
+<div class="hm-legend">
+  <span class="hm-pill hm-0">0 · Пусто</span>
+  <span class="hm-pill hm-1">1 · Есть ответственный</span>
+  <span class="hm-pill hm-2">2 · AI-черновик</span>
+  <span class="hm-pill hm-3">3 · Вычитано 1 раз</span>
+  <span class="hm-pill hm-4">4 · Вычитано оракулом</span>
+  <span class="hm-pill hm-5">5 · Финал</span>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="ch1_stats.html">
+    <span class="hm-chapter-num">Гл 1.</span>
+    <span class="hm-chapter-title">Элементы матстатистики и байесовский вывод</span>
+    <span class="hm-meta">16 уроков (10+6) · Николенко, Гасников, Двинских</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">Базовые понятия теорвер и матстат</div>
+    <div class="hm-sub-cell hm-1">Формула Байеса, условные вероятности</div>
+    <div class="hm-sub-cell hm-1">Когнитивные искажения</div>
+    <div class="hm-sub-cell hm-2">★ Нормальное распределение, ЦПТ</div>
+    <div class="hm-sub-cell hm-3">★ ОМП (теорема Фишера)</div>
+    <div class="hm-sub-cell hm-0">★ Доверительный интервал</div>
+    <div class="hm-sub-cell hm-1">Байесовский вывод</div>
+    <div class="hm-sub-cell hm-0">★ Сопряжённые распр., правило Лапласа</div>
+    <div class="hm-sub-cell hm-3">Линейная регрессия</div>
+    <div class="hm-sub-cell hm-1">Полиномиальная и локальные признаки</div>
+    <div class="hm-sub-cell hm-1">Регуляризация: Ridge, Lasso</div>
+    <div class="hm-sub-cell hm-0">★ Байесовская лин. регрессия</div>
+    <div class="hm-sub-cell hm-1">Классификация, разделяющие поверхности</div>
+    <div class="hm-sub-cell hm-0">LDA и QDA</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="ch2_ml_basics.html">
+    <span class="hm-chapter-num">Гл 2.</span>
+    <span class="hm-chapter-title">Основы машинного обучения</span>
+    <span class="hm-meta">8 уроков (6+2) · Двинских, Гасников, Соколов</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">ML vs матстат</div>
+    <div class="hm-sub-cell hm-1">Минимизация эмпирического риска</div>
+    <div class="hm-sub-cell hm-1">Оффлайн/онлайн (SGD)</div>
+    <div class="hm-sub-cell hm-0">Размер датасета и параметры</div>
+    <div class="hm-sub-cell hm-1">Переобучение, ёмкость классов</div>
+    <div class="hm-sub-cell hm-0">Оракульные неравенства</div>
+    <div class="hm-sub-cell hm-0">Проклятие размерности, NFL</div>
+    <div class="hm-sub-cell hm-0">★ SGD с доказательством</div>
+    <div class="hm-sub-cell hm-0">★ AdaGrad, Adam</div>
+    <div class="hm-sub-cell hm-0">★ Батчирование, ранняя остановка</div>
+    <div class="hm-sub-cell hm-0">Распределённая/федеративная оптимизация</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="ch3_rl.html">
+    <span class="hm-chapter-num">Гл 3.</span>
+    <span class="hm-chapter-title">Вероятностные основы обучения с подкреплением</span>
+    <span class="hm-meta">8 уроков (6+2) · Двинских, Гасников</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">Марковские цепи, PageRank</div>
+    <div class="hm-sub-cell hm-0">★ Случайные блуждания, Винер</div>
+    <div class="hm-sub-cell hm-1">MCMC, Метрополис–Гастингс</div>
+    <div class="hm-sub-cell hm-1">Пример Перси Диакониса</div>
+    <div class="hm-sub-cell hm-0">★ МДП, уравнение Беллмана</div>
+    <div class="hm-sub-cell hm-0">★ Многорукие бандиты</div>
+    <div class="hm-sub-cell hm-0">★ Индексы Гиттинса</div>
+    <div class="hm-sub-cell hm-0">★ Разборчивая невеста</div>
+    <div class="hm-sub-cell hm-0">Q-learning</div>
+    <div class="hm-sub-cell hm-0">★★ A2C, actor-critic</div>
+    <div class="hm-sub-cell hm-0">★★ Meta-RL: RL², MAML</div>
+    <div class="hm-sub-cell hm-0">Аппроксимация value/policy через NN</div>
+    <div class="hm-sub-cell hm-0">GRPO, AlphaGo/AlphaZero</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-1" href="ch4_generative.html">
+    <span class="hm-chapter-num">Гл 4.</span>
+    <span class="hm-chapter-title">Генеративный ИИ</span>
+    <span class="hm-meta">18 уроков (9+9) · Кузнецов, Димитров, Марков</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">RNN, LSTM (Шмидхубер)</div>
+    <div class="hm-sub-cell hm-1">Механизм внимания (Bahdanau)</div>
+    <div class="hm-sub-cell hm-1">Трансформеры (язык, изображения)</div>
+    <div class="hm-sub-cell hm-1">LLM</div>
+    <div class="hm-sub-cell hm-0">★ DPO, Bradley–Terry</div>
+    <div class="hm-sub-cell hm-0">RLHF (GRPO, PPO)</div>
+    <div class="hm-sub-cell hm-1">Chinchilla — законы масштабирования</div>
+    <div class="hm-sub-cell hm-0">★ GAN, StyleGAN</div>
+    <div class="hm-sub-cell hm-0">★ Состязательные модели, атаки</div>
+    <div class="hm-sub-cell hm-1">Мультимодальное обучение</div>
+    <div class="hm-sub-cell hm-0">★ VAE</div>
+    <div class="hm-sub-cell hm-0">★ Диффузионные модели, Ито</div>
+    <div class="hm-sub-cell hm-0">★ Видеогенерация</div>
+    <div class="hm-sub-cell hm-0">★ GenCV, deep-fakes, AI safety</div>
+    <div class="hm-sub-cell hm-0">Фундаментальные модели</div>
+    <div class="hm-sub-cell hm-0">Мультиагентные системы</div>
+    <div class="hm-sub-cell hm-0">В сторону AGI</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="app_ai_in_life.html">
+    <span class="hm-chapter-num">Прил.</span>
+    <span class="hm-chapter-title">ИИ в жизни</span>
+    <span class="hm-meta">опциональное · Марков, Кузнецов, Воронцов, Турдаков, Гомбалевский</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-0">ИИ в жизни современного человека</div>
+    <div class="hm-sub-cell hm-0">Важность ИИ для общества</div>
+    <div class="hm-sub-cell hm-0">Этика ИИ, интерпретируемость</div>
+    <div class="hm-sub-cell hm-0">DeepFake и детектирование</div>
+    <div class="hm-sub-cell hm-0">ИИ в науке</div>
+    <div class="hm-sub-cell hm-0">ИИ в медицине</div>
+    <div class="hm-sub-cell hm-0">AutoML</div>
+    <div class="hm-sub-cell hm-0">Перспективы и фантазии</div>
+  </div>
+</div>
+```

@@ -1,21 +1,113 @@
 ---
 title: "Учебник 10 класса — Введение в ИИ"
 subtitle: "Углублённый уровень · ~40 уроков · 2 теории + 1 практика в неделю"
+toc: false
+number-sections: false
+page-layout: full
 ---
 
-[← Назад ко всем учебникам](../)
+::: {.hero .hero-10}
 
-## Концепция
+# 📘 Учебник 10 класса — Введение в ИИ
 
-Подвести школьников 10 класса, ещё не имеющих сильного математического фундамента, к ключевым идеям современного ИИ, сохраняя где возможно математическую строгость. Фокус — на **фундаментальных идеях и принципах**, а не на конкретных архитектурах. Параллельно — постепенное погружение в нужную математику (основы теории оптимизации и начала линейной алгебры).
+**Углублённый уровень**, ~40 уроков. Подвести школьников к ключевым идеям ИИ, сохраняя математическую строгость. Фокус — на **фундаментальных идеях и принципах**, а не на конкретных архитектурах. Параллельно — постепенное погружение в основы теории оптимизации и линейной алгебры.
 
-## Главы
+[← Все учебники](../){.btn .btn-outline-secondary} &nbsp;
+[📐 Дополнительный учебник](../dop/){.btn .btn-outline-secondary} &nbsp;
+[📗 11 класс](../11/){.btn .btn-outline-secondary}
 
-1. [Введение в интеллектуальный анализ данных](ch1_intro_data.html) — 12 уроков
-2. [От Нейрона до нейронной сети](ch2_neuron.html) — 14 уроков
-3. [Свёрточные нейронные сети и линейная алгебра](ch3_cnn_linalg.html) — 14 уроков
-- [Приложение. Биологические и исторические предпосылки ИИ](app_history.html) — опциональное
+:::
 
-## Сопровождающие материалы
+## Карта глав
 
-Дополнительные сюжеты живут в [Дополнительном учебнике](../dop/) — численные методы Ньютона, расширенный § «Анализ данных и ИИ», теория чисел и шифрование.
+```{=html}
+<div class="hm-legend">
+  <span class="hm-pill hm-0">0 · Пусто</span>
+  <span class="hm-pill hm-1">1 · Есть ответственный</span>
+  <span class="hm-pill hm-2">2 · AI-черновик</span>
+  <span class="hm-pill hm-3">3 · Вычитано 1 раз</span>
+  <span class="hm-pill hm-4">4 · Вычитано оракулом</span>
+  <span class="hm-pill hm-5">5 · Финал</span>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="ch1_intro_data.html">
+    <span class="hm-chapter-num">Гл 1.</span>
+    <span class="hm-chapter-title">Введение в интеллектуальный анализ данных</span>
+    <span class="hm-meta">12 уроков (7+5) · Воронцов, Соколов, Марков, Яроцкий</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">ИИ как область науки и технологии</div>
+    <div class="hm-sub-cell hm-1">Цели и задачи; ИИ vs мат. моделирование</div>
+    <div class="hm-sub-cell hm-1">Тьюринг-полнота, тест Тьюринга</div>
+    <div class="hm-sub-cell hm-1">Матстатистика, ML, ИИ — связи</div>
+    <div class="hm-sub-cell hm-1">Классификация постановок задач</div>
+    <div class="hm-sub-cell hm-1">Дата-инженерия, датасеты</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="ch2_neuron.html">
+    <span class="hm-chapter-num">Гл 2.</span>
+    <span class="hm-chapter-title">От Нейрона до нейронной сети</span>
+    <span class="hm-meta">14 уроков (8+6) · Яроцкий, Воронцов, Марков, Соколов, Гасников</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-1">Нейрон Мак-Каллока–Питтса</div>
+    <div class="hm-sub-cell hm-1">Кибернетика (Эшби, Шимбел)</div>
+    <div class="hm-sub-cell hm-1">Перцептрон Розенблатта</div>
+    <div class="hm-sub-cell hm-1">Ограничения однослойного перцептрона</div>
+    <div class="hm-sub-cell hm-1">Сигмоида и важность нелинейности</div>
+    <div class="hm-sub-cell hm-1">Простейшие нейронные сети</div>
+    <div class="hm-sub-cell hm-0">★ Теорема Цыбенко</div>
+    <div class="hm-sub-cell hm-0">★ Колмогоров–Арнольд</div>
+    <div class="hm-sub-cell hm-2">Оптимизация: выпукл/невыпукл</div>
+    <div class="hm-sub-cell hm-2">Принцип Ферма, градиент</div>
+    <div class="hm-sub-cell hm-2">Лагранж, l1-шар</div>
+    <div class="hm-sub-cell hm-2">GD, SGD</div>
+    <div class="hm-sub-cell hm-0">★ Автодифференцирование</div>
+    <div class="hm-sub-cell hm-1">Экстракторы признаков (LeCun)</div>
+    <div class="hm-sub-cell hm-2">★ Матричные игры (Бекларян)</div>
+    <div class="hm-sub-cell hm-0">★ Седловые задачи</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-2" href="ch3_cnn_linalg.html">
+    <span class="hm-chapter-num">Гл 3.</span>
+    <span class="hm-chapter-title">Свёрточные нейронные сети и линейная алгебра</span>
+    <span class="hm-meta">14 уроков (8+6) · Марков, Гасников, Оселедец, Яроцкий</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-0">★ Хьюбел–Визель, зрительная кора</div>
+    <div class="hm-sub-cell hm-1">От Розенблатта к Фукусиме → CNN</div>
+    <div class="hm-sub-cell hm-1">Минский–Пейперт «Перцептроны»</div>
+    <div class="hm-sub-cell hm-2">Разбор MNIST</div>
+    <div class="hm-sub-cell hm-2">Train/val/test, переобучение</div>
+    <div class="hm-sub-cell hm-0">★ Семантическая сегментация</div>
+    <div class="hm-sub-cell hm-1">Матрицы, линейные преобразования</div>
+    <div class="hm-sub-cell hm-0">★ Штрассен, тензорные разложения</div>
+    <div class="hm-sub-cell hm-0">★ Симметричные/ортогональные матрицы</div>
+    <div class="hm-sub-cell hm-2">PCA, метод главных компонент</div>
+    <div class="hm-sub-cell hm-2">Энкодер–декодер, автокодировщики</div>
+    <div class="hm-sub-cell hm-2">Эмбеддинги, сиамские сети</div>
+    <div class="hm-sub-cell hm-0">★ Работа со звуком</div>
+  </div>
+</div>
+
+<div class="hm-chapter">
+  <a class="hm-chapter-head hm-0" href="app_history.html">
+    <span class="hm-chapter-num">Прил.</span>
+    <span class="hm-chapter-title">Биологические и исторические предпосылки ИИ</span>
+    <span class="hm-meta">опциональное · Марков, Гасников</span>
+  </a>
+  <div class="hm-sub-grid">
+    <div class="hm-sub-cell hm-0">Древнейшая история ИИ</div>
+    <div class="hm-sub-cell hm-0">Бионический подход 1930-х</div>
+    <div class="hm-sub-cell hm-0">Эволюция мозга и мемов</div>
+    <div class="hm-sub-cell hm-0">От аплизии до человека</div>
+    <div class="hm-sub-cell hm-0">Бутылочное горлышко фон Неймана</div>
+    <div class="hm-sub-cell hm-0">Будущие платформы: фотоника, wetware</div>
+  </div>
+</div>
+```
