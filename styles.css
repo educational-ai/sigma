@@ -1,0 +1,34 @@
+/* Tighten things up + book-feel */
+.callout-historybox {
+  border-left: 4px solid #a07050;
+  background: #faf6ef;
+  margin: 16px 0;
+  padding: 10px 16px;
+  border-radius: 4px;
+}
+.callout-historybox::before {
+  content: "📜 Историческая справка";
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  color: #7a5030;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.callout-tasks {
+  border-left: 4px solid #2e7d32;
+  background: #f3faf3;
+  margin: 16px 0;
+  padding: 10px 16px;
+  border-radius: 4px;
+}
+.callout-tasks::before {
+  content: "✍️ Задачи";
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  color: #1e5021;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+img { max-width: 100%; height: auto; }
+figure img { display: block; margin: 0 auto; }
+figure figcaption, .figure-caption { text-align: center; font-style: italic; color: #555; }

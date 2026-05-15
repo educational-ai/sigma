@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Численные методы оптимизации – Учебн🤖к</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../converted/ch03_ds.html" rel="next">
+<link href="../converted/ch01_intro.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-5bc877e019c45154d525cf8ba06cabd1.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-2e3d87bb41e17d250f9da35e08207525.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="4&nbsp; Численные методы оптимизации – Учебн🤖к">
+<meta property="og:image" content="../figures/newton_geometry.svg">
+<meta property="og:site_name" content="Учебн🤖к">
+<meta name="twitter:title" content="4&nbsp; Численные методы оптимизации – Учебн🤖к">
+<meta name="twitter:image" content="../figures/newton_geometry.svg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../converted/ch02_newton.html">II. Математические основы</a></li><li class="breadcrumb-item"><a href="../converted/ch02_newton.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Численные методы оптимизации</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Учебн🤖к</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Учебн🤖к</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../converted/preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Предисловие</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">I. Введение в искусственный интеллект</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../converted/ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Что такое искусственный интеллект</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">II. Математические основы</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../converted/ch02_newton.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Численные методы оптимизации</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">III. Анализ данных и искусственный интеллект</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../converted/ch03_ds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Введение в анализ данных и искусственный интеллект</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">IV. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../converted/ch04_numtheory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Элементы теории чисел и шифрование</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec:newton" id="toc-sec:newton" class="nav-link active" data-scroll-target="#sec\:newton"><span class="header-section-number">4.1</span> Метод касательных Ньютона и его приложения</a>
+  <ul class="collapse">
+  <li><a href="#от-ньютона-до-канторовича" id="toc-от-ньютона-до-канторовича" class="nav-link" data-scroll-target="#от-ньютона-до-канторовича"><span class="header-section-number">4.1.1</span> От Ньютона до Канторовича</a></li>
+  <li><a href="#метод-ньютона-для-задач-оптимизации" id="toc-метод-ньютона-для-задач-оптимизации" class="nav-link" data-scroll-target="#метод-ньютона-для-задач-оптимизации"><span class="header-section-number">4.1.2</span> Метод Ньютона для задач оптимизации</a></li>
+  <li><a href="#ssec:heron" id="toc-ssec:heron" class="nav-link" data-scroll-target="#ssec\:heron"><span class="header-section-number">4.1.3</span> Пример 1. Извлечение квадратного корня</a></li>
+  <li><a href="#пример-2.-вычисление-обратного-числа" id="toc-пример-2.-вычисление-обратного-числа" class="nav-link" data-scroll-target="#пример-2.-вычисление-обратного-числа"><span class="header-section-number">4.1.4</span> Пример 2. Вычисление обратного числа</a></li>
+  <li><a href="#реализация-на-python-и-численный-эксперимент" id="toc-реализация-на-python-и-численный-эксперимент" class="nav-link" data-scroll-target="#реализация-на-python-и-численный-эксперимент"><span class="header-section-number">4.1.5</span> Реализация на Python и численный эксперимент</a></li>
+  <li><a href="#ssec:thm-superlinear" id="toc-ssec:thm-superlinear" class="nav-link" data-scroll-target="#ssec\:thm-superlinear"><span class="header-section-number">4.1.6</span> Достаточные условия сверхлинейной сходимости<span class="math inline">^\star</span></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../converted/ch02_newton.html">II. Математические основы</a></li><li class="breadcrumb-item"><a href="../converted/ch02_newton.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Численные методы оптимизации</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Численные методы оптимизации</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sec:newton" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="sec:newton"><span class="header-section-number">4.1</span> Метод касательных Ньютона и его приложения</h2>
+<section id="от-ньютона-до-канторовича" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="от-ньютона-до-канторовича"><span class="header-section-number">4.1.1</span> От Ньютона до Канторовича</h3>
+<p>Задачи отыскания корня уравнения <span class="math inline">f(x)=0</span> и поиска минимума функции <span class="math inline">g(x)</span> относятся к разным «жанрам» школьной математики, однако численно они решаются почти одним и тем же приёмом — итерационной схемой, придуманной Исааком Ньютоном.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Историческая справка
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>В работе <em>De analysi per aequationes numero terminorum infinitas</em> (1669) и затем в <em>Method of Fluxions</em> (рукопись 1671&nbsp;г., издание 1736&nbsp;г.) Ньютон предложил способ приближённого решения уравнений, который позже Джозеф Рафсон в 1690&nbsp;г. переписал в современной рекуррентной форме. Поэтому в англоязычной литературе метод часто называют <em>Newton–Raphson</em>.</p>
+<p>Существенный вклад в строгое исследование метода внёс советский математик <strong>Леонид Витальевич Канторович</strong> (1912–1986), лауреат Нобелевской премии по экономике 1975&nbsp;г. (за теорию оптимального распределения ресурсов). В 1948&nbsp;г. он опубликовал теорему, носящую теперь его имя: она впервые дала универсальные <em>достаточные условия сходимости</em> метода Ньютона, причём не только для уравнений с одной переменной, но и для уравнений в бесконечномерных банаховых пространствах.</p>
+</div>
+</div>
+</div>
+<p><strong>Геометрическая идея.</strong> Пусть требуется найти корень уравнения&nbsp;<span class="math inline">f(x)=0</span>, и нам известна точка <span class="math inline">x_k</span>, близкая к корню. Заменим график <span class="math inline">y=f(x)</span> его <em>касательной</em> в точке <span class="math inline">(x_k, f(x_k))</span>. Касательная — это прямая, и её пересечение с осью <span class="math inline">x</span> найти просто. Точку этого пересечения и объявим следующим приближением&nbsp;<span class="math inline">x_{k+1}</span>. Затем повторим. Так получается метод касательных&nbsp;(рис.&nbsp;4.1).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/newton_geometry.svg" class="img-fluid figure-img"></p>
+<figcaption>Рис. 4.1. Три итерации метода Ньютона для уравнения <span class="math inline">x^{3}-2x-5=0</span>. Каждая касательная (пунктир) пересекает ось абсцисс в точке, которая берётся в качестве следующего приближения (квадрат). После трёх шагов корень найден с точностью лучше <span class="math inline">10^{-6}</span>.</figcaption>
+</figure>
+</div>
+<p>Уравнение касательной к графику <span class="math inline">y=f(x)</span> в точке <span class="math inline">x_k</span> имеет вид <span class="math inline">y=f(x_k)+f'(x_k)\,(x-x_k)</span>. Полагая <span class="math inline">y=0</span> и выражая <span class="math inline">x</span>, получаем</p>
+<p><span class="math display">\tag{4.1}
+\boxed{\;x_{k+1}=x_k-\dfrac{f(x_k)}{f'(x_k)}\;}\qquad k=0,1,2,\dots</span></p>
+<p>Это и есть <em>итерационная формула Ньютона</em>. Точка <span class="math inline">x_0</span> выбирается исследователем; от её выбора может зависеть, сойдётся ли метод вообще.</p>
+</section>
+<section id="метод-ньютона-для-задач-оптимизации" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="метод-ньютона-для-задач-оптимизации"><span class="header-section-number">4.1.2</span> Метод Ньютона для задач оптимизации</h3>
+<p>Пусть теперь нужно найти минимум функции <span class="math inline">g</span>. В любой точке минимума <span class="math inline">x^{\star}</span> выполнено <span class="math inline">g'(x^{\star})=0</span>. Значит, минимизация дифференцируемой функции — это решение уравнения</p>
+<p><span class="math display">g'(x)=0.</span></p>
+<p>Применим к нему формулу&nbsp;(4.1) с <span class="math inline">f=g'</span> (и тогда <span class="math inline">f'=g''</span>):</p>
+<p><span class="math display">\tag{4.2}
+\boxed{\;x_{k+1}=x_k-\dfrac{g'(x_k)}{g''(x_k)}\;}</span></p>
+<p>Эту же формулу можно получить иначе — и это ценная для всей теории оптимизации точка зрения. Разложим <span class="math inline">g</span> в окрестности&nbsp;<span class="math inline">x_k</span> в <strong>ряд Тейлора</strong>:</p>
+<p><span class="math display">\tag{4.3}
+g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
+   \;+\;o\!\bigl((x-x_k)^2\bigr).</span></p>
+<p>Откуда берётся такое разложение? Идея проста: рядом с точкой <span class="math inline">x_k</span> функция <span class="math inline">g</span> ведёт себя «почти как многочлен». Линейное приближение <span class="math inline">g(x_k)+g'(x_k)(x-x_k)</span> — это уже знакомая нам касательная к графику. Если мы хотим добиться большей точности, надо учесть и <em>кривизну</em> графика — а она как раз кодируется второй производной <span class="math inline">g''</span>. Так возникает квадратичный многочлен в&nbsp;(4.3).</p>
+<p>Отбросим бесконечно малое слагаемое и обозначим оставшийся квадратичный многочлен через</p>
+<p><span class="math display">q_k(x)\;=\;g(x_k)+g'(x_k)(x-x_k)+\tfrac12 g''(x_k)(x-x_k)^2.</span></p>
+<p>Минимизировать <span class="math inline">q_k</span> умеет любой школьник: это квадратное уравнение, решаемое в одну строку. Условие <span class="math inline">q_k'(x)=0</span> даёт <span class="math inline">g'(x_k)+g''(x_k)(x-x_k)=0</span>, откуда <span class="math inline">x=x_k-g'(x_k)/g''(x_k)</span>, что в точности совпадает с&nbsp;формулой&nbsp;(4.2).</p>
+<div class="callout callout-style-default callout-note callout-titled" title="«Разделяй и властвуй»">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+«Разделяй и властвуй»
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Метод Ньютона для оптимизации — классический пример принципа <em>разделяй и властвуй</em>: вместо того чтобы решать сложную задачу минимизации произвольной функции <span class="math inline">g</span> целиком, мы заменяем её на каждом шаге простой подзадачей — минимизацией параболы <span class="math inline">q_k</span>. Парабола подбирается так, чтобы локально (в окрестности <span class="math inline">x_k</span>) имитировать поведение <span class="math inline">g</span>, и её минимум вычисляется явно.</p>
+</div>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/taylor_parabola.svg" class="img-fluid figure-img"></p>
+<figcaption>Рис. 4.2. Метод Ньютона как минимизация локальной квадратичной модели <span class="math inline">q_k</span> (пунктир): следующая точка <span class="math inline">x_{k+1}</span> — это вершина параболы, касающейся графика <span class="math inline">g</span> в точке <span class="math inline">x_k</span>.</figcaption>
+</figure>
+</div>
+</section>
+<section id="ssec:heron" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="ssec:heron"><span class="header-section-number">4.1.3</span> Пример 1. Извлечение квадратного корня</h3>
+<p>Пусть <span class="math inline">a&gt;0</span>. Вычислим <span class="math inline">\sqrt{a}</span>, применяя метод Ньютона к уравнению</p>
+<p><span class="math display">f(x)=x^{2}-a=0.</span></p>
+<p>Тогда <span class="math inline">f'(x)=2x</span>, и формула&nbsp;(4.1) принимает вид</p>
+<p><span class="math display">\tag{4.4}
+\boxed{\;x_{k+1}=\dfrac12\!\left(x_k+\dfrac{a}{x_k}\right)\;}</span></p>
+<p>Это — знаменитый <strong>метод Герона</strong>, или вавилонский метод квадратного корня.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Историческая справка
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Формулу&nbsp;(4.4) в явном виде описал <em>Герон Александрийский</em> (I век н.&nbsp;э.) в трактате «Метрика». Однако эту итерацию умели применять задолго до него: на вавилонской глиняной табличке <span class="sans-serif">YBC&nbsp;7289</span> (примерно XVIII–XVI вв. до н.&nbsp;э.) сохранилось вычисление <span class="math inline">\sqrt{2}</span> с точностью до шестого десятичного знака — именно с помощью среднего арифметического и среднего гармонического, что эквивалентно&nbsp;(4.4). Получается, что одна из итерационных схем «пережила» три с половиной тысячи лет и по сей день используется в библиотеках вычисления корня.</p>
+</div>
+</div>
+</div>
+<section id="сходимость-через-сжимающее-отображение" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="сходимость-через-сжимающее-отображение">Сходимость через сжимающее отображение</h4>
+<p>Запишем&nbsp;(4.4) как <span class="math inline">x_{k+1}=T(x_k)</span>, где <span class="math inline">T(x)=\tfrac12(x+a/x)</span>. Точка <span class="math inline">\sqrt{a}</span> — <em>неподвижная</em> для <span class="math inline">T</span>: <span class="math inline">T(\sqrt{a})=\sqrt{a}</span>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 4.1. Сходимость метода Герона">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Теорема 4.1. Сходимость метода Герона
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Для любого <span class="math inline">x_0&gt;0</span> последовательность&nbsp;(4.4) монотонно убывает (начиная с <span class="math inline">k=1</span>) и сходится к <span class="math inline">\sqrt{a}</span>. Более того, для ошибки <span class="math inline">e_k=x_k-\sqrt{a}</span> выполнено</p>
+<p><span class="math display">\tag{4.5}
+e_{k+1}\;=\;\dfrac{e_k^2}{2x_k}\,, \qquad
+\text{и при }k\geq 1\colon\quad
+0\le e_{k+1}\le \dfrac{e_k^{2}}{2\sqrt{a}}.</span></p>
+</div>
+</div>
+</div>
+<p><strong>Доказательство.</strong> <strong>Шаг 1 (нижняя оценка).</strong> По неравенству о средних (AM–GM) для <span class="math inline">x_0&gt;0</span>: <span class="math inline">x_1=\tfrac12(x_0+a/x_0)\geq \sqrt{x_0\cdot a/x_0}=\sqrt{a}</span>. Значит, начиная с <span class="math inline">x_1</span>, все члены лежат в&nbsp;<span class="math inline">[\sqrt{a},\infty)</span>.</p>
+<p><strong>Шаг 2 (рекуррентность для ошибки).</strong></p>
+<p><span class="math display">e_{k+1}=x_{k+1}-\sqrt{a}=\dfrac{x_k+a/x_k}{2}-\sqrt{a}
+=\dfrac{x_k^{2}-2\sqrt{a}\,x_k+a}{2x_k}=\dfrac{(x_k-\sqrt{a})^2}{2x_k}=\dfrac{e_k^{2}}{2x_k}.</span></p>
+<p>При <span class="math inline">x_k\geq\sqrt{a}</span> имеем <span class="math inline">\tfrac{1}{2x_k}\leq\tfrac{1}{2\sqrt{a}}</span>, откуда вторая часть&nbsp;(4.5).</p>
+<p><strong>Шаг 3 (сжатие).</strong> Производная <span class="math inline">T'(x)=\tfrac12(1-a/x^{2})</span>. На луче <span class="math inline">x\geq\sqrt{a}</span> выполнено <span class="math inline">T'(x)\in[0,\tfrac12)</span>. Значит, <span class="math inline">T</span>&nbsp;— <em>сжимающее отображение</em> (с константой&nbsp;<span class="math inline">\tfrac12</span>) на <span class="math inline">[\sqrt{a},\infty)</span>. По теореме Банаха о неподвижной точке последовательность <span class="math inline">x_k=T^{k}(x_1)</span> сходится к единственной неподвижной точке&nbsp;<span class="math inline">\sqrt{a}</span>.<span class="math inline">\square</span></p>
+<p>Из&nbsp;(4.5) видно, что после первой итерации ошибка <em>квадрируется</em>: каждые два десятичных знака удваиваются за один шаг. Поэтому при разумном <span class="math inline">x_0</span> хватает 4–5 итераций, чтобы получить машинную точность.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Пример 4.2. Расстояние до горизонта">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Пример 4.2. Расстояние до горизонта
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Стоящий человек ростом <span class="math inline">h=1{,}70</span>&nbsp;м смотрит на море. До какой точки далеко он видит? Из теоремы Пифагора (рис.&nbsp;4.3) для прямой, касательной к поверхности Земли:</p>
+<p><span class="math display">d^{2}+R^{2}=(R+h)^{2},\qquad
+d=\sqrt{2Rh+h^{2}}\;\approx\;\sqrt{2Rh}.</span></p>
+<p>При <span class="math inline">R=6371</span>&nbsp;км, <span class="math inline">h=1{,}7\cdot 10^{-3}</span>&nbsp;км:</p>
+<p><span class="math display">2Rh\;\approx\;2\cdot 6371\cdot 0{,}0017\;=\;21{,}66\;\text{(км$^2$)}.</span></p>
+<p>Применим к этому числу метод Герона со стартом <span class="math inline">x_0=5</span>:</p>
+<p><span class="math display">\begin{array}{l|l}
+k &amp; x_k \\\hline
+0 &amp; 5{,}000\,000 \\
+1 &amp; \tfrac{1}{2}(5+21{,}66/5)=4{,}666\,000 \\
+2 &amp; 4{,}654\,463 \\
+3 &amp; 4{,}654\,460
+\end{array}</span></p>
+<p>Получаем <span class="math inline">d\approx 4{,}65</span>&nbsp;км — расстояние, которое запоминается любому, кто хоть раз стоял у моря.</p>
+</div>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/tikz_fig_horizon.svg" class="img-fluid figure-img"></p>
+<figcaption>Рис. 4.3. Расстояние до горизонта <span class="math inline">d=\sqrt{(R+h)^2-R^2}\approx\sqrt{2Rh}</span>.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="пример-2.-вычисление-обратного-числа" class="level3" data-number="4.1.4">
+<h3 data-number="4.1.4" class="anchored" data-anchor-id="пример-2.-вычисление-обратного-числа"><span class="header-section-number">4.1.4</span> Пример 2. Вычисление обратного числа</h3>
+<p>Что, если на нашем процессоре нет аппаратного деления, и нужно вычислить <span class="math inline">1/a</span> при <span class="math inline">a&gt;0</span> (только сложениями и умножениями)? Применим метод Ньютона к уравнению</p>
+<p><span class="math display">f(x)=\dfrac{1}{x}-a=0.</span></p>
+<p>Тогда <span class="math inline">f'(x)=-1/x^{2}</span>, и подстановка в&nbsp;(4.1) даёт</p>
+<p><span class="math display">x_{k+1}=x_k-\dfrac{1/x_k-a}{-1/x_k^{2}}
+       =x_k+x_k^{2}\bigl(1/x_k-a\bigr)
+       =x_k\bigl(2-a x_k\bigr).</span></p>
+<p>То есть</p>
+<p><span class="math display">\tag{4.6}
+\boxed{\;x_{k+1}=x_k\,(2-a x_k)\;}</span></p>
+<p>Эта схема замечательна тем, что в ней нет ни одного деления — только сложение и умножение. Поэтому именно она исторически использовалась в первых ЭВМ для реализации операции деления на аппаратном уровне.</p>
+<section id="анализ-сходимости" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="анализ-сходимости">Анализ сходимости</h4>
+<p>Введём «относительную невязку» <span class="math inline">u_k=1-a x_k</span>. Тогда</p>
+<p><span class="math display">u_{k+1}=1-a x_{k+1}=1-a x_k(2-ax_k)=1-2 a x_k+(a x_k)^{2}=(1-a x_k)^{2}=u_k^{2}.</span></p>
+<p>Таким образом</p>
+<p><span class="math display">\tag{4.7}
+u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1.</span></p>
+<p>Условие <span class="math inline">|1-a x_0|&lt;1</span> эквивалентно <span class="math inline">0&lt;x_0&lt;2/a</span>. <em>Радиусом сходимости</em> метода является интервал <span class="math inline">\bigl(0,\,2/a\bigr)</span>, и он <strong>конечен</strong>: вне этого интервала (<span class="math inline">x_0&gt;2/a</span> или <span class="math inline">x_0&lt;0</span>) итерации расходятся. Это принципиальное отличие от метода Герона, который сходится для любого <span class="math inline">x_0&gt;0</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Метод Ньютона–Шульца и оптимизатор Muon">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Метод Ньютона–Шульца и оптимизатор Muon
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Если в&nbsp;(4.6) заменить число <span class="math inline">x_k</span> на квадратную матрицу <span class="math inline">X_k</span>, а число <span class="math inline">a</span> — на матрицу <span class="math inline">A</span>, получим знаменитую матричную итерацию <strong>Ньютона–Шульца</strong>: <span class="math inline">X_{k+1}=X_k(2I-A X_k)</span>. Она вычисляет <span class="math inline">A^{-1}</span> без обращения матриц на каждом шаге — лишь умножениями.</p>
+<p>Аналогичные полиномиальные итерации применяются для приближённой <em>ортогонализации</em> матриц. Именно так устроен оптимизатор <strong>Muon</strong>, появившийся в 2024–2025&nbsp;гг.&nbsp;и используемый при обучении современных больших языковых моделей: в нём матрица градиента на каждом шаге быстро ортогонализуется несколькими итерациями Ньютона–Шульца — это намного дешевле, чем точное сингулярное разложение.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="реализация-на-python-и-численный-эксперимент" class="level3" data-number="4.1.5">
+<h3 data-number="4.1.5" class="anchored" data-anchor-id="реализация-на-python-и-численный-эксперимент"><span class="header-section-number">4.1.5</span> Реализация на Python и численный эксперимент</h3>
+<p>Запишем универсальную функцию, реализующую метод Ньютона по формуле&nbsp;(4.1), и применим её к двум разобранным примерам. Комментарии в коде даны по-английски (как принято в большинстве библиотек): <code>f</code>, <code>df</code> — сама функция и её производная; <code>x0</code> — начальное приближение; <code>n_iter</code> — максимальное число итераций; <code>tol</code> — точность остановки; функция возвращает массив <code>xs</code> с историей итераций.</p>
+<pre id="lst:newton" data-label="lst:newton"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+
+def newton(f, df, x0, n_iter=20, tol=1e-15):
+    """Newton's tangent method.
+
+    Parameters
+    ----------
+    f, df  : callables f(x) and f'(x).
+    x0     : initial guess.
+    n_iter : maximum number of iterations.
+    tol    : stopping tolerance on |f(x)|.
+
+    Returns
+    -------
+    Array of iterates, including x0.
+    """
+    xs = [x0]
+    x = x0
+    for _ in range(n_iter):
+        fx = f(x)
+        if abs(fx) &lt; tol:
+            break
+        x = x - fx / df(x)
+        xs.append(x)
+    return np.array(xs)
+
+
+# ---- Example 1. Square root of a ---------------------------------
+a = 2.0
+xs_sqrt = newton(lambda x: x**2 - a,
+                 lambda x: 2 * x,
+                 x0=50.0)          # very poor initial guess
+err_sqrt = np.abs(xs_sqrt - np.sqrt(a))
+
+# ---- Example 2. Reciprocal 1/a -----------------------------------
+a = 3.0
+xs_inv  = newton(lambda x: 1.0 / x - a,
+                 lambda x: -1.0 / x**2,
+                 x0=0.20)          # inside the convergence radius (0, 2/a)
+err_inv = np.abs(xs_inv - 1.0 / a)
+
+# ---- Convergence plot in log scale -------------------------------
+plt.semilogy(err_sqrt, 'o-', label=r'sqrt: $|x_k-\sqrt{2}|$')
+plt.semilogy(err_inv,  's-', label=r'1/a:  $|x_k-1/3|$')
+plt.xlabel('iteration $k$'); plt.ylabel('error')
+plt.legend(); plt.grid(True); plt.show()</code></pre>
+<p><em>Листинг&nbsp;2.1. Универсальный метод касательных Ньютона и его применение.</em></p>
+<p><strong>Что показывает эксперимент.</strong></p>
+<p>На рис.&nbsp;4.4 приведены кривые сходимости метода Герона для <span class="math inline">\sqrt{2}</span> при разных стартах <span class="math inline">x_0\in\{0{,}1;\,1;\,5;\,50\}</span>. Все четыре кривые сходятся к нулю, причём поведение типичное для квадратичной сходимости: после нескольких «согласующих» шагов число верных знаков удваивается за итерацию. Это иллюстрирует <strong>глобальную сходимость</strong> метода Герона: годится <em>любое</em> начальное приближение из <span class="math inline">(0,\infty)</span>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/sqrt_convergence.svg" class="img-fluid figure-img"></p>
+<figcaption>Рис. 4.4. Глобальная сходимость метода Герона для <span class="math inline">\sqrt{2}</span> из четырёх очень разных стартовых точек. Шкала ошибки логарифмическая.</figcaption>
+</figure>
+</div>
+<p>Совсем другое поведение демонстрирует метод Ньютона–Шульца для <span class="math inline">1/a</span> при <span class="math inline">a=3</span> (рис.&nbsp;4.5): радиус сходимости равен интервалу <span class="math inline">(0,\,2/3)\approx(0,\,0{,}667)</span>. Стартуя <em>внутри</em> этого интервала, метод сходится квадратично (нижние три кривые); на самой границе (<span class="math inline">x_0=0{,}66</span>) — сходится, но «впритык»; а уже при <span class="math inline">x_0=0{,}70</span> ошибка взрывообразно растёт: <span class="math inline">|u_k|=|u_0|^{2^{k}}\to\infty</span> в полном согласии с (4.7). Это <strong>локальная сходимость</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../figures/reciprocal_convergence.svg" class="img-fluid figure-img"></p>
+<figcaption>Рис. 4.5. Локальная сходимость метода Ньютона–Шульца для <span class="math inline">1/3</span>. Радиус сходимости — интервал <span class="math inline">(0,\,2/3)</span>; вне его метод расходится.</figcaption>
+</figure>
+</div>
+</section>
+<section id="ssec:thm-superlinear" class="level3" data-number="4.1.6">
+<h3 data-number="4.1.6" class="anchored" data-anchor-id="ssec:thm-superlinear"><span class="header-section-number">4.1.6</span> Достаточные условия сверхлинейной сходимости<span class="math inline">^\star</span></h3>
+<p>Сравнение двух примеров наводит на вопрос: <em>когда именно</em> метод Ньютона сходится так быстро, как мы наблюдаем? Ответ даёт следующая теорема, восходящая к Канторовичу.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Определение 4.3. Сверхлинейная и квадратичная сходимости">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Определение 4.3. Сверхлинейная и квадратичная сходимости
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Говорят, что последовательность <span class="math inline">\{x_k\}</span> сходится к <span class="math inline">x^{\star}</span> со <strong>сверхлинейной скоростью</strong>, если</p>
+<p><span class="math display">\lim_{k\to\infty}\dfrac{|x_{k+1}-x^{\star}|}{|x_k-x^{\star}|}=0.</span></p>
+<p>Если же выполнено более сильное условие <span class="math inline">|x_{k+1}-x^{\star}|\leq M |x_k-x^{\star}|^{2}</span> для некоторой константы <span class="math inline">M&gt;0</span>, то сходимость называют <strong>квадратичной</strong>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Определение 4.4. Сильно выпуклая функция">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Определение 4.4. Сильно выпуклая функция
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Функция <span class="math inline">g\colon\mathbb{R}\to\mathbb{R}</span> называется <strong>сильно выпуклой</strong> с константой <span class="math inline">\mu&gt;0</span>, если <span class="math inline">g\in C^{2}</span> и <span class="math inline">g''(x)\geq\mu</span> для всех <span class="math inline">x</span>. Сильная выпуклость гарантирует существование и единственность точки минимума и, что важно для нас, отделённость второй производной от нуля.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 4.5. Сверхлинейная сходимость метода Ньютона">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Теорема 4.5. Сверхлинейная сходимость метода Ньютона
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Пусть выполнено хотя бы одно из условий:</p>
+<ol type="1">
+<li><p>(<em>уравнение</em>) <span class="math inline">f\in C^{2}</span> в окрестности точки <span class="math inline">x^{\star}</span>, <span class="math inline">f(x^{\star})=0</span> и <span class="math inline">f'(x^{\star})\neq 0</span>;</p></li>
+<li><p>(<em>сильно выпуклая оптимизация</em>) <span class="math inline">g\in C^{3}</span>, <span class="math inline">g</span>&nbsp;— сильно выпуклая на интервале, содержащем точку минимума <span class="math inline">x^{\star}</span>, и применяется итерация&nbsp;(4.2).</p></li>
+</ol>
+<p>Тогда существуют <span class="math inline">\delta&gt;0</span> и <span class="math inline">M&gt;0</span> такие, что для всякого <span class="math inline">x_0\in(x^{\star}-\delta,\,x^{\star}+\delta)</span> итерации Ньютона определены и</p>
+<p><span class="math display">\tag{4.8}
+|x_{k+1}-x^{\star}|\;\leq\;M\,|x_k-x^{\star}|^{2}.</span></p>
+<p>В частности, сходимость квадратичная (а значит, сверхлинейная).</p>
+</div>
+</div>
+</div>
+<p><strong>Доказательство.</strong> Достаточно доказать случай (а): задача (б) сводится к нему, если положить <span class="math inline">f=g'</span>, тогда условие <span class="math inline">f'(x^{\star})\neq 0</span> эквивалентно <span class="math inline">g''(x^{\star})\geq\mu&gt;0</span>.</p>
+<p>Разложим <span class="math inline">f</span> по формуле Тейлора с остаточным членом в форме Лагранжа в окрестности&nbsp;<span class="math inline">x_k</span> и подставим <span class="math inline">x=x^{\star}</span>:</p>
+<p><span class="math display">0\;=\;f(x^{\star})\;=\;f(x_k)+f'(x_k)(x^{\star}-x_k)+\tfrac{f''(\xi_k)}{2}(x^{\star}-x_k)^{2},</span></p>
+<p>где <span class="math inline">\xi_k</span>&nbsp;— некоторая точка между <span class="math inline">x_k</span> и <span class="math inline">x^{\star}</span>. Разделим обе части на <span class="math inline">f'(x_k)</span> (по непрерывности эта величина не равна нулю в малой окрестности <span class="math inline">x^{\star}</span>):</p>
+<p><span class="math display">0\;=\;\dfrac{f(x_k)}{f'(x_k)}+(x^{\star}-x_k)+\dfrac{f''(\xi_k)}{2 f'(x_k)}(x^{\star}-x_k)^{2}.</span></p>
+<p>Из определения <span class="math inline">x_{k+1}=x_k-f(x_k)/f'(x_k)</span> получаем <span class="math inline">\frac{f(x_k)}{f'(x_k)}=x_k-x_{k+1}</span>. Подставляя:</p>
+<p><span class="math display">0=(x_k-x_{k+1})+(x^{\star}-x_k)+\dfrac{f''(\xi_k)}{2 f'(x_k)}(x^{\star}-x_k)^{2},</span></p>
+<p>откуда после очевидных переобозначений</p>
+<p><span class="math display">\tag{4.9}
+x_{k+1}-x^{\star}\;=\;\dfrac{f''(\xi_k)}{2 f'(x_k)}\,(x_k-x^{\star})^{2}.</span></p>
+<p>Это и есть искомая <em>рекуррентность для расстояния</em>.</p>
+<p>Теперь подберём константы. По непрерывности <span class="math inline">f'</span> и <span class="math inline">f''</span> существует <span class="math inline">\delta_1&gt;0</span> и числа <span class="math inline">L</span>, <span class="math inline">m&gt;0</span> такие, что <span class="math inline">|f''(\xi)|\leq L</span> и <span class="math inline">|f'(x)|\geq m</span> для всех <span class="math inline">\xi,x\in
+[x^{\star}-\delta_1,\,x^{\star}+\delta_1]</span>. Положим <span class="math inline">M=L/(2m)</span> и <span class="math inline">\delta=\min\!\bigl(\delta_1,\,\tfrac{1}{2M}\bigr)</span>. Тогда из&nbsp;(4.9) при <span class="math inline">|x_k-x^{\star}|&lt;\delta</span>:</p>
+<p><span class="math display">|x_{k+1}-x^{\star}|\leq M|x_k-x^{\star}|^{2}\leq M\delta\cdot|x_k-x^{\star}|\leq\tfrac12|x_k-x^{\star}|&lt;\delta.</span></p>
+<p>Значит, последовательность не покидает <span class="math inline">\delta</span>-окрестность и оценка&nbsp;(4.8) выполнена для всех <span class="math inline">k</span>.<span class="math inline">\square</span></p>
+<p><strong>Где условия выполняются для наших примеров?</strong></p>
+<p><strong>Метод Герона.</strong> Здесь <span class="math inline">f(x)=x^{2}-a</span>, <span class="math inline">f'(x)=2x</span>, <span class="math inline">f''(x)=2</span>. В точке <span class="math inline">x^{\star}=\sqrt{a}&gt;0</span> выполнено <span class="math inline">f'(x^{\star})=2\sqrt{a}\neq 0</span>. <em>Условия теоремы выполняются на всём луче <span class="math inline">(0,\infty)</span>, не содержащем ноль</em>, и константа в&nbsp;(4.8) принимает вид <span class="math inline">M=\frac{1}{2\sqrt{a}}</span> — в полном согласии с явным выражением&nbsp;(4.5), полученным элементарно.</p>
+<p><strong>Метод Ньютона–Шульца.</strong> Здесь <span class="math inline">f(x)=1/x-a</span>, <span class="math inline">f'(x)=-1/x^{2}</span>, <span class="math inline">f''(x)=2/x^{3}</span>. В точке <span class="math inline">x^{\star}=1/a</span> имеем <span class="math inline">f'(x^{\star})=-a^{2}\neq 0</span>, и теорема применима в малой окрестности этой точки. Однако, в отличие от метода Герона, оценка снизу <span class="math inline">|f'(x)|\geq m&gt;0</span> <em>ломается</em> при <span class="math inline">x\to\infty</span>: производная стремится к нулю. Именно поэтому радиус сходимости в этом примере конечен и равен <span class="math inline">1/a</span> слева и справа от <span class="math inline">x^{\star}</span>, что в сумме даёт интервал <span class="math inline">(0,\,2/a)</span>, найденный нами ранее аналитически.</p>
+<p>Таким образом, два простейших примера полностью укладываются в доказанную теорему: метод Ньютона сходится сверхлинейно <em>там, где</em> производная регулярна и отделена от нуля. Глобальную же сходимость, как у Герона, приходится доказывать дополнительно — например, ссылаясь на структуру функции (выпуклость) и теорему Банаха о сжимающем отображении, как мы и сделали в разделе&nbsp;4.1.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Задачи для самостоятельной работы">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Задачи для самостоятельной работы
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Применяя метод Ньютона к уравнению <span class="math inline">f(x)=x^{n}-a=0</span>, получите итерационную формулу для <span class="math inline">\sqrt[n]{a}</span>. Покажите, что для <span class="math inline">n=3</span> она имеет вид <span class="math inline">x_{k+1}=\frac{2 x_k+a/x_k^{2}}{3}</span>.</p></li>
+<li><p>Докажите, что для метода Герона из любого <span class="math inline">x_0&gt;0</span> погрешность <span class="math inline">e_1</span> всегда положительна, после чего последовательность монотонно убывает. (Указание: используйте AM–GM.)</p></li>
+<li><p>Для метода Ньютона–Шульца при <span class="math inline">a=2</span> найдите наибольшее <span class="math inline">x_0</span>, при котором итерации ещё сходятся. Сравните численно скорость сходимости при <span class="math inline">x_0=0{,}1</span> и <span class="math inline">x_0=0{,}9</span>.</p></li>
+<li><p><span class="math inline">^{\star}</span> Сформулируйте и докажите аналог теоремы&nbsp;4.5 для метода Ньютона минимизации многомерной сильно выпуклой функции <span class="math inline">g\colon\mathbb{R}^{n}\to\mathbb{R}</span>. Какую роль играет матрица Гессе <span class="math inline">\nabla^{2}g</span>?</p></li>
+<li><p><span class="math inline">^{\star}</span> Прочитайте о теореме Канторовича в учебнике <a href="https://en.wikipedia.org/wiki/Kantorovich_theorem">«Kantorovich theorem»</a> и сформулируйте её в одну фразу: какие именно три величины должны быть «в нужном соотношении» для гарантии сходимости?</p></li>
+</ol>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../converted/ch01_intro.html" class="pagination-link" aria-label="Что такое искусственный интеллект">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Что такое искусственный интеллект</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../converted/ch03_ds.html" class="pagination-link" aria-label="Введение в анализ данных и искусственный интеллект">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Введение в анализ данных и искусственный интеллект</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
