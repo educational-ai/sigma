@@ -2,24 +2,48 @@
 /*  BOOK-LIKE TYPOGRAPHY — Computer Modern Unicode, как в Overleaf PDF  */
 /*  (см. overleaf_export/structure.tex: CMU Serif / CMU Sans / CMU TT)  */
 /* ================================================================== */
-/* STIX Two Text — академический serif из stixfonts.org, тот же fontstack,  */
-/* что использует KaTeX для рендеринга формул → body и math выглядят родными */
-@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
-/* Computer Modern Sans — для заголовков (как в LaTeX) */
-@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/font/Sans/cmun-sans.css');
-@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/font/Typewriter/cmun-typewriter.css');
+/* Computer Modern Unicode — точно те же шрифты, что в Overleaf PDF        */
+/* cm-web-fonts (Aakash Kothari) — включает Cyrillic (cmun-* = unicode)    */
+@import url('https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/fonts.css');
+/* Fallback для глифов, которых нет в CMU (на всякий) */
+@import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap');
 
 /* Accent цвет из structure.tex (\definecolor{accent}{HTML}{1F4E79}) */
 
-/* Chapter body — STIX Two Text (того же семейства, что KaTeX-математика) */
+/* Chapter body — Computer Modern Serif.                                   */
+/* Веб-рендер CMU тонкий по сравнению с PDF — добавляем text-stroke,       */
+/* чтобы получить «насыщенный» латеховский вид.                            */
 body:not(.quarto-listing) main#quarto-document-content {
-  font-family: "STIX Two Text", "Libertinus Serif", "PT Serif", Georgia, serif;
-  font-size: 18px;
-  line-height: 1.6;
+  font-family: "Computer Modern Serif", "CMU Serif", "Latin Modern Roman",
+               "Libertinus Serif", "PT Serif", serif;
+  font-size: 19px;
+  line-height: 1.55;
   color: #1f1f1f;
   font-weight: 400;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Веб-CMU значительно тоньше PDF (там CM при 300dpi). Усиливаем     */
+  /* штрихи через text-stroke — это видно как «жирность» в браузере.    */
+  -webkit-text-stroke: 0.45px currentColor;
+  font-synthesis: weight style;
+}
+
+/* Италик чуть слабее по stroke — иначе становится «толстым» */
+main#quarto-document-content em,
+main#quarto-document-content i,
+main#quarto-document-content blockquote {
+  -webkit-text-stroke: 0.3px currentColor;
+}
+
+/* Bold элементы — НЕ удваиваем толщину (cmunbx сам жирный) */
+main#quarto-document-content strong,
+main#quarto-document-content b,
+main#quarto-document-content h1,
+main#quarto-document-content h2,
+main#quarto-document-content h3,
+main#quarto-document-content h4 {
+  -webkit-text-stroke: 0;
 }
 
 /* Justified paragraphs + first-line indent (книжный стиль LaTeX) */
