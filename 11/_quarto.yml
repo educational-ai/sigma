@@ -1,0 +1,46 @@
+project:
+  type: book
+  output-dir: ../docs/11
+
+book:
+  title: "Учебник 11 класса"
+  subtitle: "Математические основы ML и ИИ · углублённый уровень"
+  author: "Альянс ИИ"
+  date: today
+  date-format: "YYYY-MM-DD"
+  chapters:
+    - index.qmd
+    - ch1_stats.qmd
+    - ch2_ml_basics.qmd
+    - ch3_rl.qmd
+    - ch4_generative.qmd
+    - app_ai_in_life.qmd
+  search: true
+  sidebar:
+    style: docked
+    collapse-level: 2
+  page-navigation: true
+  reader-mode: true
+
+number-depth: 3
+toc-depth: 3
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    fig-cap-location: bottom
+    css: ../styles.css
+    html-math-method: katex
+    grid:
+      sidebar-width: 320px
+      body-width: 920px
+      margin-width: 280px
+
+execute:
+  enabled: false
+  freeze: auto

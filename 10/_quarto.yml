@@ -1,0 +1,45 @@
+project:
+  type: book
+  output-dir: ../docs/10
+
+book:
+  title: "Учебник 10 класса"
+  subtitle: "Введение в искусственный интеллект · углублённый уровень"
+  author: "Альянс ИИ"
+  date: today
+  date-format: "YYYY-MM-DD"
+  chapters:
+    - index.qmd
+    - ch1_intro_data.qmd
+    - ch2_neuron.qmd
+    - ch3_cnn_linalg.qmd
+    - app_history.qmd
+  search: true
+  sidebar:
+    style: docked
+    collapse-level: 2
+  page-navigation: true
+  reader-mode: true
+
+number-depth: 3
+toc-depth: 3
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    fig-cap-location: bottom
+    css: ../styles.css
+    html-math-method: katex
+    grid:
+      sidebar-width: 320px
+      body-width: 920px
+      margin-width: 280px
+
+execute:
+  enabled: false
+  freeze: auto

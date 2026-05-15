@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Учебн🤖к</title>
+<title>2&nbsp; Глава 1. Элементы математической статистики и байесовский вывод – Учебник 11 класса</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./ch2_ml_basics.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -39,14 +41,14 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-c3e0fa6adc3115075a66ef1fa4da4929.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-dd4c4be9fd49bfd4a652dfeee2d38bac.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-5bc877e019c45154d525cf8ba06cabd1.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-2e3d87bb41e17d250f9da35e08207525.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -68,71 +70,124 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar docked">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Учебн🤖к</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
-<span class="menu-text">🏠 Главная</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./dop/"> 
-<span class="menu-text">📐 Дополнительный учебник</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./10/"> 
-<span class="menu-text">📘 10 класс</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./11/"> 
-<span class="menu-text">📗 11 класс</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch1_stats.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Глава 1. Элементы математической статистики и байесовский вывод</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Учебник 11 класса</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Учебник 11 класса — Математические основы ML и ИИ</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch1_stats.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Глава 1. Элементы математической статистики и байесовский вывод</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch2_ml_basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Глава 2. Основы машинного обучения</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch3_rl.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Глава 3. Вероятностные основы обучения с подкреплением</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch4_generative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Глава 4. Генеративный ИИ</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app_ai_in_life.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Приложение. ИИ в жизни</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#концепция-курса-11-класса" id="toc-концепция-курса-11-класса" class="nav-link active" data-scroll-target="#концепция-курса-11-класса"><span class="header-section-number">2.1</span> Концепция курса 11 класса</a></li>
+  <li><a href="#содержание" id="toc-содержание" class="nav-link" data-scroll-target="#содержание"><span class="header-section-number">2.2</span> Содержание</a>
+  <ul class="collapse">
+  <li><a href="#базовый-аппарат" id="toc-базовый-аппарат" class="nav-link" data-scroll-target="#базовый-аппарат"><span class="header-section-number">2.2.1</span> Базовый аппарат</a></li>
+  <li><a href="#принцип-максимума-правдоподобия" id="toc-принцип-максимума-правдоподобия" class="nav-link" data-scroll-target="#принцип-максимума-правдоподобия"><span class="header-section-number">2.2.2</span> Принцип максимума правдоподобия</a></li>
+  <li><a href="#байесовский-вывод" id="toc-байесовский-вывод" class="nav-link" data-scroll-target="#байесовский-вывод"><span class="header-section-number">2.2.3</span> Байесовский вывод</a></li>
+  <li><a href="#линейная-регрессия" id="toc-линейная-регрессия" class="nav-link" data-scroll-target="#линейная-регрессия"><span class="header-section-number">2.2.4</span> Линейная регрессия</a></li>
+  <li><a href="#классификация" id="toc-классификация" class="nav-link" data-scroll-target="#классификация"><span class="header-section-number">2.2.5</span> Классификация</a></li>
+  </ul></li>
+  <li><a href="#связанные-материалы" id="toc-связанные-материалы" class="nav-link" data-scroll-target="#связанные-материалы"><span class="header-section-number">2.3</span> Связанные материалы</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Учебн🤖к</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Глава 1. Элементы математической статистики и байесовский вывод</span></h1>
+<p class="subtitle lead">11 класс · Учебник по ИИ — углублённый уровень</p>
 </div>
 
 
 
-<div class="quarto-title-meta column-page">
+<div class="quarto-title-meta">
 
     
   
@@ -144,92 +199,74 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="учебнк" class="level1 hero">
-<h1>Учебн🤖к</h1>
-<p><strong>Учебник по искусственному интеллекту</strong> — углублённый уровень, 10–11 классы. Команда Альянса ИИ, идеолог — А. В. Гасников.</p>
-<p><a href="book.pdf" class="btn btn-primary">📕 PDF (текущая сборка)</a> &nbsp; <a href="https://github.com/MerkulovDaniil/uchebniik" class="btn btn-outline-secondary">🔒 GitHub (private)</a> &nbsp; <a href="https://overleaf.mipt.ru/2484959286nqqftjdwkqxc" class="btn btn-outline-secondary">☁️ Overleaf</a></p>
-</section>
-<section id="три-учебника" class="level2">
-<h2 class="anchored" data-anchor-id="три-учебника">Три учебника</h2>
-<div class="book-cards">
-
-  <a class="book-card book-dop" href="dop/">
-    <div class="book-icon">📐</div>
-    <h3 class="anchored">Дополнительный учебник</h3>
-    <p class="book-tagline">Углублённые сюжеты к 10 и 11 классам</p>
-    <ul class="book-toc">
-      <li>I. Введение в ИИ</li>
-      <li>II. Численные методы оптимизации (Ньютон)</li>
-      <li>III. Анализ данных и ИИ <em>(самая объёмная глава)</em></li>
-      <li>IV. Теория чисел и шифрование <em>(RSA, ДХ, HyperLogLog)</em></li>
-    </ul>
-    <div class="book-status">🟠 4 главы — черновики собраны в Overleaf</div>
-  </a>
-
-  <a class="book-card book-10" href="10/">
-    <div class="book-icon">📘</div>
-    <h3 class="anchored">Учебник 10 класса</h3>
-    <p class="book-tagline">Введение в искусственный интеллект · ~40 уроков</p>
-    <ul class="book-toc">
-      <li>Гл 1. Введение в интеллектуальный анализ данных</li>
-      <li>Гл 2. От Нейрона до нейронной сети</li>
-      <li>Гл 3. Свёрточные нейронные сети и линейная алгебра</li>
-      <li>Приложение. Биологические и исторические предпосылки ИИ</li>
-    </ul>
-    <div class="book-status">🟡 каркас + материалы в raw_materials</div>
-  </a>
-
-  <a class="book-card book-11" href="11/">
-    <div class="book-icon">📗</div>
-    <h3 class="anchored">Учебник 11 класса</h3>
-    <p class="book-tagline">Математические основы ML и ИИ · ~50 уроков</p>
-    <ul class="book-toc">
-      <li>Гл 1. Элементы матстатистики и байесовский вывод</li>
-      <li>Гл 2. Основы машинного обучения</li>
-      <li>Гл 3. Вероятностные основы обучения с подкреплением</li>
-      <li>Гл 4. Генеративный ИИ</li>
-      <li>Приложение. ИИ в жизни</li>
-    </ul>
-    <div class="book-status">⚪ план Гасникова, авторы расписаны</div>
-  </a>
-
-</div>
-</section>
-<section id="как-устроена-сборка" class="level2">
-<h2 class="anchored" data-anchor-id="как-устроена-сборка">Как устроена сборка</h2>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-    OL["☁️ Overleaf&lt;br/&gt;main.tex"] --&gt;|"tex_to_qmd.py"| QMD["📄 *.qmd"]
-    QMD --&gt;|"3 × quarto render"| HTML["🌐 docs/{dop,10,11}/"]
-    HTML --&gt;|"nginx (direct read)"| SITE["🚀 uchebniik.fmin.xyz"]
-    OL -.-&gt;|"xelatex"| PDF["📕 book.pdf"]
-    GH["🔒 GitHub&lt;br/&gt;uchebniik (private)"] &lt;-.-&gt;|"git push/pull"| OL
-</pre>
-</div>
-<p></p></figure><p></p>
-</div>
-</div>
-</div>
-<p>Три независимых Quarto book-проекта: <code>dop/</code>, <code>10/</code>, <code>11/</code>. У каждого свой sidebar и нумерация глав.</p>
-</section>
-<section id="материалы" class="level2">
-<h2 class="anchored" data-anchor-id="материалы">Материалы</h2>
-<p><strong>77 файлов</strong> raw-материалов (плоско в <code>raw_materials/</code>): концепции от Гасникова, ноутбук Яроцкого, эталонные учебники Альянса (5–6/7–8/9 кл.), референсные учебники по информатике 10–11, промпты, шаблоны.</p>
-<p><a href="https://github.com/MerkulovDaniil/uchebniik/tree/main/raw_materials">Полный список — в репозитории</a></p>
 <div class="callout callout-style-simple callout-note no-icon">
 <div class="callout-body d-flex">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-body-container">
-<p><strong>Карта по состоянию на <strong>?meta:date</strong></strong>. Структура взята из плана Гасникова (<code>raw_materials/03_Uchebnik_po_II_10_klass.md</code>).</p>
+<p><strong>Авторы:</strong> С. Николенко, А. Гасников, Д. Двинских <strong>Объём:</strong> 16 уроков (10 теория + 6 практика) <strong>Статус:</strong> 🟡 параграфы 3.1, 3.2 в Overleaf-сборке уже есть</p>
 </div>
 </div>
 </div>
+<section id="концепция-курса-11-класса" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="концепция-курса-11-класса"><span class="header-section-number">2.1</span> Концепция курса 11 класса</h2>
+<p>ИИ как часть ML; ML — как продолжение математической статистики. Стартуем с <strong>принципа максимума правдоподобия</strong>, приходим к задачам ML, которые становятся задачами ИИ при глубокой нейросетевой параметризации. Учебник органично дополняет курс Вероятности и Статистики.</p>
+</section>
+<section id="содержание" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="содержание"><span class="header-section-number">2.2</span> Содержание</h2>
+<section id="базовый-аппарат" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="базовый-аппарат"><span class="header-section-number">2.2.1</span> Базовый аппарат</h3>
+<ul>
+<li>Базовые понятия теории вероятностей и матстатистики сквозь призму ИИ (напоминания)</li>
+<li><strong>Формула Байеса</strong>, условные вероятности, условное матожидание</li>
+<li>Теорема Байеса в жизни: как мы рассуждаем</li>
+<li>Когнитивные искажения: медицинский тест, ошибка прокурора, ошибка адвоката</li>
+<li>★ Нормальное распределение как устойчивое относительно суммирования</li>
+<li>★ Центральная предельная теорема (формулировка)</li>
+</ul>
+</section>
+<section id="принцип-максимума-правдоподобия" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="принцип-максимума-правдоподобия"><span class="header-section-number">2.2.2</span> Принцип максимума правдоподобия</h3>
+<ul>
+<li>★ ОМП (теорема Фишера) — пример: схема Бернулли в задаче о выборах</li>
+<li>★ Доверительный интервал на основе теоремы Фишера</li>
+</ul>
+</section>
+<section id="байесовский-вывод" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="байесовский-вывод"><span class="header-section-number">2.2.3</span> Байесовский вывод</h3>
+<ul>
+<li>Априорное, апостериорное и предсказательное распределения</li>
+<li>Пример для испытаний Бернулли (монета) с равномерным априорным</li>
+<li>★ Сопряжённые априорные распределения</li>
+<li>★ Правило Лапласа</li>
+</ul>
+</section>
+<section id="линейная-регрессия" class="level3" data-number="2.2.4">
+<h3 data-number="2.2.4" class="anchored" data-anchor-id="линейная-регрессия"><span class="header-section-number">2.2.4</span> Линейная регрессия</h3>
+<ul>
+<li>Идея, мотивация суммы квадратов через ЦПТ</li>
+<li>Признаки: полиномиальная регрессия, локальные признаки</li>
+<li>Оверфиттинг и идея регуляризации: <strong>гребневая (Ridge) и лассо (Lasso) регрессия</strong></li>
+<li>★ Байесовский вывод в линейной регрессии</li>
+</ul>
+</section>
+<section id="классификация" class="level3" data-number="2.2.5">
+<h3 data-number="2.2.5" class="anchored" data-anchor-id="классификация"><span class="header-section-number">2.2.5</span> Классификация</h3>
+<ul>
+<li>★ Постановка задачи, геометрический смысл</li>
+<li>Разделяющие поверхности</li>
+<li>Классификация на основе порождающих моделей, оптимальный байесовский классификатор</li>
+<li>Пример: <strong>LDA и QDA</strong></li>
+</ul>
+</section>
+</section>
+<section id="связанные-материалы" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="связанные-материалы"><span class="header-section-number">2.3</span> Связанные материалы</h2>
+<ul>
+<li><strong>Текущая Overleaf-сборка:</strong> <a href="../dop/ch03_ds.html">§ 3.1 ОМП</a>, <a href="../dop/ch03_ds.html">§ 3.2 Линейная регрессия и МНК</a></li>
+<li><strong>Видео:</strong> <a href="https://vk.com/video-56385969_456239580">схема Бернулли через ОМП и линейная регрессия</a></li>
+</ul>
 
 
 </section>
@@ -796,6 +833,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Учебник 11 класса — Математические основы ML и ИИ">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Учебник 11 класса — Математические основы ML и ИИ</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch2_ml_basics.html" class="pagination-link" aria-label="Глава 2. Основы машинного обучения">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Глава 2. Основы машинного обучения</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 

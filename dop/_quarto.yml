@@ -1,0 +1,56 @@
+project:
+  type: book
+  output-dir: ../docs/dop
+  resources:
+    - "../overleaf_export/figures"
+
+book:
+  title: "Дополнительный учебник"
+  subtitle: "Углублённые сюжеты к 10 и 11 классам · текущая Overleaf-сборка"
+  author: "Альянс ИИ"
+  date: today
+  date-format: "YYYY-MM-DD"
+  chapters:
+    - index.qmd
+    - preface.qmd
+    - part: "Часть I. Введение в ИИ"
+      chapters:
+        - ch01_intro.qmd
+    - part: "Часть II. Математические основы"
+      chapters:
+        - ch02_newton.qmd
+    - part: "Часть III. Анализ данных и ИИ"
+      chapters:
+        - ch03_ds.qmd
+    - part: "Часть IV. Дискретная математика и криптография"
+      chapters:
+        - ch04_numtheory.qmd
+  search: true
+  sidebar:
+    style: docked
+    collapse-level: 2
+  page-navigation: true
+  reader-mode: true
+
+number-depth: 3
+toc-depth: 3
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    fig-cap-location: bottom
+    css: ../styles.css
+    html-math-method: katex
+    grid:
+      sidebar-width: 320px
+      body-width: 920px
+      margin-width: 280px
+
+execute:
+  enabled: false
+  freeze: auto

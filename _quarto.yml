@@ -1,67 +1,29 @@
 project:
-  type: book
+  type: website
   output-dir: docs
-  resources:
-    - "figures/"
-
-book:
-  title: "Учебн🤖к"
-  subtitle: "Учебник по искусственному интеллекту — углублённый уровень, 10–11 классы"
-  author: "Альянс ИИ"
-  date: today
-  date-format: "YYYY-MM-DD"
-  chapters:
+  render:
     - index.qmd
-    - converted/preface.qmd
-    - part: "10 класс — Введение в ИИ"
-      chapters:
-        - planned/c10_ch1_intro_data.qmd
-        - planned/c10_ch2_neuron.qmd
-        - planned/c10_ch3_cnn_linalg.qmd
-        - planned/c10_app_history.qmd
-    - part: "11 класс — Математические основы ML и ИИ"
-      chapters:
-        - planned/c11_ch1_stats.qmd
-        - planned/c11_ch2_ml_basics.qmd
-        - planned/c11_ch3_rl.qmd
-        - planned/c11_ch4_generative.qmd
-        - planned/c11_app_ai_in_life.qmd
-    - part: "Дополнительный учебник (к 10 и 11 кл.)"
-      chapters:
-        - converted/ch01_intro.qmd
-        - converted/ch02_newton.qmd
-        - converted/ch03_ds.qmd
-        - converted/ch04_numtheory.qmd
-  search: true
-  sidebar:
-    style: docked
-    collapse-level: 2
-  page-navigation: true
-  reader-mode: true
-  twitter-card: true
-  open-graph: true
 
-number-depth: 3
-toc-depth: 3
+website:
+  title: "Учебн🤖к"
+  description: "Учебник по искусственному интеллекту — углублённый уровень, 10–11 классы"
+  navbar:
+    left:
+      - text: "🏠 Главная"
+        href: index.html
+      - text: "📐 Дополнительный учебник"
+        href: dop/
+      - text: "📘 10 класс"
+        href: 10/
+      - text: "📗 11 класс"
+        href: 11/
 
 format:
   html:
     theme:
       light: cosmo
       dark: darkly
-    toc: true
-    toc-depth: 3
-    code-fold: false
-    fig-cap-location: bottom
     css: styles.css
     html-math-method: katex
-    grid:
-      sidebar-width: 320px
-      body-width: 920px
-      margin-width: 280px
-
-bibliography: []
-
-execute:
-  enabled: false
-  freeze: auto
+    toc: false
+    page-layout: full
