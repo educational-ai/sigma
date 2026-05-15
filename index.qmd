@@ -1,22 +1,137 @@
 ---
 title: "Учебн🤖к"
 number-sections: false
+toc: false
+page-layout: full
 ---
 
-# Учебн🤖к {.unnumbered}
+::: {.hero}
 
-Учебник базового и углублённого уровня для 10–11 классов (Альянс ИИ).
+# Учебн🤖к
 
-Этот сайт автоматически собирается из исходника на Overleaf. Любые правки авторов в Overleaf появятся здесь в течение часа.
+**Школьный учебник по информатике** для 10–11 классов, базовый и углублённый уровни.
+Команда Альянса ИИ, идеолог — А. В. Гасников.
 
-## Главы {.unnumbered}
+[📕 Скачать PDF](book.pdf){.btn .btn-primary} &nbsp;
+[🔒 Приватный репозиторий](https://github.com/MerkulovDaniil/uchebniik){.btn .btn-outline-secondary} &nbsp;
+[☁️ Overleaf](https://overleaf.mipt.ru/2484959286nqqftjdwkqxc){.btn .btn-outline-secondary}
 
-См. меню слева — Предисловие, Что такое ИИ, Численные методы оптимизации, Введение в анализ данных и ИИ, Элементы теории чисел и шифрование.
+:::
 
-## PDF-версия {.unnumbered}
+## Как устроена сборка
 
-[Скачать книгу в PDF](book.pdf) — авторская вёрстка xelatex, идентичная Overleaf-сборке.
+```{mermaid}
+flowchart LR
+    OL["☁️ Overleaf<br/>main.tex"] -->|"tex_to_qmd.py"| QMD["📄 converted/*.qmd"]
+    QMD -->|"quarto render"| HTML["🌐 docs/*.html"]
+    HTML -->|"nginx (direct read)"| SITE["🚀 uchebniik.fmin.xyz"]
+    OL -.->|"xelatex"| PDF["📕 book.pdf"]
+    GH["🔒 GitHub<br/>uchebniik (private)"] <-.->|"git push/pull"| OL
+    RAW["📦 raw_materials<br/>77 файлов"] -.->|"источник идей"| OL
+```
+
+Edit в Overleaf или в репо → `scripts/build.sh` → сайт обновляется моментально (nginx читает `docs/` напрямую).
 
 ---
 
-*Прототип. AI-фишки (selection→ask, телеметрия) — следующий этап.*
+## Карта проекта — heatmap готовности
+
+```{=html}
+<div class="hm-legend">
+  <span class="hm-pill hm-0">0 · Пусто</span>
+  <span class="hm-pill hm-1">1 · Есть ответственный</span>
+  <span class="hm-pill hm-2">2 · AI-черновик</span>
+  <span class="hm-pill hm-3">3 · Вычитано 1 раз</span>
+  <span class="hm-pill hm-4">4 · Вычитано оракулом</span>
+  <span class="hm-pill hm-5">5 · Финал</span>
+</div>
+
+<h3>📘 10 класс — Базовый уровень</h3>
+<div class="hm-grid">
+  <div class="hm-cell hm-0">Основы программирования</div>
+  <div class="hm-cell hm-0">Информация, данные</div>
+  <div class="hm-cell hm-0">Измерение данных</div>
+  <div class="hm-cell hm-0">Системы счисления</div>
+  <div class="hm-cell hm-2" title="Черновик Ковалева">Кодирование текстов</div>
+  <div class="hm-cell hm-0">Кодирование изображений</div>
+  <div class="hm-cell hm-0">Кодирование звука и видео</div>
+  <div class="hm-cell hm-0">Большие данные</div>
+  <div class="hm-cell hm-0">Алгебра логики</div>
+  <div class="hm-cell hm-0">Логические элементы</div>
+  <div class="hm-cell hm-0">Принципы работы компьютеров</div>
+  <div class="hm-cell hm-0">ПО компьютеров</div>
+  <div class="hm-cell hm-0">Компьютерные сети</div>
+  <div class="hm-cell hm-0">Сервисы Интернета</div>
+  <div class="hm-cell hm-0">Информационная безопасность</div>
+</div>
+
+<h3>📗 11 класс — Базовый уровень</h3>
+<div class="hm-grid">
+  <div class="hm-cell hm-0">Строки, массивы, рекурсия</div>
+  <div class="hm-cell hm-0">Файлы, анализ алгоритмов</div>
+  <div class="hm-cell hm-0">Модели и моделирование</div>
+  <div class="hm-cell hm-0">Графы, оптимальный путь</div>
+  <div class="hm-cell hm-0">Базы данных</div>
+  <div class="hm-cell hm-0">Реляционная модель, SQL</div>
+  <div class="hm-cell hm-0">Электронные таблицы</div>
+  <div class="hm-cell hm-0">Решение уравнений</div>
+  <div class="hm-cell hm-0">Прогнозирование, тренды</div>
+  <div class="hm-cell hm-0">Оптимизация (целевая функ.)</div>
+  <div class="hm-cell hm-0">Динамическое программир.</div>
+  <div class="hm-cell hm-0">Компьютерно-мат. модели</div>
+  <div class="hm-cell hm-0">Модели в физике / экономике</div>
+  <div class="hm-cell hm-0">Информационное общество</div>
+</div>
+
+<h3>🧠 Машинное обучение и ИИ (11 кл., углубл. + сайт)</h3>
+<div class="hm-grid">
+  <a class="hm-cell hm-3" href="converted/ch01_intro.html" title="ch01_intro.tex — стаб">Введение в ИИ</a>
+  <a class="hm-cell hm-3" href="converted/ch02_newton.html" title="ch02_newton.tex — 537 строк">Численные методы оптимизации</a>
+  <a class="hm-cell hm-3" href="converted/ch03_ds.html" title="ch03_ds.tex — 3.6K строк, самая большая глава">Анализ данных и ИИ</a>
+  <a class="hm-cell hm-3" href="converted/ch04_numtheory.html" title="ch04 + 6 параграфов">Теория чисел и шифрование</a>
+  <div class="hm-cell hm-2" title="par5_hashing.tex">Хеширование</div>
+  <div class="hm-cell hm-2" title="par6_hyperloglog.tex">HyperLogLog</div>
+  <div class="hm-cell hm-0">Классификация</div>
+  <div class="hm-cell hm-0">Регрессия (МНК)</div>
+  <div class="hm-cell hm-0">Кластеризация (k-means)</div>
+  <div class="hm-cell hm-2" title="neural_networks.pdf + ноутбук Яроцкого">Нейронные сети (база)</div>
+  <div class="hm-cell hm-1" title="Промпт Гасникова 13.05">Трансформеры, эмбеддинги</div>
+  <div class="hm-cell hm-0">VLM и мультимодальные модели</div>
+  <div class="hm-cell hm-1" title="Промпт Гасникова 13.05">ИИ как виток эволюции</div>
+  <div class="hm-cell hm-1" title="Промпт Николая 15.05">Клеточные автоматы</div>
+  <div class="hm-cell hm-2" title="Глава_Динамика_дискретных_систем.docx">Динамика дискретных систем</div>
+  <div class="hm-cell hm-2" title="complexity_chapter.pdf">Сложность вычислений</div>
+</div>
+
+<h3>📈 Параграфы-сюжеты в стиле Бекларяна</h3>
+<div class="hm-grid">
+  <div class="hm-cell hm-2" title="1.2._Антагонистические_игры.docx">Антагонистические игры</div>
+  <div class="hm-cell hm-2" title="2.7._Ошибка_выжившего.docx">Ошибка выжившего</div>
+  <div class="hm-cell hm-2" title="2_6_Парадокс_Симпсона.docx">Парадокс Симпсона</div>
+  <div class="hm-cell hm-2" title="2.10._Парадокс_формулы_Байеса.docx">Парадокс Байеса</div>
+  <div class="hm-cell hm-0">Закон Клайбера–Горшкова</div>
+  <div class="hm-cell hm-0">Модель «Хищник — Жертва»</div>
+  <div class="hm-cell hm-0">Теорема Бэкингема</div>
+  <div class="hm-cell hm-0">Диаграммы Вороного</div>
+  <div class="hm-cell hm-0">Игра Аксельрода</div>
+</div>
+```
+
+---
+
+## Материалы и эталоны
+
+В репозитории — **77 файлов** raw-материалов (плоско в `raw_materials/`):
+
+- **8** от Гасникова: концепции, ноутбук Яроцкого, образцы стиля
+- **61** из ТГ-группы: docx-черновики, pdf-эталоны (учебники Альянса 5-6/7-8/9 кл., референсные учебники по информатике 10-11)
+- **7** Google Docs — экспортированы в markdown (промпты, шаблоны)
+- **1** прототип онлайн-компаньона (директория `prototype/`)
+
+[Полный список — в репозитории](https://github.com/MerkulovDaniil/uchebniik/tree/main/raw_materials)
+
+---
+
+::: {.callout-note appearance="minimal"}
+**Карта по состоянию на {{< meta date >}}**. Собрана из оглавления (`Оглавление учебника (проект).docx`) и материалов переписки. Статусы могут расходиться — присылай корректировки.
+:::

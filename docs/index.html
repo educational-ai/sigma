@@ -71,6 +71,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="styles.css">
@@ -101,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
   </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
@@ -209,21 +212,9 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#учебнк" id="toc-учебнк" class="nav-link active" data-scroll-target="#учебнк">Учебн🤖к</a>
-  <ul class="collapse">
-  <li><a href="#главы" id="toc-главы" class="nav-link" data-scroll-target="#главы">Главы</a></li>
-  <li><a href="#pdf-версия" id="toc-pdf-версия" class="nav-link" data-scroll-target="#pdf-версия">PDF-версия</a></li>
-  </ul></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page-right" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -233,7 +224,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page-right">
 
     <div>
     <div class="quarto-title-meta-heading">Author</div>
@@ -257,22 +248,139 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="учебнк" class="level1 unnumbered">
-<h1 class="unnumbered">Учебн🤖к</h1>
-<p>Учебник базового и углублённого уровня для 10–11 классов (Альянс ИИ).</p>
-<p>Этот сайт автоматически собирается из исходника на Overleaf. Любые правки авторов в Overleaf появятся здесь в течение часа.</p>
-<section id="главы" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="главы">Главы</h2>
-<p>См. меню слева — Предисловие, Что такое ИИ, Численные методы оптимизации, Введение в анализ данных и ИИ, Элементы теории чисел и шифрование.</p>
+<section id="учебнк" class="level1 hero">
+<h1>Учебн🤖к</h1>
+<p><strong>Школьный учебник по информатике</strong> для 10–11 классов, базовый и углублённый уровни. Команда Альянса ИИ, идеолог — А. В. Гасников.</p>
+<p><a href="book.pdf" class="btn btn-primary">📕 Скачать PDF</a> &nbsp; <a href="https://github.com/MerkulovDaniil/uchebniik" class="btn btn-outline-secondary">🔒 Приватный репозиторий</a> &nbsp; <a href="https://overleaf.mipt.ru/2484959286nqqftjdwkqxc" class="btn btn-outline-secondary">☁️ Overleaf</a></p>
 </section>
-<section id="pdf-версия" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="pdf-версия">PDF-версия</h2>
-<p><a href="book.pdf">Скачать книгу в PDF</a> — авторская вёрстка xelatex, идентичная Overleaf-сборке.</p>
+<section id="как-устроена-сборка" class="level2">
+<h2 class="anchored" data-anchor-id="как-устроена-сборка">Как устроена сборка</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    OL["☁️ Overleaf&lt;br/&gt;main.tex"] --&gt;|"tex_to_qmd.py"| QMD["📄 converted/*.qmd"]
+    QMD --&gt;|"quarto render"| HTML["🌐 docs/*.html"]
+    HTML --&gt;|"nginx (direct read)"| SITE["🚀 uchebniik.fmin.xyz"]
+    OL -.-&gt;|"xelatex"| PDF["📕 book.pdf"]
+    GH["🔒 GitHub&lt;br/&gt;uchebniik (private)"] &lt;-.-&gt;|"git push/pull"| OL
+    RAW["📦 raw_materials&lt;br/&gt;77 файлов"] -.-&gt;|"источник идей"| OL
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Edit в Overleaf или в репо → <code>scripts/build.sh</code> → сайт обновляется моментально (nginx читает <code>docs/</code> напрямую).</p>
 <hr>
-<p><em>Прототип. AI-фишки (selection→ask, телеметрия) — следующий этап.</em></p>
-
-
 </section>
+<section id="карта-проекта-heatmap-готовности" class="level2">
+<h2 class="anchored" data-anchor-id="карта-проекта-heatmap-готовности">Карта проекта — heatmap готовности</h2>
+<div class="hm-legend">
+  <span class="hm-pill hm-0">0 · Пусто</span>
+  <span class="hm-pill hm-1">1 · Есть ответственный</span>
+  <span class="hm-pill hm-2">2 · AI-черновик</span>
+  <span class="hm-pill hm-3">3 · Вычитано 1 раз</span>
+  <span class="hm-pill hm-4">4 · Вычитано оракулом</span>
+  <span class="hm-pill hm-5">5 · Финал</span>
+</div>
+
+<h3 class="anchored">📘 10 класс — Базовый уровень</h3>
+<div class="hm-grid">
+  <div class="hm-cell hm-0">Основы программирования</div>
+  <div class="hm-cell hm-0">Информация, данные</div>
+  <div class="hm-cell hm-0">Измерение данных</div>
+  <div class="hm-cell hm-0">Системы счисления</div>
+  <div class="hm-cell hm-2" title="Черновик Ковалева">Кодирование текстов</div>
+  <div class="hm-cell hm-0">Кодирование изображений</div>
+  <div class="hm-cell hm-0">Кодирование звука и видео</div>
+  <div class="hm-cell hm-0">Большие данные</div>
+  <div class="hm-cell hm-0">Алгебра логики</div>
+  <div class="hm-cell hm-0">Логические элементы</div>
+  <div class="hm-cell hm-0">Принципы работы компьютеров</div>
+  <div class="hm-cell hm-0">ПО компьютеров</div>
+  <div class="hm-cell hm-0">Компьютерные сети</div>
+  <div class="hm-cell hm-0">Сервисы Интернета</div>
+  <div class="hm-cell hm-0">Информационная безопасность</div>
+</div>
+
+<h3 class="anchored">📗 11 класс — Базовый уровень</h3>
+<div class="hm-grid">
+  <div class="hm-cell hm-0">Строки, массивы, рекурсия</div>
+  <div class="hm-cell hm-0">Файлы, анализ алгоритмов</div>
+  <div class="hm-cell hm-0">Модели и моделирование</div>
+  <div class="hm-cell hm-0">Графы, оптимальный путь</div>
+  <div class="hm-cell hm-0">Базы данных</div>
+  <div class="hm-cell hm-0">Реляционная модель, SQL</div>
+  <div class="hm-cell hm-0">Электронные таблицы</div>
+  <div class="hm-cell hm-0">Решение уравнений</div>
+  <div class="hm-cell hm-0">Прогнозирование, тренды</div>
+  <div class="hm-cell hm-0">Оптимизация (целевая функ.)</div>
+  <div class="hm-cell hm-0">Динамическое программир.</div>
+  <div class="hm-cell hm-0">Компьютерно-мат. модели</div>
+  <div class="hm-cell hm-0">Модели в физике / экономике</div>
+  <div class="hm-cell hm-0">Информационное общество</div>
+</div>
+
+<h3 class="anchored">🧠 Машинное обучение и ИИ (11 кл., углубл. + сайт)</h3>
+<div class="hm-grid">
+  <a class="hm-cell hm-3" href="converted/ch01_intro.html" title="ch01_intro.tex — стаб">Введение в ИИ</a>
+  <a class="hm-cell hm-3" href="converted/ch02_newton.html" title="ch02_newton.tex — 537 строк">Численные методы оптимизации</a>
+  <a class="hm-cell hm-3" href="converted/ch03_ds.html" title="ch03_ds.tex — 3.6K строк, самая большая глава">Анализ данных и ИИ</a>
+  <a class="hm-cell hm-3" href="converted/ch04_numtheory.html" title="ch04 + 6 параграфов">Теория чисел и шифрование</a>
+  <div class="hm-cell hm-2" title="par5_hashing.tex">Хеширование</div>
+  <div class="hm-cell hm-2" title="par6_hyperloglog.tex">HyperLogLog</div>
+  <div class="hm-cell hm-0">Классификация</div>
+  <div class="hm-cell hm-0">Регрессия (МНК)</div>
+  <div class="hm-cell hm-0">Кластеризация (k-means)</div>
+  <div class="hm-cell hm-2" title="neural_networks.pdf + ноутбук Яроцкого">Нейронные сети (база)</div>
+  <div class="hm-cell hm-1" title="Промпт Гасникова 13.05">Трансформеры, эмбеддинги</div>
+  <div class="hm-cell hm-0">VLM и мультимодальные модели</div>
+  <div class="hm-cell hm-1" title="Промпт Гасникова 13.05">ИИ как виток эволюции</div>
+  <div class="hm-cell hm-1" title="Промпт Николая 15.05">Клеточные автоматы</div>
+  <div class="hm-cell hm-2" title="Глава_Динамика_дискретных_систем.docx">Динамика дискретных систем</div>
+  <div class="hm-cell hm-2" title="complexity_chapter.pdf">Сложность вычислений</div>
+</div>
+
+<h3 class="anchored">📈 Параграфы-сюжеты в стиле Бекларяна</h3>
+<div class="hm-grid">
+  <div class="hm-cell hm-2" title="1.2._Антагонистические_игры.docx">Антагонистические игры</div>
+  <div class="hm-cell hm-2" title="2.7._Ошибка_выжившего.docx">Ошибка выжившего</div>
+  <div class="hm-cell hm-2" title="2_6_Парадокс_Симпсона.docx">Парадокс Симпсона</div>
+  <div class="hm-cell hm-2" title="2.10._Парадокс_формулы_Байеса.docx">Парадокс Байеса</div>
+  <div class="hm-cell hm-0">Закон Клайбера–Горшкова</div>
+  <div class="hm-cell hm-0">Модель «Хищник — Жертва»</div>
+  <div class="hm-cell hm-0">Теорема Бэкингема</div>
+  <div class="hm-cell hm-0">Диаграммы Вороного</div>
+  <div class="hm-cell hm-0">Игра Аксельрода</div>
+</div>
+<hr>
+</section>
+<section id="материалы-и-эталоны" class="level2">
+<h2 class="anchored" data-anchor-id="материалы-и-эталоны">Материалы и эталоны</h2>
+<p>В репозитории — <strong>77 файлов</strong> raw-материалов (плоско в <code>raw_materials/</code>):</p>
+<ul>
+<li><strong>8</strong> от Гасникова: концепции, ноутбук Яроцкого, образцы стиля</li>
+<li><strong>61</strong> из ТГ-группы: docx-черновики, pdf-эталоны (учебники Альянса 5-6/7-8/9 кл., референсные учебники по информатике 10-11)</li>
+<li><strong>7</strong> Google Docs — экспортированы в markdown (промпты, шаблоны)</li>
+<li><strong>1</strong> прототип онлайн-компаньона (директория <code>prototype/</code>)</li>
+</ul>
+<p><a href="https://github.com/MerkulovDaniil/uchebniik/tree/main/raw_materials">Полный список — в репозитории</a></p>
+<hr>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Карта по состоянию на 2026-05-15</strong>. Собрана из оглавления (<code>Оглавление учебника (проект).docx</code>) и материалов переписки. Статусы могут расходиться — присылай корректировки.</p>
+</div>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
@@ -837,7 +945,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
-<nav class="page-navigation">
+<nav class="page-navigation column-page-right">
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">

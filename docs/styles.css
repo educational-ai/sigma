@@ -32,3 +32,94 @@
 img { max-width: 100%; height: auto; }
 figure img { display: block; margin: 0 auto; }
 figure figcaption, .figure-caption { text-align: center; font-style: italic; color: #555; }
+
+/* Index page hero */
+.hero {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e6eef7 100%);
+  border-radius: 12px;
+  padding: 32px 28px;
+  margin: 8px 0 28px 0;
+  border: 1px solid #d9e2ec;
+}
+.hero h1 { margin-top: 0; font-size: 2.4em; }
+.hero p { font-size: 1.08em; }
+.hero .btn { margin-top: 8px; }
+
+/* Status legend strip */
+.legend {
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin: 8px 0 16px 0;
+  font-size: 0.92em;
+}
+
+/* Map tables — compact + zebra */
+.grid table {
+  margin: 0;
+  font-size: 0.95em;
+}
+.grid table td:first-child {
+  width: 32px;
+  text-align: center;
+  font-size: 1.15em;
+  vertical-align: middle;
+}
+.grid table tbody tr:hover { background: #f5f9fd; }
+
+/* Mermaid wider */
+.cell-output-display .mermaid svg { max-width: 100% !important; height: auto; }
+
+/* Heatmap ---------------------------------------------- */
+.hm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 18px 0;
+  font-size: 0.82em;
+}
+.hm-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.08);
+  white-space: nowrap;
+}
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin: 8px 0 22px 0;
+}
+.hm-cell {
+  padding: 12px 10px;
+  border-radius: 8px;
+  font-size: 0.84em;
+  line-height: 1.25;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none !important;
+  cursor: default;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+a.hm-cell { cursor: pointer; }
+a.hm-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.10); }
+
+.hm-0 { background: #ececec; color: #6b7280; }
+.hm-1 { background: #dbeafe; color: #1e3a8a; }
+.hm-2 { background: #fef3c7; color: #92400e; }
+.hm-3 { background: #fed7aa; color: #7c2d12; }
+.hm-4 { background: #bbf7d0; color: #064e3b; }
+.hm-5 { background: #4ade80; color: #052e16; font-weight: 600; }
+
+/* Dark mode */
+.quarto-dark .hm-0 { background: #2a2e35; color: #8b95a5; }
+.quarto-dark .hm-1 { background: #1e3a8a; color: #c7d8ff; }
+.quarto-dark .hm-2 { background: #78350f; color: #ffe4a1; }
+.quarto-dark .hm-3 { background: #7c2d12; color: #ffd2b0; }
+.quarto-dark .hm-4 { background: #064e3b; color: #b6f4d4; }
+.quarto-dark .hm-5 { background: #15803d; color: #d3ffd9; }
