@@ -1,4 +1,72 @@
 /* ================================================================== */
+/*  Mobile-safe math + tables + code (ported from fmin.xyz/optim)       */
+/* ================================================================== */
+
+/* KaTeX display blocks: scroll wide formulas instead of bleeding off-screen.
+   Tiny vertical padding prevents top/bottom glyph crop (accents, surds). */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* \tag{} positioning: absolute (right-edge) on desktop, inline on phones —
+   else the tag floats off-screen and gets clipped by the new overflow:auto. */
+.katex-display > .katex > .katex-html > .tag {
+  padding-left: 10px !important;
+  margin-left: 10px !important;
+  right: 0 !important;
+}
+@media (min-width: 613px) {
+  .katex-display > .katex > .katex-html > .tag { position: absolute !important; }
+}
+@media (max-width: 612px) {
+  .katex-display > .katex > .katex-html > .tag { position: static !important; }
+}
+
+/* MathML mirror that KaTeX emits is visually hidden but, in some Quarto
+   builds, leaks intrinsic width and pushes the layout. Pin it to zero box. */
+.katex-display .katex-mathml,
+.katex .katex-mathml {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+
+/* Tables: horizontal scroll instead of overflow. */
+.table,
+table {
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Code blocks: Quarto already sets overflow:auto, but pin width too. */
+div.sourceCode,
+pre,
+pre.sourceCode {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Long inline literals (URLs, identifiers) must wrap, not stretch the row. */
+code, kbd, samp { overflow-wrap: anywhere; word-break: break-word; }
+
+/* Mermaid / SVG figures should never be wider than their column. */
+svg, .cell-output-display svg { max-width: 100%; height: auto; }
+
+/* Page-level guard: clip any stray bleed at the body edge so phones don't
+   get ghost horizontal scroll from MathJax/KaTeX paint artefacts. */
+html, body { overflow-x: hidden; }
+
+/* ================================================================== */
 /*  EXISTING: callouts                                                  */
 /* ================================================================== */
 /* Tighten things up + book-feel */

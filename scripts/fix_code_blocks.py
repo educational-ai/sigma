@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DIRS = ["dop", "10", "11"]
+DIRS = ["book", "10", "11"]
 
 # Bare opening: ``` {something}   (no language word inside braces)
 # Skip if braces start with `.lang` (already classed) or `=fmt` (raw block like {=html}).

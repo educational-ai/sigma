@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Вычислительная линейная алгебра – Σ Сигма</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./ch03_0_intro.html" rel="next">
+<link href="./ch02_newton.html" rel="prev">
+<link href="./../favicon.svg" rel="icon" type="image/svg+xml">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ab75c3f3a51278d2dffe6ea8ffe5777a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Поиск не дал результатов",
+    "search-matching-documents-text": "Результаты поиска",
+    "search-copy-link-title": "Скопировать ссылку",
+    "search-hide-matches-text": "Скрыть дополнительные результаты",
+    "search-more-match-text": "дополнительный результат в этом документе",
+    "search-more-matches-text": "дополнительных результата(-ов) в этом документе",
+    "search-clear-button-title": "Очистить",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Отменить",
+    "search-submit-button-title": "Найти",
+    "search-label": "Поиск"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="sigma-tufte.css">
+<link rel="stylesheet" href="mobile-safe.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Математические основы</a></li><li class="breadcrumb-item"><a href="./ch_linalg.html">Вычислительная линейная алгебра</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Σ Сигма</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Поиск"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Σ Главная</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Предисловие</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть I. Введение в ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что такое искусственный интеллект</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть II. Математические основы</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Численные методы оптимизации</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глава 3. Введение в анализ данных и ИИ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.2 Линейная регрессия и метод наименьших квадратов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.3 Задача классификации и нейронные сети</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.4 Задачи обучения без учителя</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.5 Как искусственный интеллект меняет мир</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глава 4. Элементы теории чисел и шифрование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_1_elementy-teorii-chisel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.1 Элементы теории чисел</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_2_shifrovanie-ot-taynopisi-k-matem.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.2 Шифрование: от тайнописи к математической задаче</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_3_kriptosistemy-rsa-i-diffi-hellma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.3 Криптосистемы RSA и Диффи–Хеллмана</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_4_primeneniya-rsa-autentifikaciya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.4 Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_5_heshirovanie-teoriya-chisel-vstr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.5 Хеширование: теория чисел встречается с рандомизацией</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.6 Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_7_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.7 Подведение итогов главы</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>Другие форматы</h2><ul><li><a href="ch_linalg.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Математические основы</a></li><li class="breadcrumb-item"><a href="./ch_linalg.html">Вычислительная линейная алгебра</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Вычислительная линейная алгебра</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>Если метод Ньютона из главы&nbsp;2 был одним маленьким уравнением, упрямо повторяющимся, то линейная алгебра — это язык, на котором говорят сразу о тысячах уравнений и миллионах чисел. Этой главой мы покажем, что многие фокусы современного искусственного интеллекта — от того, как нейросеть «узнаёт» лицо человека, до того, как поисковик ранжирует страницы Интернета, — держатся всего на нескольких разложениях матриц. Мы посмотрим четыре истории: лица, котиков, Интернет и устойчивость нейросетей.</em></p>
+<section id="sec:linalg-why" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-why">Зачем линейной алгебре отдельная глава</h2>
+<p>Вы уже встречались с матрицами в школьном курсе — как с прямоугольными таблицами чисел. В современном ИИ матрица — это <strong>универсальный носитель данных</strong>.</p>
+<ul>
+<li><p>Чёрно-белая фотография <span class="math inline">1024\times 1024</span> — это матрица размера <span class="math inline">1024\times 1024</span>, где каждое число — яркость пикселя от <span class="math inline">0</span> (чёрный) до <span class="math inline">255</span> (белый). Цветная — три такие матрицы.</p></li>
+<li><p>Текст из <span class="math inline">N</span> слов словаря — это вектор частот длины <span class="math inline">N</span> (модель «мешка слов»), и набор из <span class="math inline">M</span> документов — матрица <span class="math inline">M\times N</span>.</p></li>
+<li><p>Социальная сеть из <span class="math inline">N</span> пользователей — матрица <span class="math inline">N\times N</span>, где элемент <span class="math inline">(i,j)</span> равен <span class="math inline">1</span>, если <span class="math inline">i</span> подписан на <span class="math inline">j</span>.</p></li>
+<li><p>Веса одного слоя нейросети — матрица <span class="math inline">W</span>, через которую входной сигнал умножается, чтобы получить выходной.</p></li>
+</ul>
+<p>С такими матрицами надо уметь <em>что-то делать</em>: сжимать, сравнивать, упорядочивать, обновлять. И почти всегда оказывается, что нужная операция выражается через одно и то же фундаментальное разложение матрицы — <strong>сингулярное</strong>. Мы изучим его и применим к четырём задачам:</p>
+<ol type="1">
+<li><p><strong>Узнать лицо</strong> по фотографии — <em>eigenfaces</em> (§0.5).</p></li>
+<li><p><strong>Сжать пространство признаков</strong> — <em>eigencats</em> и теорема Эккарта–Янга (§0.4, §0.6).</p></li>
+<li><p><strong>Упорядочить весь Интернет</strong> — <em>PageRank</em> (§0.7).</p></li>
+<li><p><strong>Понять, когда нейросеть устойчива</strong> — <em>оценки Липшицевости</em> (§0.8).</p></li>
+</ol>
+<p>Прежде чем перейти к сюжетам, разберёмся с одной <em>очень</em> земной проблемой: с тем, как компьютер хранит числа.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="$AB\neq BA$, или почему линейная алгебра не похожа на школьную">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span><span class="math inline">AB\neq BA</span>, или почему линейная алгебра не похожа на школьную
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>В школе вы привыкли, что от перестановки множителей произведение не меняется: <span class="math inline">2\cdot 3 = 3\cdot 2</span>. Для квадратных матриц это <em>в общем случае не так</em> — они не коммутируют.</p>
+<p>Самая наглядная демонстрация — повороты трёхмерного предмета. Возьмите смартфон, поверните его сначала на <span class="math inline">90°</span> вокруг горизонтальной оси <span class="math inline">X</span> (вершина &lt;&lt;нырнула&gt;&gt; вперёд), потом на <span class="math inline">90°</span> вокруг вертикальной оси <span class="math inline">Y</span> (предмет повернулся вправо). Теперь повторите эксперимент, но в обратном порядке. Финальные положения смартфона будут <em>разными</em>. Каждый поворот задаётся ортогональной матрицей <span class="math inline">3\times 3</span>, и эти матрицы не коммутируют:</p>
+<p><span class="math display">R_y(90°)\,R_x(90°)\;\neq\;R_x(90°)\,R_y(90°).</span></p>
+<p>Геймеры одной из лучших игр <span class="math inline">2023</span>&nbsp;года <em>The Legend of Zelda: Tears of the Kingdom</em> ощущают этот эффект каждый раз, когда крутят объект в инвентаре. Подробный разбор сюжета: <a href="https://t.me/fminxyz/15">t.me/fminxyz/15</a>.</p>
+<div class="center">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure" aria-labelledby="-caption">
+<p><img src="./figures/ab_neq_ba_rotation.svg" class="img-fluid figure-img"></p>
+
+</figure>
+</div>
+</div>
+<p>На двумерной плоскости повороты, кстати, коммутируют: <span class="math inline">R(\alpha)R(\beta)=R(\beta)R(\alpha)=R(\alpha+\beta)</span>. Так что эффект чисто &lt;&lt;трёхмерный&gt;&gt;: чем больше степеней свободы, тем менее послушна алгебра.</p>
+</div>
+</div>
+</div>
+<div id="-caption" class="margin-figure-caption column-margin callout-1-contents callout-collapse collapse show callout-margin-content">image</div></section>
+<section id="sec:linalg-floats" class="level2">
+<h2 class="anchored" data-anchor-id="sec:linalg-floats">Когда арифметика лжёт: числа с плавающей точкой</h2>
+<p>Откройте Python и наберите:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:float-paradox" data-label="lst:float-paradox"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:float-paradox-1"><a href="#lst:float-paradox-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="fl">0.1</span> <span class="op">+</span> <span class="fl">0.2</span></span>
+<span id="lst:float-paradox-2"><a href="#lst:float-paradox-2" aria-hidden="true" tabindex="-1"></a><span class="fl">0.30000000000000004</span></span>
+<span id="lst:float-paradox-3"><a href="#lst:float-paradox-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="fl">0.1</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">==</span> <span class="fl">0.3</span></span>
+<span id="lst:float-paradox-4"><a href="#lst:float-paradox-4" aria-hidden="true" tabindex="-1"></a><span class="va">False</span></span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Это не баг Python. То же самое выдаст любой современный язык — C, C++, Java, JavaScript. И этому есть фундаментальная причина: <strong>двоичная система счисления</strong> не умеет точно представить десятичную дробь <span class="math inline">0{,}1</span>.</p>
+<section id="двоичные-дроби-и-почему-01-это-0333ldots" class="level3">
+<h3 class="anchored" data-anchor-id="двоичные-дроби-и-почему-01-это-0333ldots">Двоичные дроби и почему <span class="math inline">0{,}1</span> — это «<span class="math inline">0{,}333\ldots</span>»</h3>
+<p>В десятичной системе <span class="math inline">1/3 = 0{,}3333\ldots</span> — бесконечная дробь. То же самое в двоичной системе случается с <span class="math inline">0{,}1</span>:</p>
+<p><span class="math display">0{,}1_{10} \;=\; 0{,}0001\,1001\,1001\,1001\ldots_{2}</span></p>
+<p>Дробь периодическая. Любой реальный компьютер хранит её, оборвав после конечного числа разрядов (обычно 52 двоичных знака после запятой — стандарт <em>IEEE&nbsp;754, double precision</em>). Поэтому число, которое программист записывает как <code>0.1</code>, на самом деле равно</p>
+<p><span class="math display">0{,}1\;\approx\;0{,}100\,000\,000\,000\,000\,005\,551\,115\ldots</span></p>
+<p>Когда мы складываем такое «искажённое <span class="math inline">0{,}1</span>» с искажённым <span class="math inline">0{,}2</span>, ошибки усиливаются — и получается тот самый «лишний хвостик» <span class="math inline">4\cdot 10^{-17}</span>, который мы видели в листинге.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Машинная точность $\varepsilon_{\text{маш}}$">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Машинная точность <span class="math inline">\varepsilon_{\text{маш}}</span>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Машинной точностью</strong> называют наименьшее положительное число <span class="math inline">\varepsilon</span>, такое что в компьютерной арифметике <span class="math inline">1+\varepsilon \neq 1</span>. Для стандарта <code>double</code> оно равно <span class="math inline">\varepsilon_{\text{маш}} = 2^{-52}\approx 2{,}22\cdot 10^{-16}</span>.</p>
+<p>Это означает: какое бы хорошее число <span class="math inline">x</span> вы ни записали, оно известно компьютеру лишь с относительной точностью <span class="math inline">\sim\varepsilon_{\text{маш}}</span>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="когда-это-становится-опасным-катастрофическое-сокращение" class="level3">
+<h3 class="anchored" data-anchor-id="когда-это-становится-опасным-катастрофическое-сокращение">Когда это становится опасным: катастрофическое сокращение</h3>
+<p>Маленькая ошибка в <span class="math inline">17</span>-м знаке — мелочь? Не всегда. Рассмотрим безобидное на вид вычисление:</p>
+<p><span class="math display">g(x) \;=\; \dfrac{1-\cos x}{x^{2}}\qquad\text{при }x=10^{-8}.</span></p>
+<p>По формуле Тейлора <span class="math inline">1-\cos x \approx x^{2}/2</span>, так что <span class="math inline">g(10^{-8})\approx 0{,}5</span>. Что выдаст компьютер?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:cancel" data-label="lst:cancel"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:cancel-1"><a href="#lst:cancel-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> math <span class="im">import</span> cos</span>
+<span id="lst:cancel-2"><a href="#lst:cancel-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> <span class="fl">1e-8</span></span>
+<span id="lst:cancel-3"><a href="#lst:cancel-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> (<span class="dv">1</span> <span class="op">-</span> cos(x)) <span class="op">/</span> x<span class="op">**</span><span class="dv">2</span></span>
+<span id="lst:cancel-4"><a href="#lst:cancel-4" aria-hidden="true" tabindex="-1"></a><span class="fl">0.0</span>           <span class="co"># вместо 0.5!</span></span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Что произошло? Число <span class="math inline">\cos(10^{-8})\approx 1-5\cdot 10^{-17}</span> так близко к единице, что компьютер просто хранит его как <em>ровно единицу</em> (поправка <span class="math inline">5\cdot 10^{-17}</span> меньше <span class="math inline">\varepsilon_{\text{маш}}</span>). Разность <span class="math inline">1-\cos x</span> обнулилась, и весь ответ обнулился вместе с ней.</p>
+<p>Это явление называется <strong>катастрофическим сокращением</strong> (<em>catastrophic cancellation</em>): когда из двух близких чисел вычитают и теряют все значащие цифры разом.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Пример 0.1. Спасение через переписывание формулы">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Пример 0.1. Спасение через переписывание формулы
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Воспользуемся тождеством <span class="math inline">1-\cos x = 2\sin^{2}(x/2)</span>:</p>
+<p><span class="math display">g(x) \;=\; \dfrac{2\sin^{2}(x/2)}{x^{2}}\;=\;\dfrac12\!\left(\dfrac{\sin(x/2)}{x/2}\right)^{2}.</span></p>
+<p>Внутри теперь нет вычитания близких чисел, и Python выдаёт <code>0.49999999999999983</code> — погрешность лишь в последнем знаке.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled" title="Важно">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Осторожность</span>Важно
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Главный практический вывод.</strong> Если ваш численный алгоритм выдаёт странный ответ, первая гипотеза, которую следует проверить, — это не «бага в библиотеке», а <em>катастрофическое сокращение</em> в вашей формуле. Часто его можно убрать, переписав формулу алгебраически эквивалентным, но численно устойчивым способом.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Историческая справка
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Стандарт <em>IEEE&nbsp;754</em> был принят в 1985&nbsp;г., в значительной мере благодаря Уильяму Кэхэну (<em>William Kahan</em>, премия Тьюринга 1989&nbsp;г.). До этого каждый производитель процессоров делал плавающую арифметику по-своему, и одна и та же программа на разных машинах могла давать заметно разные ответы. Кэхэн также является автором знаменитого <strong>алгоритма компенсированного суммирования</strong>, который позволяет складывать миллионы чисел с почти двойной точностью.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec:linalg-svd" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-svd">Сингулярное разложение SVD: главный фокус линейной алгебры</h2>
+<section id="геометрическая-идея" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="геометрическая-идея">Геометрическая идея</h3>
+<p>Возьмём любую матрицу <span class="math inline">A</span> размера <span class="math inline">m\times n</span> и применим её к единичному кругу в <span class="math inline">\mathbb{R}^{n}</span> (то есть к множеству всех векторов <span class="math inline">x</span> с <span class="math inline">\left\lVert x \right\rVert=1</span>, где <span class="math inline">\left\lVert \cdot \right\rVert</span> — обычная евклидова длина). Что получится в <span class="math inline">\mathbb{R}^{m}</span>?</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 0.2. Сингулярное разложение (SVD)">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Предупреждение</span>Теорема 0.2. Сингулярное разложение (SVD)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Для любой вещественной матрицы <span class="math inline">A</span> размера <span class="math inline">m\times n</span> существует разложение</p>
+<p><span class="math display">\tag{0.1}
+\;A \;=\; U\,\Sigma\,V^{\!\top}\;</span></p>
+<p>где</p>
+<ul>
+<li><p><span class="math inline">U</span> — <em>ортогональная</em> матрица <span class="math inline">m\times m</span> (поворот в <span class="math inline">\mathbb{R}^{m}</span>);</p></li>
+<li><p><span class="math inline">V</span> — ортогональная матрица <span class="math inline">n\times n</span> (поворот в <span class="math inline">\mathbb{R}^{n}</span>);</p></li>
+<li><p><span class="math inline">\Sigma</span> — «диагональная» матрица <span class="math inline">m\times n</span> с неотрицательными числами <span class="math inline">\sigma_1\geq \sigma_2\geq\ldots\geq \sigma_r &gt; 0</span> на диагонали (и нулями ниже), где <span class="math inline">r=\mathrm{rank}\,A</span>.</p></li>
+</ul>
+<p>Числа <span class="math inline">\sigma_i</span> называются <strong>сингулярными числами</strong> матрицы&nbsp;<span class="math inline">A</span>.</p>
+</div>
+</div>
+</div>
+<p>Содержательно (0.1) говорит: <em>любая</em> линейная операция — это три простых действия подряд:</p>
+<p><span class="math display">\underbrace{V^{\!\top}}_{\text{поворот в исходном пространстве}}
+\;\to\;
+\underbrace{\Sigma}_{\text{растяжение по координатным осям}}
+\;\to\;
+\underbrace{U}_{\text{поворот в новом пространстве}}.</span></p>
+<p>Геометрически это значит: образ единичной сферы под действием <span class="math inline">A</span> — это <strong>эллипсоид</strong>, у которого полуоси равны <span class="math inline">\sigma_1,\sigma_2,\ldots</span> (см.&nbsp;рис.&nbsp;0.1).</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/tikz_fig_svd-ellipse.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.1. SVD геометрически. Матрица <span class="math inline">A</span> переводит единичный круг в эллипс, полуоси которого равны сингулярным числам <span class="math inline">\sigma_1,\sigma_2</span>, а направления полуосей — столбцы матрицы <span class="math inline">U</span> (левые сингулярные векторы). Векторы <span class="math inline">v_1,v_2</span> (столбцы <span class="math inline">V</span>, правые сингулярные векторы) — это те направления в исходном пространстве, которые <span class="math inline">A</span> переводит в полуоси эллипса.</figcaption>
+</figure>
+</div>
+</section>
+<section id="связь-с-собственными-значениями" class="level3">
+<h3 class="anchored" data-anchor-id="связь-с-собственными-значениями">Связь с собственными значениями</h3>
+<p>Сингулярные числа — это, по сути, переодетые собственные значения. А именно:</p>
+<p><span class="math display">\tag{0.2}
+A^{\!\top} A \;=\; (U\Sigma V^{\!\top})^{\!\top}(U\Sigma V^{\!\top})
+\;=\; V\,\Sigma^{\!\top}\Sigma\,V^{\!\top}.</span></p>
+<p>Матрица <span class="math inline">\Sigma^{\!\top}\Sigma</span> — диагональная, на её диагонали стоят <span class="math inline">\sigma_1^{2},\sigma_2^{2},\ldots</span>. Значит, <span class="math inline">\sigma_i^{2}</span> — это <em>собственные значения</em> симметричной матрицы <span class="math inline">A^{\!\top}A</span>, а столбцы <span class="math inline">V</span> — её собственные векторы. Эта формула важна нам по двум причинам: (1) она обосновывает существование SVD (через известную спектральную теорему для симметричных матриц), (2) она будет рабочим инструментом в § 0.5, когда мы будем строить базис «собственных лиц» (eigenfaces).</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Историческая справка
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Сингулярное разложение независимо открыли итальянский математик <em>Эудженио Бельтрами</em> (1873&nbsp;г.) и француз <em>Камилл Жордан</em> (1874&nbsp;г.). В современном виде, как разложение прямоугольной матрицы, его сформулировал <em>Карл Эккарт</em> с <em>Гейлом Янгом</em> в 1936&nbsp;г. Численно надёжный алгоритм вычисления SVD появился лишь в 1965&nbsp;г. (Голуб и Кахан) — и стал одним из ключевых алгоритмов XX века. Сегодня он реализован в любой математической библиотеке: <code>numpy.linalg.svd</code>, <code>scipy.linalg.svd</code>, <code>torch.svd</code>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec:linalg-eckart" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-eckart">Лучшее малоранговое приближение: теорема Эккарта–Янга</h2>
+<p>Самое замечательное свойство SVD состоит в том, что оно позволяет <em>ужимать</em> матрицу, выбрасывая всё «несущественное».</p>
+<section id="разложение-по-слагаемым-ранга-один" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="разложение-по-слагаемым-ранга-один">Разложение по слагаемым ранга один</h3>
+<p>Перепишем&nbsp;(0.1) по-другому. Обозначим столбцы матрицы <span class="math inline">U</span> через <span class="math inline">u_1,\ldots,u_m</span> (это <em>левые сингулярные векторы</em>), а столбцы <span class="math inline">V</span> — через <span class="math inline">v_1,\ldots,v_n</span> (<em>правые сингулярные векторы</em>). Тогда <span class="math inline">A</span> есть сумма <span class="math inline">r</span> слагаемых, каждое из которых имеет ранг один:</p>
+<p><span class="math display">\tag{0.3}
+A \;=\; \sum_{i=1}^{r}\sigma_i\,u_i v_i^{\!\top}.</span></p>
+<p>Каждое слагаемое <span class="math inline">u_i v_i^{\!\top}</span> — это «вертикальный вектор умножить на горизонтальный», и оно само по себе является матрицей ранга один (рис.&nbsp;0.2).</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/tikz_fig_rank1.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.2. Матрица ранга один: каждый столбец результата пропорционален <span class="math inline">u</span>, каждая строка — пропорциональна <span class="math inline">v^{\!\top}</span>. Чтобы её хранить, достаточно <span class="math inline">m+n</span> чисел вместо <span class="math inline">mn</span>.</figcaption>
+</figure>
+</div>
+<p>Если оборвать сумму&nbsp;(0.3) на <span class="math inline">k</span>-м слагаемом (<span class="math inline">k&lt;r</span>), получим приближение:</p>
+<p><span class="math display">\tag{0.4}
+A_k \;=\; \sum_{i=1}^{k}\sigma_i\,u_i v_i^{\!\top}.</span></p>
+<p>Это матрица того же размера <span class="math inline">m\times n</span>, но ранга всего лишь <span class="math inline">k</span>.</p>
+</section>
+<section id="теорема-эккартаянга-a_k-наилучшее-приближение" class="level3">
+<h3 class="anchored" data-anchor-id="теорема-эккартаянга-a_k-наилучшее-приближение">Теорема Эккарта–Янга: <span class="math inline">A_k</span> — наилучшее приближение</h3>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 0.3. Эккарт–Янг–Мирский (1936/1960)">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Предупреждение</span>Теорема 0.3. Эккарт–Янг–Мирский (1936/1960)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Среди всех матриц <span class="math inline">B</span> размера <span class="math inline">m\times n</span> ранга не более <span class="math inline">k</span> матрица <span class="math inline">A_k</span> из&nbsp;(0.4) даёт <em>наименьшую</em> ошибку в смысле спектральной нормы:</p>
+<p><span class="math display">\tag{0.5}
+\min_{\mathrm{rank}\,B\,\leq\,k}\;\left\lVert A-B \right\rVert_{2}\;=\;\left\lVert A-A_k \right\rVert_{2}\;=\;\sigma_{k+1}.</span></p>
+<p>Здесь <span class="math inline">\left\lVert M \right\rVert_2 = \max_{\left\lVert x \right\rVert=1}\left\lVert Mx \right\rVert=\sigma_1(M)</span> — <strong>спектральная норма</strong> матрицы <span class="math inline">M</span> (равна её наибольшему сингулярному числу). Утверждение остаётся в силе и для <em>фробениусовой</em> нормы <span class="math inline">\left\lVert M \right\rVert_F=\sqrt{\sum_{i,j} m_{ij}^{2}}</span>:</p>
+<p><span class="math display">\left\lVert A-A_k \right\rVert_F\;=\;\sqrt{\sigma_{k+1}^{2}+\sigma_{k+2}^{2}+\ldots+\sigma_r^{2}}.</span></p>
+</div>
+</div>
+</div>
+<p>Смысл теоремы: <em>если хочется сжать матрицу до ранга <span class="math inline">k</span>, лучшее, что вы можете сделать, — оставить первые <span class="math inline">k</span> компонент SVD</em>. Ошибка контролируется <em>отброшенным</em> сингулярным числом <span class="math inline">\sigma_{k+1}</span>.</p>
+</section>
+<section id="пример-сжатие-изображения" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="пример-сжатие-изображения">Пример: сжатие изображения</h3>
+<p>Возьмём фотографию <span class="math inline">1024\times 768</span> в градациях серого. Хранение «в лоб» — это <span class="math inline">1024\cdot 768 = 786\,432</span> чисел. Применим к матрице фото SVD и оставим только <span class="math inline">k</span> старших компонент: придётся хранить</p>
+<p><span class="math display">k\cdot(1024+768)+k\;=\;k\cdot 1793</span></p>
+<p>чисел — по одному столбцу <span class="math inline">u_i</span>, одной строке <span class="math inline">v_i^{\!\top}</span> и одному числу <span class="math inline">\sigma_i</span> на каждое слагаемое. Уже при <span class="math inline">k=50</span> это <span class="math inline">\sim 90\,000</span> чисел — в <em>восемь</em> раз меньше исходного, а визуально потеря почти незаметна (рис.&nbsp;0.3).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:svd-compress" data-label="lst:svd-compress"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:svd-compress-1"><a href="#lst:svd-compress-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="lst:svd-compress-2"><a href="#lst:svd-compress-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="lst:svd-compress-3"><a href="#lst:svd-compress-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> skimage <span class="im">import</span> data, color</span>
+<span id="lst:svd-compress-4"><a href="#lst:svd-compress-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:svd-compress-5"><a href="#lst:svd-compress-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load and convert to grayscale</span></span>
+<span id="lst:svd-compress-6"><a href="#lst:svd-compress-6" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> color.rgb2gray(data.astronaut())        <span class="co"># shape (512, 512)</span></span>
+<span id="lst:svd-compress-7"><a href="#lst:svd-compress-7" aria-hidden="true" tabindex="-1"></a>U, S, Vt <span class="op">=</span> np.linalg.svd(img, full_matrices<span class="op">=</span><span class="va">False</span>)</span>
+<span id="lst:svd-compress-8"><a href="#lst:svd-compress-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:svd-compress-9"><a href="#lst:svd-compress-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Reconstruct using only top-k singular components</span></span>
+<span id="lst:svd-compress-10"><a href="#lst:svd-compress-10" aria-hidden="true" tabindex="-1"></a>ranks <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">200</span>]</span>
+<span id="lst:svd-compress-11"><a href="#lst:svd-compress-11" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(ranks)<span class="op">+</span><span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">3</span>))</span>
+<span id="lst:svd-compress-12"><a href="#lst:svd-compress-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].imshow(img, cmap<span class="op">=</span><span class="st">'gray'</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_title(<span class="st">'original'</span>)</span>
+<span id="lst:svd-compress-13"><a href="#lst:svd-compress-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, k <span class="kw">in</span> <span class="bu">zip</span>(axes[<span class="dv">1</span>:], ranks):</span>
+<span id="lst:svd-compress-14"><a href="#lst:svd-compress-14" aria-hidden="true" tabindex="-1"></a>    A_k <span class="op">=</span> U[:, :k] <span class="op">@</span> np.diag(S[:k]) <span class="op">@</span> Vt[:k, :]</span>
+<span id="lst:svd-compress-15"><a href="#lst:svd-compress-15" aria-hidden="true" tabindex="-1"></a>    ax.imshow(A_k, cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="lst:svd-compress-16"><a href="#lst:svd-compress-16" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f'rank </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="lst:svd-compress-17"><a href="#lst:svd-compress-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.axis(<span class="st">'off'</span>)</span>
+<span id="lst:svd-compress-18"><a href="#lst:svd-compress-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/svd_image_compression.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.3. Малоранговое приближение портрета астронавта. Уже при ранге <span class="math inline">50</span> изображение визуально неотличимо от оригинала; при ранге <span class="math inline">200</span> восстановление идеально. По теореме Эккарта–Янга это <em>лучшее</em> приближение фиксированного ранга.</figcaption>
+</figure>
+</div>
+<p><strong>А если картинка цветная?</strong> Цветное изображение <span class="math inline">H\times W\times 3</span> можно сжать тремя способами: (1)&nbsp;поканально, считая SVD отдельно для R, G, B; (2)&nbsp;перевести в <em>YCbCr</em> и сжимать только канал яркости <span class="math inline">Y</span>; (3)&nbsp;“развернуть” изображение в матрицу <span class="math inline">H\times 3W</span> и применить одну SVD. В простейшем поканальном варианте для ранга <span class="math inline">r</span> нужно хранить <span class="math inline">3r(H+W+1)</span> чисел вместо <span class="math inline">3HW</span>:</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/svd_color_compression.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.4. Цветную фотографию сжимаем поканально: SVD ранга <span class="math inline">r</span> для каждого из R, G, B и склейка. Под каждым кадром — доля памяти от оригинала. Варианты для цвета: <a href="https://t.me/fminxyz/16">t.me/fminxyz/16</a>.</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="LoRA: малоранговая адаптация больших моделей">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>LoRA: малоранговая адаптация больших моделей
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>В 2021&nbsp;г. Эдвард Ху с соавторами заметили: когда большую языковую модель дообучают на новую задачу, <em>обновление</em> матриц весов <span class="math inline">\Delta W</span> оказывается почти малоранговой матрицей. Поэтому вместо обучения «полной» <span class="math inline">\Delta W</span> можно сразу искать её в виде <span class="math inline">\Delta W = U V^{\!\top}</span> с маленьким <span class="math inline">k</span>, где <span class="math inline">U,V</span> — тонкие прямоугольники.</p>
+<p>Это метод <strong>LoRA</strong> (<em>Low-Rank Adaptation</em>). Для модели с 175 миллиардами параметров такой приём сокращает объём дообучаемых весов в тысячи раз — и именно благодаря ему сегодня можно «дофайнтюнить» большую модель на бытовой видеокарте.</p>
+<p>Теоретический фундамент LoRA — та самая теорема Эккарта–Янга&nbsp;0.3, которой почти 90 лет.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec:linalg-eigenfaces" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-eigenfaces">Eigenfaces: как алгоритм узнаёт лицо</h2>
+<section id="постановка-задачи" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="постановка-задачи">Постановка задачи</h3>
+<p>В <span class="math inline">1991</span>&nbsp;г. Мэттью Тёрк и Алекс Пентланд из MIT поставили простой вопрос: <em>можно ли обучить компьютер узнавать лицо, не прибегая ни к каким специальным «лицевым» признакам — носу, глазам, контурам, — а просто работая с матрицей пикселей?</em> Их ответ — метод <strong>собственных лиц</strong> (<em>eigenfaces</em>) — стал классикой и открыл целую область computer vision.</p>
+<p>Идея: каждая фотография лица — это точка в очень многомерном пространстве. Например, лицо <span class="math inline">64\times 64</span> — это вектор длины <span class="math inline">64\cdot 64 = 4\,096</span> в пространстве <span class="math inline">\mathbb{R}^{4096}</span>. Двух разных людей снимали много раз — получаем облако точек в этом пространстве.</p>
+<p>Главное наблюдение: <em>это облако очень узкое</em>. Хотя пространство <span class="math inline">4\,096</span>-мерное, реальные лица занимают в нём подпространство размерности всего лишь <span class="math inline">\sim 50</span>. Найти это подпространство — и есть задача.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_dataset.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.5. Фрагмент датасета <em>Olivetti Faces</em>: <span class="math inline">400</span> фотографий <span class="math inline">64\times 64</span> пикселя, <span class="math inline">40</span> человек по <span class="math inline">10</span> снимков каждого. Каждая фотография — точка в <span class="math inline">\mathbb{R}^{4096}</span>.</figcaption>
+</figure>
+</div>
+</section>
+<section id="шаг-1.-среднее-лицо-и-центрирование" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="шаг-1.-среднее-лицо-и-центрирование">Шаг 1. Среднее лицо и центрирование</h3>
+<p>Пусть у нас <span class="math inline">N</span> фотографий <span class="math inline">x_1,\ldots,x_N\in\mathbb{R}^{d}</span> (где <span class="math inline">d=4096</span> для <span class="math inline">64\times 64</span>). Вычислим <strong>среднее лицо</strong>:</p>
+<p><span class="math display">\bar x \;=\; \dfrac{1}{N}\sum_{i=1}^{N} x_i.</span></p>
+<p>И вычтем его из каждого изображения: <span class="math inline">\tilde x_i = x_i - \bar x</span>. <em>Среднее лицо</em> (рис.&nbsp;0.6) — это размытая маска, в которой видно «лицо вообще»: усреднённые глаза, нос, рот, овал. Дальше мы будем работать только с отклонениями от этого среднего.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_mean.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.6. Среднее лицо по <span class="math inline">400</span> снимкам датасета Olivetti.</figcaption>
+</figure>
+</div>
+</section>
+<section id="шаг-2.-главные-направления-изменчивости" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="шаг-2.-главные-направления-изменчивости">Шаг 2. Главные направления изменчивости</h3>
+<p>Соберём центрированные изображения в строки матрицы <span class="math inline">X\in\mathbb{R}^{N\times d}</span> (одна строка = одно лицо). Применим к ней SVD:</p>
+<p><span class="math display">X\;=\;U\,\Sigma\,V^{\!\top}.</span></p>
+<p>Каждая <em>строка</em> <span class="math inline">v_i^{\!\top}</span> матрицы <span class="math inline">V^{\!\top}</span> — это вектор длины <span class="math inline">d=4096</span>, который можно нарисовать как картинку <span class="math inline">64\times 64</span>. Эти картинки и называются <strong>собственными лицами</strong> — eigenfaces (рис.&nbsp;0.7). Содержательно:</p>
+<ul>
+<li><p><em><span class="math inline">v_1</span></em> — направление наибольшей изменчивости. Чаще всего это «освещение слева/справа».</p></li>
+<li><p><em><span class="math inline">v_2</span></em> — направление второй по величине изменчивости (часто «улыбка / не улыбка»).</p></li>
+<li><p><em><span class="math inline">v_3,\ldots</span></em> — постепенно более тонкие признаки: очки, форма щёк, наклон головы, индивидуальные особенности.</p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_components.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.7. Первые 12 eigenfaces датасета Olivetti, отрисованные как картинки <span class="math inline">64\times 64</span>. Эти странные «полу-лица» — координатные оси в пространстве, где живут все настоящие лица.</figcaption>
+</figure>
+</div>
+</section>
+<section id="шаг-3.-лицо-как-вектор-из-50-чисел" class="level3">
+<h3 class="anchored" data-anchor-id="шаг-3.-лицо-как-вектор-из-50-чисел">Шаг 3. Лицо как вектор из 50 чисел</h3>
+<p>Зафиксируем <span class="math inline">k</span> (обычно <span class="math inline">k=30\div 100</span>) и спроектируем каждое лицо <span class="math inline">x</span> на эти <span class="math inline">k</span> собственных лиц:</p>
+<p><span class="math display">\tag{0.6}
+\alpha_i \;=\; v_i^{\!\top}(x-\bar x),\qquad i=1,\ldots,k.</span></p>
+<p>Получили вектор коэффициентов <span class="math inline">\alpha=(\alpha_1,\ldots,\alpha_k)\in\mathbb{R}^{k}</span>. Это и есть «лицо человека» с точки зрения алгоритма — <em>всего <span class="math inline">50</span> чисел</em> вместо <span class="math inline">4096</span>.</p>
+</section>
+<section id="шаг-4.-распознавание-и-реконструкция" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="шаг-4.-распознавание-и-реконструкция">Шаг 4. Распознавание и реконструкция</h3>
+<p><strong>Распознавание.</strong> Чтобы узнать, кто на новой фотографии <span class="math inline">y</span>, вычислим её коэффициенты <span class="math inline">\beta</span> по&nbsp;(0.6) и найдём в базе ближайшего соседа: <span class="math inline">\hat j = \operatorname*{arg\,min}_j \left\lVert \beta-\alpha^{(j)} \right\rVert</span>.</p>
+<p><strong>Реконструкция.</strong> Зная <span class="math inline">\alpha</span>, можно восстановить лицо:</p>
+<p><span class="math display">x \;\approx\; \bar x + \sum_{i=1}^{k}\alpha_i\,v_i.</span></p>
+<p>Рис.&nbsp;0.8 показывает, как качество реконструкции растёт с <span class="math inline">k</span>.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_reconstruction.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.8. Реконструкция одной из фотографий датасета через первые <span class="math inline">k</span> eigenfaces. При <span class="math inline">k=10</span> узнаётся «общий тип» лица; при <span class="math inline">k=50</span> — уже конкретный человек; при <span class="math inline">k=150</span> — почти оригинал.</figcaption>
+</figure>
+</div>
+</section>
+<section id="реализация-на-python" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="реализация-на-python">Реализация на Python</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:eigenfaces" data-label="lst:eigenfaces"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:eigenfaces-1"><a href="#lst:eigenfaces-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="lst:eigenfaces-2"><a href="#lst:eigenfaces-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="lst:eigenfaces-3"><a href="#lst:eigenfaces-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> fetch_olivetti_faces</span>
+<span id="lst:eigenfaces-4"><a href="#lst:eigenfaces-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-5"><a href="#lst:eigenfaces-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Load: 400 faces, 64x64 each</span></span>
+<span id="lst:eigenfaces-6"><a href="#lst:eigenfaces-6" aria-hidden="true" tabindex="-1"></a>faces <span class="op">=</span> fetch_olivetti_faces().images        <span class="co"># (400, 64, 64)</span></span>
+<span id="lst:eigenfaces-7"><a href="#lst:eigenfaces-7" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> faces.reshape(<span class="dv">400</span>, <span class="op">-</span><span class="dv">1</span>)                   <span class="co"># (400, 4096)</span></span>
+<span id="lst:eigenfaces-8"><a href="#lst:eigenfaces-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-9"><a href="#lst:eigenfaces-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Center: subtract the mean face</span></span>
+<span id="lst:eigenfaces-10"><a href="#lst:eigenfaces-10" aria-hidden="true" tabindex="-1"></a>x_bar <span class="op">=</span> X.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="lst:eigenfaces-11"><a href="#lst:eigenfaces-11" aria-hidden="true" tabindex="-1"></a>X_centered <span class="op">=</span> X <span class="op">-</span> x_bar</span>
+<span id="lst:eigenfaces-12"><a href="#lst:eigenfaces-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-13"><a href="#lst:eigenfaces-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. SVD =&gt; eigenfaces are rows of Vt</span></span>
+<span id="lst:eigenfaces-14"><a href="#lst:eigenfaces-14" aria-hidden="true" tabindex="-1"></a>U, S, Vt <span class="op">=</span> np.linalg.svd(X_centered, full_matrices<span class="op">=</span><span class="va">False</span>)</span>
+<span id="lst:eigenfaces-15"><a href="#lst:eigenfaces-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-16"><a href="#lst:eigenfaces-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Project all faces onto top-k eigenfaces</span></span>
+<span id="lst:eigenfaces-17"><a href="#lst:eigenfaces-17" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">50</span></span>
+<span id="lst:eigenfaces-18"><a href="#lst:eigenfaces-18" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> X_centered <span class="op">@</span> Vt[:k].T                <span class="co"># (400, 50)</span></span>
+<span id="lst:eigenfaces-19"><a href="#lst:eigenfaces-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-20"><a href="#lst:eigenfaces-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Recognise: nearest neighbour in alpha-space</span></span>
+<span id="lst:eigenfaces-21"><a href="#lst:eigenfaces-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> recognise(y, k<span class="op">=</span><span class="dv">50</span>):</span>
+<span id="lst:eigenfaces-22"><a href="#lst:eigenfaces-22" aria-hidden="true" tabindex="-1"></a>    y_centered <span class="op">=</span> y.flatten() <span class="op">-</span> x_bar</span>
+<span id="lst:eigenfaces-23"><a href="#lst:eigenfaces-23" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> Vt[:k] <span class="op">@</span> y_centered</span>
+<span id="lst:eigenfaces-24"><a href="#lst:eigenfaces-24" aria-hidden="true" tabindex="-1"></a>    distances <span class="op">=</span> np.linalg.norm(alpha <span class="op">-</span> beta, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="lst:eigenfaces-25"><a href="#lst:eigenfaces-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> distances.argmin()</span>
+<span id="lst:eigenfaces-26"><a href="#lst:eigenfaces-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-27"><a href="#lst:eigenfaces-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Reconstruct a face from k coefficients</span></span>
+<span id="lst:eigenfaces-28"><a href="#lst:eigenfaces-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reconstruct(idx, k<span class="op">=</span><span class="dv">50</span>):</span>
+<span id="lst:eigenfaces-29"><a href="#lst:eigenfaces-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x_bar <span class="op">+</span> Vt[:k].T <span class="op">@</span> alpha[idx, :k]</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-tip callout-titled" title="Это интересно">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Это интересно
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Метод eigenfaces — родоначальник всех современных систем распознавания лиц, включая ту, что разблокирует ваш смартфон. Современные системы заменяют SVD на свёрточную нейросеть (см.&nbsp;§ 3.3.7), но базовая идея — <em>сжать лицо в короткий вектор, в котором близкие лица оказываются рядом</em> — осталась той же. Эти короткие векторы сегодня называют <strong>эмбеддингами</strong>.</p>
+</div>
+</div>
+</div>
+</div></div></section>
+</section>
+<section id="sec:linalg-eigencats" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-eigencats">Eigencats: тот же приём для котов<span class="math inline">^\star</span></h2>
+<p>Метод eigenfaces работает на любых однородных объектах, не только на лицах. Возьмём <em>Cats Faces Dataset</em>: <span class="math inline">29\,843</span> фотографии котов <span class="math inline">64\times 64</span> пикселя. Векторизуем — и получим матрицу <span class="math inline">A \in \mathbb{R}^{29\,843 \times 4096}</span>. Сингулярные векторы матрицы <span class="math inline">A^{\!\top} A</span> называют <strong>eigencats</strong>.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigencats_components.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.9. Малоранговое восстановление четырёх котов на разных рангах <span class="math inline">r</span> (анимация: <a href="https://t.me/fminxyz/12">t.me/fminxyz/12</a>).</figcaption>
+</figure>
+</div>
+<p>Как и в случае с лицами (§0.5), сами строки матрицы <span class="math inline">V^{\!\top}</span> образуют <em>базис</em> пространства котов. Каждая такая строка — собственный вектор размерности <span class="math inline">4096</span>, который можно нарисовать как картинку <span class="math inline">64\times 64</span>. Эти картинки и называют <strong>eigencats</strong>.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigencats_basis.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.10. Первые восемь eigencats — строки <span class="math inline">V^{\!\top}</span>, свёрнутые в квадраты <span class="math inline">64\times 64</span>. <span class="math inline">v_1</span> ловит освещение и общую форму морды, <span class="math inline">v_2</span> — контраст верх/низ (наклон), <span class="math inline">v_3</span> — лево/право, дальше — всё более тонкие особенности.</figcaption>
+</figure>
+</div>
+<p>В сжатом виде каждый кот превращается в <span class="math inline">\sim 50</span> чисел: коэффициенты <span class="math inline">\alpha_i = v_i^{\!\top}(x - \bar x)</span>. Этого хватает, чтобы потом восстановить узнаваемое изображение и отличать одного кота от другого.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Что это нам говорит о ИИ">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Что это нам говорит о ИИ
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Пространство «реальных» объектов всегда узкое.</strong> Будь это лица людей, морды котов, рукописные цифры (датасет MNIST) или фотографии природы — реальные данные занимают в исходном многомерном пространстве <em>маленькое</em> подпространство. Распознавание = найти это подпространство и работать в нём.</p>
+<p><strong>Эта идея — фундамент современных автокодировщиков и эмбеддингов</strong> (см.&nbsp;§ 3.4.3–3.4.6). SVD — её самая ранняя и самая понятная реализация.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="sec:linalg-pagerank" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-pagerank">PageRank: как Google нашёл порядок в Интернете</h2>
+<section id="задача-и-история" class="level3">
+<h3 class="anchored" data-anchor-id="задача-и-история">Задача и история</h3>
+<p>К 1996&nbsp;г. поисковики типа <em>AltaVista</em> и <em>Yahoo!</em> ранжировали страницы по тому, сколько раз искомое слово встречается в тексте. Это легко обманывалось: достаточно было набить страницу популярными словами белым цветом по белому фону, и она попадала в топ выдачи.</p>
+<p>Лоуренс Пейдж и Сергей Брин, тогда аспиранты Стэнфорда, предложили другой принцип ранжирования: <em>страница важна, если на неё ссылаются другие важные страницы</em>.</p>
+</section>
+<section id="граф-ссылок-как-матрица" class="level3">
+<h3 class="anchored" data-anchor-id="граф-ссылок-как-матрица">Граф ссылок как матрица</h3>
+<p>Обозначим <span class="math inline">N</span> — число всех страниц Интернета (на 1998&nbsp;г. — около <span class="math inline">2{,}4\cdot 10^{8}</span>, сегодня — <span class="math inline">\sim 10^{11}</span>). Построим матрицу <span class="math inline">P\in\mathbb{R}^{N\times N}</span>:</p>
+<p><span class="math display">P_{ij}\;=\;\begin{cases}
+\dfrac{1}{c_j}, &amp; \text{если со страницы $j$ есть ссылка на $i$,}\\
+0, &amp; \text{иначе,}
+\end{cases}</span></p>
+<p>где <span class="math inline">c_j</span> — <em>полное число исходящих ссылок</em> со страницы <span class="math inline">j</span>. Содержательно: <span class="math inline">P_{ij}</span> — это вероятность того, что пользователь, сидящий на странице <span class="math inline">j</span> и случайно ткнувший на одну из её ссылок, окажется на странице <span class="math inline">i</span>. Поэтому <span class="math inline">P</span> называется матрицей переходов <strong>случайного блуждания</strong> по графу Интернета.</p>
+</section>
+<section id="стационарное-распределение-собственный-вектор" class="level3">
+<h3 class="anchored" data-anchor-id="стационарное-распределение-собственный-вектор">Стационарное распределение = собственный вектор</h3>
+<p>Пусть <span class="math inline">r\in\mathbb{R}^{N}</span> — вектор «важностей»: <span class="math inline">r_i</span> — степень важности страницы <span class="math inline">i</span>. Принцип Пейджа–Брина формализуется системой:</p>
+<p><span class="math display">\tag{0.7}
+r\;=\;P r.</span></p>
+<p>То есть важность каждой страницы равна сумме важностей тех страниц, которые на неё ссылаются, делённой на число их исходящих ссылок.</p>
+<p>Уравнение&nbsp;(0.7) говорит: <span class="math inline">r</span> — это <em>собственный вектор</em> матрицы <span class="math inline">P</span> с собственным значением <span class="math inline">1</span>. И в этом — вся суть PageRank.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 0.4. Перрон–Фробениус для PageRank">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Предупреждение</span>Теорема 0.4. Перрон–Фробениус для PageRank
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Если все элементы матрицы <span class="math inline">P</span> положительны (или хотя бы граф ссылок сильно связен и непериодичен), то собственное значение <span class="math inline">1</span> у <span class="math inline">P</span> существует, оно <em>простое</em> и наибольшее по модулю, а соответствующий собственный вектор <span class="math inline">r</span> единственен и имеет положительные компоненты. Этот <span class="math inline">r</span> называется <strong>стационарным распределением</strong> случайного блуждания.</p>
+</div>
+</div>
+</div>
+<p>(Эта теорема — Оскар Перрон, 1907&nbsp;г., и Георг Фробениус, 1912&nbsp;г. — исторически появилась задолго до Интернета, в контексте моделей популяций.)</p>
+</section>
+<section id="демпфирующий-множитель-и-формула-бринапейджа" class="level3">
+<h3 class="anchored" data-anchor-id="демпфирующий-множитель-и-формула-бринапейджа">Демпфирующий множитель и формула Брина–Пейджа</h3>
+<p>В реальной матрице Интернета у некоторых страниц нет исходящих ссылок (<em>dangling pages</em>), а в других группах — циклы. Чтобы гарантировать применимость теоремы Перрона–Фробениуса, Пейдж и Брин ввели <strong>демпфирующий множитель</strong> <span class="math inline">\beta\in(0,1)</span> (обычно <span class="math inline">\beta=0{,}85</span>):</p>
+<p><span class="math display">\tag{0.8}
+\;r\;=\;\beta P r + \dfrac{1-\beta}{N}\,\mathbf{1}.\;</span></p>
+<p>Здесь <span class="math inline">\mathbf{1}=(1,1,\ldots,1)^{\!\top}</span>. Содержательно: с вероятностью <span class="math inline">\beta\approx 0{,}85</span> случайный сёрфер кликает по ссылке, а с вероятностью <span class="math inline">1-\beta\approx 0{,}15</span> — телепортируется на случайную страницу Интернета.</p>
+</section>
+<section id="как-находить-r-степенной-метод" class="level3">
+<h3 class="anchored" data-anchor-id="как-находить-r-степенной-метод">Как находить <span class="math inline">r</span>: степенной метод</h3>
+<p>Прямо решать систему <span class="math inline">(I-\beta P)r=\frac{1-\beta}{N}\mathbf{1}</span> с <span class="math inline">N\sim 10^{11}</span> невозможно. Но и не надо: вектор <span class="math inline">r</span> можно получить простой итерацией.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Алгоритм">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Алгоритм
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Степенной метод для PageRank.</strong></p>
+<ol type="1">
+<li><p>Инициализация: <span class="math inline">r^{(0)} \leftarrow \tfrac{1}{N}\mathbf{1}</span>.</p></li>
+<li><p>Итерация: <span class="math inline">r^{(t+1)} \leftarrow \beta\,P\,r^{(t)} +
+        \dfrac{1-\beta}{N}\,\mathbf{1}</span>.</p></li>
+<li><p>Остановка: <span class="math inline">\left\lVert r^{(t+1)}-r^{(t)} \right\rVert &lt; \varepsilon</span>.</p></li>
+</ol>
+</div>
+</div>
+</div>
+<p>Сходимость гарантируется теоремой Перрона–Фробениуса: <span class="math inline">\left\lVert r^{(t)}-r \right\rVert\leq C\cdot\beta^{t}</span>, то есть погрешность убывает геометрически со знаменателем <span class="math inline">\beta=0{,}85</span>. На практике хватает <span class="math inline">50\div 100</span> итераций.</p>
+</section>
+<section id="игрушечный-пример-6-страниц" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="игрушечный-пример-6-страниц">Игрушечный пример: 6 страниц</h3>
+<p>Возьмём маленький «Интернет» из шести страниц (рис.&nbsp;0.11) и посчитаем для него PageRank.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/tikz_fig_pagerank-graph.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.11. Игрушечный «Интернет» из 6 страниц со ссылками. Видно, например, что на страницу C ссылаются три другие, а на F — только одна; будет ли C лидером по PageRank?</figcaption>
+</figure>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:pagerank" data-label="lst:pagerank"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:pagerank-1"><a href="#lst:pagerank-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="lst:pagerank-2"><a href="#lst:pagerank-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:pagerank-3"><a href="#lst:pagerank-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjacency list -&gt; column-stochastic transition matrix P</span></span>
+<span id="lst:pagerank-4"><a href="#lst:pagerank-4" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> {<span class="st">'A'</span>: [<span class="st">'B'</span>,<span class="st">'C'</span>], <span class="st">'B'</span>: [<span class="st">'C'</span>], <span class="st">'C'</span>: [<span class="st">'A'</span>],</span>
+<span id="lst:pagerank-5"><a href="#lst:pagerank-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">'D'</span>: [<span class="st">'C'</span>,<span class="st">'A'</span>], <span class="st">'E'</span>: [<span class="st">'D'</span>,<span class="st">'B'</span>,<span class="st">'F'</span>], <span class="st">'F'</span>: [<span class="st">'E'</span>,<span class="st">'B'</span>]}</span>
+<span id="lst:pagerank-6"><a href="#lst:pagerank-6" aria-hidden="true" tabindex="-1"></a>pages <span class="op">=</span> <span class="bu">list</span>(links)<span class="op">;</span> n <span class="op">=</span> <span class="bu">len</span>(pages)<span class="op">;</span> idx <span class="op">=</span> {p: i <span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(pages)}</span>
+<span id="lst:pagerank-7"><a href="#lst:pagerank-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:pagerank-8"><a href="#lst:pagerank-8" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> np.zeros((n, n))</span>
+<span id="lst:pagerank-9"><a href="#lst:pagerank-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j, p <span class="kw">in</span> <span class="bu">enumerate</span>(pages):</span>
+<span id="lst:pagerank-10"><a href="#lst:pagerank-10" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> links[p]</span>
+<span id="lst:pagerank-11"><a href="#lst:pagerank-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> q <span class="kw">in</span> out:</span>
+<span id="lst:pagerank-12"><a href="#lst:pagerank-12" aria-hidden="true" tabindex="-1"></a>        P[idx[q], j] <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> <span class="bu">len</span>(out)</span>
+<span id="lst:pagerank-13"><a href="#lst:pagerank-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:pagerank-14"><a href="#lst:pagerank-14" aria-hidden="true" tabindex="-1"></a><span class="co"># PageRank via power iteration</span></span>
+<span id="lst:pagerank-15"><a href="#lst:pagerank-15" aria-hidden="true" tabindex="-1"></a>beta, eps <span class="op">=</span> <span class="fl">0.85</span>, <span class="fl">1e-10</span></span>
+<span id="lst:pagerank-16"><a href="#lst:pagerank-16" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> np.ones(n) <span class="op">/</span> n</span>
+<span id="lst:pagerank-17"><a href="#lst:pagerank-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">200</span>):</span>
+<span id="lst:pagerank-18"><a href="#lst:pagerank-18" aria-hidden="true" tabindex="-1"></a>    r_new <span class="op">=</span> beta <span class="op">*</span> P <span class="op">@</span> r <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> beta) <span class="op">/</span> n</span>
+<span id="lst:pagerank-19"><a href="#lst:pagerank-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.linalg.norm(r_new <span class="op">-</span> r, <span class="dv">1</span>) <span class="op">&lt;</span> eps: <span class="cf">break</span></span>
+<span id="lst:pagerank-20"><a href="#lst:pagerank-20" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> r_new</span>
+<span id="lst:pagerank-21"><a href="#lst:pagerank-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:pagerank-22"><a href="#lst:pagerank-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p, ri <span class="kw">in</span> <span class="bu">sorted</span>(<span class="bu">zip</span>(pages, r), key<span class="op">=</span><span class="kw">lambda</span> t: <span class="op">-</span>t[<span class="dv">1</span>]):</span>
+<span id="lst:pagerank-23"><a href="#lst:pagerank-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>ri<span class="sc">:.4f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Выдача программы:</p>
+<p><span class="math display">\text{C: }0{,}295,\quad
+\text{A: }0{,}252,\quad
+\text{B: }0{,}175,\quad
+\text{E: }0{,}098,\quad
+\text{F: }0{,}092,\quad
+\text{D: }0{,}087.</span></p>
+<p>Лидер — <code>C</code>, хотя на неё формально ссылаются столько же страниц, сколько на <code>A</code>: PageRank учёл, что одна из ссылок на <code>C</code> приходит с уже-важной страницы <code>B</code>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Историческая справка
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Алгоритм PageRank был опубликован в 1998&nbsp;г. в студенческой работе <em>Sergey Brin, Larry Page</em>, «<em>The PageRank Citation Ranking: Bringing Order to the Web</em>». В том же году Брин и Пейдж основали Google. К 2004&nbsp;г. компания вышла на IPO, а к 2010-м стала одной из крупнейших в мире. Сам Стэнфорд получил <span class="math inline">\sim 336</span> миллионов долларов от лицензирования патента — который изначально просто описывал итерационный метод для собственного вектора.</p>
+<p>Идея использовать собственный вектор графа для измерения «важности» позднее была обобщена и применена в наукометрии (<em>Eigenfactor</em> для ранжирования научных журналов), в рекомендательных системах, а также в современных нейросетях для графов (<em>Graph Neural Networks</em>).</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sec:linalg-lipschitz" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-lipschitz">Когда нейросеть устойчива: оценки Липшицевости<span class="math inline">^\star</span></h2>
+<section id="сюжет-когда-панда-становится-гиббоном" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="сюжет-когда-панда-становится-гиббоном">Сюжет: когда панда становится гиббоном</h3>
+<p>В 2014&nbsp;г. Иэн Гудфеллоу и соавторы опубликовали ставшую знаменитой картинку (рис.&nbsp;0.12): обычная фотография панды, которую современная нейросеть уверенно опознаёт как «panda» с вероятностью <span class="math inline">57{,}7\%</span>. К каждому пикселю прибавлена крошечная, визуально незаметная человеку поправка. На обновлённой картинке сеть теперь уверенно (с вероятностью <span class="math inline">99{,}3\%</span>) считает, что видит <em>гиббона</em>.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/adversarial_panda.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.12. Adversarial-атака на нейросеть (Goodfellow et al., 2014). Слева — оригинал, классифицирован как «panda» с уверенностью <span class="math inline">57{,}7\%</span>. В центре — почти невидимое возмущение, масштабированное для наглядности. Справа — атакованный пример, классифицируется как «gibbon» с уверенностью <span class="math inline">99{,}3\%</span>.</figcaption>
+</figure>
+</div>
+<p>Этот эффект называется <strong>adversarial-атакой</strong> и долгое время считался экзотикой. Сейчас понятно: причина в простом числе, которое сопровождает любую функцию — её <em>константе Липшица</em>.</p>
+</section>
+<section id="константа-липшица-формальное-определение" class="level3">
+<h3 class="anchored" data-anchor-id="константа-липшица-формальное-определение">Константа Липшица: формальное определение</h3>
+<div class="callout callout-style-default callout-note callout-titled" title="Определение 0.5. Константа Липшица функции">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-15-contents" aria-controls="callout-15" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Определение 0.5. Константа Липшица функции
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-15" class="callout-15-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Функция <span class="math inline">f\colon\mathbb{R}^{n}\to\mathbb{R}^{m}</span> называется <strong>Липшицевой</strong> с константой <span class="math inline">L&gt;0</span>, если для любых <span class="math inline">x,y\in\mathbb{R}^{n}</span> выполнено</p>
+<p><span class="math display">\tag{0.9}
+\left\lVert f(x)-f(y) \right\rVert\;\leq\;L\,\left\lVert x-y \right\rVert.</span></p>
+<p>Наименьшее <span class="math inline">L</span>, для которого&nbsp;(0.9) выполнено, называется <em>константой Липшица</em> функции <span class="math inline">f</span> и обозначается <span class="math inline">\mathrm{Lip}(f)</span>.</p>
+</div>
+</div>
+</div>
+<p>Содержательно <span class="math inline">\mathrm{Lip}(f)</span> показывает, во сколько раз может <em>усилиться</em> входное возмущение на выходе функции. Если <span class="math inline">\mathrm{Lip}(f)=L</span>, то малое возмущение <span class="math inline">\delta</span> на входе может вызвать возмущение до <span class="math inline">L\cdot\left\lVert \delta \right\rVert</span> на выходе.</p>
+<p><strong>Пример.</strong> Для линейного отображения <span class="math inline">f(x)=Wx</span> имеем <span class="math inline">f(x)-f(y)=W(x-y)</span>, откуда <span class="math inline">\left\lVert f(x)-f(y) \right\rVert\leq \left\lVert W \right\rVert_2\cdot\left\lVert x-y \right\rVert</span>, и константа Липшица — это в точности спектральная норма матрицы <span class="math inline">W</span>:</p>
+<p><span class="math display">\tag{0.10}
+\mathrm{Lip}(Wx)\;=\;\left\lVert W \right\rVert_2\;=\;\sigma_1(W).</span></p>
+<p>Здесь <span class="math inline">\sigma_1(W)</span> — наибольшее сингулярное число матрицы <span class="math inline">W</span>. Вот <em>здесь</em> в нашу историю входит SVD из § 0.3.</p>
+</section>
+<section id="композиция-липшицева-константа-цепочки" class="level3">
+<h3 class="anchored" data-anchor-id="композиция-липшицева-константа-цепочки">Композиция: Липшицева константа цепочки</h3>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 0.6. Композиция Липшицевых функций">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Предупреждение</span>Теорема 0.6. Композиция Липшицевых функций
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-16" class="callout-16-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Если <span class="math inline">f</span> и <span class="math inline">g</span> — Липшицевы с константами <span class="math inline">L_f</span> и <span class="math inline">L_g</span>, то их композиция <span class="math inline">f\circ g</span> — тоже Липшицева, причём</p>
+<p><span class="math display">\tag{0.11}
+\mathrm{Lip}(f\circ g)\;\leq\;\mathrm{Lip}(f)\cdot\mathrm{Lip}(g).</span></p>
+</div>
+</div>
+</div>
+<p><strong>Доказательство.</strong> <span class="math inline">\left\lVert f(g(x))-f(g(y)) \right\rVert\leq L_f\left\lVert g(x)-g(y) \right\rVert\leq L_f L_g\left\lVert x-y \right\rVert</span>. <span class="math inline">\square</span><span class="math inline">\square</span></p>
+</section>
+<section id="применение-к-нейросети" class="level3">
+<h3 class="anchored" data-anchor-id="применение-к-нейросети">Применение к нейросети</h3>
+<p>Возьмём типичную нейросеть глубины <span class="math inline">K</span>:</p>
+<p><span class="math display">f(x)\;=\;\sigma\bigl(W_K\,\sigma(W_{K-1}\,\sigma(\cdots\sigma(W_1 x))\bigr),</span></p>
+<p>где <span class="math inline">W_i</span> — матрицы весов, <span class="math inline">\sigma</span> — поэлементная активация (ReLU, сигмоида, и т.п.). Для большинства активаций <span class="math inline">\mathrm{Lip}(\sigma)\leq 1</span> (для ReLU и сигмоиды это равно <span class="math inline">1</span>). По теореме&nbsp;0.6:</p>
+<p><span class="math display">\label{eq:nn-lip}
+\;\mathrm{Lip}(f)\;\leq\;\prod_{i=1}^{K}\left\lVert W_i \right\rVert_2\;</span></p>
+<p>Это и есть тот «лишний рычаг», который объясняет уязвимость нейросетей. Если <span class="math inline">\left\lVert W_i \right\rVert_2 \approx 2</span> для каждого слоя из <span class="math inline">K=20</span> слоёв, то возмущение на входе <em>потенциально</em> усиливается в <span class="math inline">2^{20}\approx 10^{6}</span> раз. Невидимая поправка <span class="math inline">\delta</span> с <span class="math inline">\left\lVert \delta \right\rVert=10^{-3}</span> может вызвать изменение выхода до <span class="math inline">10^{3}</span> — этого хватит, чтобы перебросить классификатор из одного класса в другой.</p>
+</section>
+<section id="как-защищаться-спектральная-нормализация" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="как-защищаться-спектральная-нормализация">Как защищаться: спектральная нормализация</h3>
+<p>Естественная стратегия: после каждого шага обучения нормализовать матрицу <span class="math inline">W_i</span> так, чтобы <span class="math inline">\left\lVert W_i \right\rVert_2 = 1</span>. Это и есть метод <strong>Spectral Normalization</strong> (Миято и соавт., 2018), сделавший обучение генеративных нейросетей (GAN) намного стабильнее.</p>
+<p>Технически: на каждом шаге считаем <span class="math inline">\sigma_1(W)</span> (с помощью одной итерации степенного метода — почти бесплатно!) и заменяем <span class="math inline">W \mapsto W/\sigma_1(W)</span>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:spec-norm" data-label="lst:spec-norm"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:spec-norm-1"><a href="#lst:spec-norm-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> spectral_normalize(W, n_iter<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="lst:spec-norm-2"><a href="#lst:spec-norm-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""One step of power iteration to estimate sigma_1(W) and rescale."""</span></span>
+<span id="lst:spec-norm-3"><a href="#lst:spec-norm-3" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.random.randn(W.shape[<span class="dv">0</span>])</span>
+<span id="lst:spec-norm-4"><a href="#lst:spec-norm-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_iter):</span>
+<span id="lst:spec-norm-5"><a href="#lst:spec-norm-5" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> W.T <span class="op">@</span> u<span class="op">;</span> v <span class="op">/=</span> np.linalg.norm(v)</span>
+<span id="lst:spec-norm-6"><a href="#lst:spec-norm-6" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> W <span class="op">@</span> v<span class="op">;</span>   u <span class="op">/=</span> np.linalg.norm(u)</span>
+<span id="lst:spec-norm-7"><a href="#lst:spec-norm-7" aria-hidden="true" tabindex="-1"></a>    sigma_1 <span class="op">=</span> u <span class="op">@</span> W <span class="op">@</span> v</span>
+<span id="lst:spec-norm-8"><a href="#lst:spec-norm-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> W <span class="op">/</span> sigma_1</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-tip callout-titled" title="Это интересно">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Это интересно
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-17" class="callout-17-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Связь с устойчивостью в физике.</strong> Похожая ситуация хорошо известна в теории динамических систем: если константа Липшица отображения <span class="math inline">&gt; 1</span>, малое возмущение начального условия экспоненциально нарастает (классический эффект бабочки в погодных моделях). Spectral Normalization можно рассматривать как искусственное гашение этого эффекта.</p>
+</div>
+</div>
+</div>
+</div></div></section>
+</section>
+<section id="sec:linalg-qr" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="sec:linalg-qr">QR-алгоритм: как находят <em>все</em> собственные числа<span class="math inline">^\star</span></h2>
+<section id="зачем-нужен-ещё-один-метод" class="level3">
+<h3 class="anchored" data-anchor-id="зачем-нужен-ещё-один-метод">Зачем нужен ещё один метод</h3>
+<p>В §0.7 мы использовали <em>степенной метод</em>, чтобы найти <em>один</em> собственный вектор — доминантный, соответствующий наибольшему по модулю собственному числу. А что, если нужны <em>все</em> собственные числа сразу — например, чтобы найти главные компоненты <span class="math inline">k</span>-ранговой аппроксимации, посчитать спектральную норму или определить устойчивость линейной системы <span class="math inline">\dot x = Ax</span> (она устойчива, когда все собственные числа имеют отрицательную действительную часть)?</p>
+<p>Здесь и нужен <strong>QR-алгоритм</strong> — одна из жемчужин численных методов. Описан в <span class="math inline">1961</span>&nbsp;году Джоном Фрэнсисом и независимо Верой Кубланской, по сей день остаётся <em>рабочей лошадкой</em> библиотек LAPACK и NumPy — именно его вы вызываете каждый раз, когда пишете <code>numpy.linalg.eig</code>.</p>
+</section>
+<section id="сам-алгоритм-две-строчки" class="level3">
+<h3 class="anchored" data-anchor-id="сам-алгоритм-две-строчки">Сам алгоритм: две строчки</h3>
+<p>Идея до неприличия проста. Возьмём QR-разложение матрицы <span class="math inline">A</span>: <span class="math inline">A = QR</span>, где <span class="math inline">Q</span> ортогональная (поворот), <span class="math inline">R</span> верхнетреугольная. Теперь переставим сомножители:</p>
+<p><span class="math display">A_{k+1} \;=\; R_k Q_k, \quad \text{где } Q_k R_k = \mathrm{qr}(A_k).</span></p>
+<p>И повторим. Всё.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="QR-алгоритм">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>QR-алгоритм
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><strong>Вход:</strong> квадратная матрица <span class="math inline">A_0 \in \mathbb{R}^{n\times n}</span>, число итераций <span class="math inline">N</span>.</p>
+<p><strong>Повторять</strong> <span class="math inline">k = 0, 1, \ldots, N-1</span>:</p>
+<ol type="1">
+<li><p>Вычислить QR-разложение: <span class="math inline">Q_k, R_k \leftarrow \mathrm{qr}(A_k)</span>.</p></li>
+<li><p>Обновить: <span class="math inline">A_{k+1} \leftarrow R_k Q_k</span>.</p></li>
+</ol>
+<p><strong>Возврат:</strong> <span class="math inline">A_N</span> — (почти) верхнетреугольная; на её диагонали стоят собственные числа исходной <span class="math inline">A</span>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="что-происходит-и-почему-это-работает" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="что-происходит-и-почему-это-работает">Что происходит и почему это работает</h3>
+<p>Все матрицы <span class="math inline">A_k</span> <em>подобны</em> исходной: <span class="math inline">A_{k+1} = Q_k^{\!\top} A_k Q_k</span>. А подобные матрицы имеют одинаковые собственные числа (это базовый факт линейной алгебры). При этом с каждой итерацией поддиагональные элементы <span class="math inline">A_k</span> уменьшаются в геометрической прогрессии, и в пределе <span class="math inline">A_k</span> становится верхнетреугольной — значит, на её диагонали как раз и стоят собственные числа.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Теорема 0.7. Сходимость QR-алгоритма">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Предупреждение</span>Теорема 0.7. Сходимость QR-алгоритма
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Пусть собственные числа <span class="math inline">A</span> действительны и различны по модулю: <span class="math inline">|\lambda_1| &gt; |\lambda_2| &gt; \ldots &gt; |\lambda_n|</span>. Тогда последовательность <span class="math inline">A_k</span>, полученная QR-итерациями, сходится к верхнетреугольной матрице, на диагонали которой стоят <span class="math inline">\lambda_1, \lambda_2, \ldots, \lambda_n</span> (в порядке убывания модуля), причём поддиагональные элементы убывают как <span class="math inline">|\lambda_{i+1}/\lambda_i|^k</span>.</p>
+</div>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/qr_algorithm.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.13. Сходимость QR-алгоритма на <span class="math inline">5\times 5</span>-матрицах. Верхний ряд: произвольная (несимметричная) матрица сходится к верхнетреугольной с собственными числами на диагонали (<span class="math inline">4,\ -3,\ 2.5,\ -1.5,\ 1</span>). Нижний ряд: симметричная матрица сходится к <em>диагональной</em> — это полезное свойство симметрии. Источник: <a href="https://t.me/fminxyz/30">t.me/fminxyz/30</a>.</figcaption>
+</figure>
+</div>
+</section>
+<section id="симметричный-случай-сходимся-к-диагональной" class="level3">
+<h3 class="anchored" data-anchor-id="симметричный-случай-сходимся-к-диагональной">Симметричный случай: сходимся к диагональной</h3>
+<p>Если исходная <span class="math inline">A</span> симметрична, <span class="math inline">A^{\!\top}=A</span>, то все промежуточные <span class="math inline">A_k</span> тоже симметричны, и сходимость идёт не просто к верхнетреугольной, а сразу к <em>диагональной</em> матрице. На рис.&nbsp;0.13 (нижний ряд) видно, что внедиагональные элементы зануляются с обеих сторон одновременно. Это особенно ценно: получив диагональ, мы сразу имеем <em>и</em> собственные числа, <em>и</em> собственные векторы (произведение всех <span class="math inline">Q_k</span> сходится к матрице собственных векторов).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:qr-iter" data-label="lst:qr-iter"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:qr-iter-1"><a href="#lst:qr-iter-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="lst:qr-iter-2"><a href="#lst:qr-iter-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:qr-iter-3"><a href="#lst:qr-iter-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> qr_eigvals(A, n_iters<span class="op">=</span><span class="dv">200</span>):</span>
+<span id="lst:qr-iter-4"><a href="#lst:qr-iter-4" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> A.astype(<span class="bu">float</span>).copy()</span>
+<span id="lst:qr-iter-5"><a href="#lst:qr-iter-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_iters):</span>
+<span id="lst:qr-iter-6"><a href="#lst:qr-iter-6" aria-hidden="true" tabindex="-1"></a>        Q, R <span class="op">=</span> np.linalg.qr(A)</span>
+<span id="lst:qr-iter-7"><a href="#lst:qr-iter-7" aria-hidden="true" tabindex="-1"></a>        A <span class="op">=</span> R <span class="op">@</span> Q</span>
+<span id="lst:qr-iter-8"><a href="#lst:qr-iter-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.diag(A)            <span class="co"># собственные числа</span></span>
+<span id="lst:qr-iter-9"><a href="#lst:qr-iter-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:qr-iter-10"><a href="#lst:qr-iter-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Проверка на случайной симметричной матрице:</span></span>
+<span id="lst:qr-iter-11"><a href="#lst:qr-iter-11" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">0</span>)</span>
+<span id="lst:qr-iter-12"><a href="#lst:qr-iter-12" aria-hidden="true" tabindex="-1"></a>M <span class="op">=</span> np.random.randn(<span class="dv">5</span>, <span class="dv">5</span>)</span>
+<span id="lst:qr-iter-13"><a href="#lst:qr-iter-13" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> (M <span class="op">+</span> M.T) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="lst:qr-iter-14"><a href="#lst:qr-iter-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(qr_eigvals(S),                 reverse<span class="op">=</span><span class="va">True</span>))</span>
+<span id="lst:qr-iter-15"><a href="#lst:qr-iter-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(np.linalg.eigvalsh(S).tolist(), reverse<span class="op">=</span><span class="va">True</span>))</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled" title="Реальный QR в LAPACK">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-20-contents" aria-controls="callout-20" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Реальный QR в LAPACK
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-20" class="callout-20-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>В практических реализациях используют <em>двухступенчатый</em> вариант: сначала <span class="math inline">A</span> приводят к <strong>форме Хессенберга</strong> (почти треугольной — только одна поддиагональ ненулевая) ортогональными преобразованиями Хаусхолдера, а потом запускают QR-итерации со сдвигами (<em>Wilkinson shift</em>). Это даёт сходимость за <span class="math inline">\mathcal{O}(n)</span> итераций вместо <span class="math inline">\mathcal{O}(n \log n)</span> &lt;&lt;наивного&gt;&gt; QR, и общая сложность получается <span class="math inline">\mathcal{O}(n^3)</span> — тот же порядок, что и у SVD.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="связь-с-svd" class="level3">
+<h3 class="anchored" data-anchor-id="связь-с-svd">Связь с SVD</h3>
+<p>QR и SVD — родственники. Сингулярные числа матрицы <span class="math inline">A</span> совпадают с квадратными корнями собственных чисел матрицы <span class="math inline">A^{\!\top} A</span>. Поэтому один из стандартных способов вычислить SVD — сначала построить <span class="math inline">A^{\!\top} A</span> (она симметрична), применить QR-алгоритм и получить <span class="math inline">\sigma_i = \sqrt{\lambda_i}</span>. На практике, однако, так <em>не делают</em>: построение <span class="math inline">A^{\!\top} A</span> возводит в квадрат число обусловленности и теряет точность. Современные алгоритмы SVD (например, <em>Голуба–Кахана</em>) применяют QR-итерации напрямую к би-диагональной форме <span class="math inline">A</span>, обходя <span class="math inline">A^{\!\top} A</span>.</p>
+</section>
+</section>
+<section id="подведение-итогов-главы" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="подведение-итогов-главы">Подведение итогов главы</h2>
+<ul>
+<li><p>Матрица — это <em>универсальный носитель данных</em> для ИИ: картинки, тексты, графы, веса нейросети.</p></li>
+<li><p><strong>Числа с плавающей точкой</strong> (§0.2) — вычисления на компьютере всегда приближённые с относительной ошибкой <span class="math inline">\sim\varepsilon_{\text{маш}}\approx 10^{-16}</span>. Самая опасная ошибка — <em>катастрофическое сокращение</em> при вычитании близких чисел; её часто можно устранить, переписав формулу алгебраически эквивалентным способом.</p></li>
+<li><p><strong>Сингулярное разложение</strong> <span class="math inline">A=U\Sigma V^{\!\top}</span> (§0.3) представляет любую матрицу как «поворот → растяжение по осям → поворот». Сингулярные числа <span class="math inline">\sigma_i</span> — это коэффициенты растяжения.</p></li>
+<li><p><strong>Теорема Эккарта–Янга</strong> (§0.4): <span class="math inline">A_k=\sum_{i\leq k}\sigma_i u_i v_i^{\!\top}</span> — лучшее приближение ранга <span class="math inline">k</span> матрицы <span class="math inline">A</span>. На этой теореме стоит сжатие изображений, метод eigenfaces и современный LoRA для дообучения больших языковых моделей.</p></li>
+<li><p><strong>Eigenfaces / eigencats</strong> (§0.5–0.6): реальные данные (лица, котики, цифры) живут в очень узком подпространстве своего номинального многомерного пространства. Найти это подпространство = применить SVD к выборке.</p></li>
+<li><p><strong>PageRank</strong> (§0.7): «важность» страницы Интернета = компонента собственного вектора матрицы переходов случайного блуждания. Алгоритм находит его простой итерацией; теорема Перрона–Фробениуса гарантирует сходимость.</p></li>
+<li><p><strong>Константа Липшица</strong> нейросети (§0.8) растёт мультипликативно от слоя к слою; именно поэтому глубокие сети уязвимы к adversarial-атакам. Спектральная нормализация ограничивает <span class="math inline">\left\lVert W_i \right\rVert_2=1</span> и стабилизирует обучение.</p></li>
+</ul>
+</section>
+<section id="что-почитать-дальше" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="что-почитать-дальше">Что почитать дальше</h2>
+<ul>
+<li><p><em>Е. Е.&nbsp;Тыртышников.</em> Методы численного анализа. М.: Академия, 2007. — классический российский учебник по вычислительной линейной алгебре университетского уровня.</p></li>
+<li><p><em>G.&nbsp;Strang.</em> Linear Algebra and Learning from Data. Wellesley-Cambridge Press, 2019. — свежая книга от автора знаменитого MIT-курса 18.06, написанная с прицелом на data science.</p></li>
+<li><p><em>L. N.&nbsp;Trefethen, D.&nbsp;Bau.</em> Numerical Linear Algebra. SIAM, 1997. — классика, с очень понятным изложением SVD и итерационных методов.</p></li>
+<li><p><em>Видеокурс «Numerical Linear Algebra»</em>, И. В.&nbsp;Оселедец, Сколтех (<a href="https://github.com/MerkulovDaniil/nla360">github.com/MerkulovDaniil/nla360</a>). Лекции, семинары, ноутбуки — из которых, в частности, и взяты eigencats для этой главы.</p></li>
+<li><p><em>S.&nbsp;Brin, L.&nbsp;Page.</em> The Anatomy of a Large-Scale Hypertextual Web Search Engine. WWW Conference, 1998. — оригинальная статья про PageRank, читается легко.</p></li>
+<li><p><em>I.&nbsp;Goodfellow et al.</em> Explaining and Harnessing Adversarial Examples. ICLR, 2015. — статья про панду-гиббона, из которой взят рис.&nbsp;0.12.</p></li>
+</ul>
+</section>
+<section id="большой-итоговый-проект" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="большой-итоговый-проект">Большой итоговый проект</h2>
+<p><strong>Постройте свою рекомендательную систему для фильмов.</strong></p>
+<p>Возьмите датасет MovieLens-100K (открытый, <span class="math inline">100\,000</span> оценок, <span class="math inline">\sim 1000</span> пользователей <span class="math inline">\times</span> <span class="math inline">\sim 1700</span> фильмов). Постройте матрицу «пользователь–фильм» <span class="math inline">R</span>, где <span class="math inline">R_{ij}\in\{1,\ldots,5\}</span> — оценка, поставленная пользователем <span class="math inline">i</span> фильму <span class="math inline">j</span>, а <span class="math inline">0</span> — «не смотрел».</p>
+<ol type="1">
+<li><p>Постройте малоранговое приближение <span class="math inline">R\approx U\Sigma V^{\!\top}</span> с <span class="math inline">k=20</span> компонентами через SVD.</p></li>
+<li><p>Объясните содержательно, что такое строки <span class="math inline">U</span> (профили пользователей) и столбцы <span class="math inline">V</span> (профили фильмов) в этом приближении. Сколько чисел теперь хранит модель вместо <span class="math inline">1000\cdot 1700</span>?</p></li>
+<li><p>Для нескольких реальных пользователей выпишите топ-5 фильмов, которые рекомендация модели предлагает посмотреть. Совпадают ли они с любимыми жанрами пользователя?</p></li>
+<li><p>Найдите два «противоположных» фильма с наибольшим расстоянием между их столбцами <span class="math inline">V</span> и подумайте, можно ли увидеть содержательный смысл в этой разделяющей оси (боевик vs.&nbsp;мелодрама? старое vs.&nbsp;новое?).</p></li>
+<li><p>(<span class="math inline">\star</span>) Замените SVD на алгоритм PageRank, построив граф «фильмы, которые часто оценивают одинаково». Получится ли тот же топ?</p></li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled" title="Задачи для самостоятельной работы">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-21-contents" aria-controls="callout-21" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Задачи для самостоятельной работы
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-21" class="callout-21-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Сложите в Python <span class="math inline">10\,000\,000</span> копий числа <span class="math inline">0{,}1</span>. Сколько должно получиться? Сколько получается на самом деле? Почему?</p></li>
+<li><p>Вычислите <span class="math inline">f(x)=\sqrt{x+1}-\sqrt{x}</span> при <span class="math inline">x=10^{16}</span> напрямую и через формулу <span class="math inline">f(x)=\frac{1}{\sqrt{x+1}+\sqrt{x}}</span>. Сравните ответы. Какой устойчив, почему?</p></li>
+<li><p>Найдите вручную SVD матрицы <span class="math inline">A=\bigl(\begin{smallmatrix}3 &amp; 0\\0 &amp; 4\end{smallmatrix}\bigr)</span> и <span class="math inline">A=\bigl(\begin{smallmatrix}0 &amp; 1\\-1 &amp; 0\end{smallmatrix}\bigr)</span>. Что в обоих случаях геометрически делают <span class="math inline">U, \Sigma, V</span>?</p></li>
+<li><p>Возьмите свою фотографию <span class="math inline">300\times 300</span> в градациях серого. Сделайте сжатие через SVD с рангами <span class="math inline">k=5, 20, 50, 100</span>. При каком <span class="math inline">k</span> вы перестаёте узнавать самого себя?</p></li>
+<li><p>Для игрушечного графа из рис.&nbsp;0.11 прокрутите 5 итераций степенного метода <em>вручную</em>, начав с <span class="math inline">r^{(0)}=(\tfrac16,\ldots,\tfrac16)^{\!\top}</span>. Совпали ли ваши значения с программными после <span class="math inline">5</span> шагов? а после <span class="math inline">20</span>?</p></li>
+<li><p><span class="math inline">^{\star}</span> Покажите, что для функции <span class="math inline">\sigma(x)=\max(0,x)</span> (ReLU) константа Липшица равна <span class="math inline">1</span>. Тот же вопрос для сигмоиды <span class="math inline">\sigma(x)=1/(1+e^{-x})</span>: чему равна <span class="math inline">\mathrm{Lip}(\sigma)</span> и в какой точке производная максимальна?</p></li>
+<li><p><span class="math inline">^{\star}</span> Найдите спектральную норму матрицы <span class="math inline">W=\bigl(\begin{smallmatrix}1 &amp; 2\\2 &amp; 1\end{smallmatrix}\bigr)</span> двумя способами: (а) через определение <span class="math inline">\left\lVert W \right\rVert_2=\max_{\left\lVert x \right\rVert=1}\left\lVert Wx \right\rVert</span> (с использованием собственных значений <span class="math inline">W^{\!\top}W</span>); (б) одной итерацией степенного метода (с любым стартом). Совпали ли ответы?</p></li>
+</ol>
+</div>
+</div>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
+<script>
+// Переименовываем "Typst" → "PDF этой страницы" в Other Formats блоке
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".quarto-alternate-formats a").forEach(function (a) {
+    if (a.textContent.trim() === "Typst") {
+      const icon = a.querySelector("i");
+      a.textContent = "";
+      if (icon) a.appendChild(icon);
+      a.append(" PDF этой страницы");
+    }
+  });
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Скопировано");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Скопировано");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch02_newton.html" class="pagination-link" aria-label="Численные методы оптимизации">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Численные методы оптимизации</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch03_0_intro.html" class="pagination-link" aria-label="Глава 3. Введение в анализ данных и ИИ">
+        <span class="nav-page-text">Глава 3. Введение в анализ данных и ИИ</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

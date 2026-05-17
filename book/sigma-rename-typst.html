@@ -1,0 +1,13 @@
+<script>
+// Переименовываем "Typst" → "PDF этой страницы" в Other Formats блоке
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".quarto-alternate-formats a").forEach(function (a) {
+    if (a.textContent.trim() === "Typst") {
+      const icon = a.querySelector("i");
+      a.textContent = "";
+      if (icon) a.appendChild(icon);
+      a.append(" PDF этой страницы");
+    }
+  });
+});
+</script>

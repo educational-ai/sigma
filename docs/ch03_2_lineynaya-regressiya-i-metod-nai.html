@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3.2 Линейная регрессия и метод наименьших квадратов – Σ Сигма</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" rel="next">
+<link href="./ch03_1_prosteyshie-primery-zadach-anali.html" rel="prev">
+<link href="./../favicon.svg" rel="icon" type="image/svg+xml">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ab75c3f3a51278d2dffe6ea8ffe5777a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Поиск не дал результатов",
+    "search-matching-documents-text": "Результаты поиска",
+    "search-copy-link-title": "Скопировать ссылку",
+    "search-hide-matches-text": "Скрыть дополнительные результаты",
+    "search-more-match-text": "дополнительный результат в этом документе",
+    "search-more-matches-text": "дополнительных результата(-ов) в этом документе",
+    "search-clear-button-title": "Очистить",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Отменить",
+    "search-submit-button-title": "Найти",
+    "search-label": "Поиск"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="sigma-tufte.css">
+<link rel="stylesheet" href="mobile-safe.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch03_0_intro.html">Часть III. Анализ данных и ИИ</a></li><li class="breadcrumb-item"><a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html">3.2 Линейная регрессия и метод наименьших квадратов</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Σ Сигма</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Поиск"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Σ Главная</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Предисловие</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть I. Введение в ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что такое искусственный интеллект</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть II. Математические основы</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Численные методы оптимизации</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глава 3. Введение в анализ данных и ИИ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">3.2 Линейная регрессия и метод наименьших квадратов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.3 Задача классификации и нейронные сети</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.4 Задачи обучения без учителя</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.5 Как искусственный интеллект меняет мир</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глава 4. Элементы теории чисел и шифрование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_1_elementy-teorii-chisel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.1 Элементы теории чисел</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_2_shifrovanie-ot-taynopisi-k-matem.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.2 Шифрование: от тайнописи к математической задаче</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_3_kriptosistemy-rsa-i-diffi-hellma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.3 Криптосистемы RSA и Диффи–Хеллмана</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_4_primeneniya-rsa-autentifikaciya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.4 Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_5_heshirovanie-teoriya-chisel-vstr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.5 Хеширование: теория чисел встречается с рандомизацией</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.6 Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_7_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.7 Подведение итогов главы</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>Другие форматы</h2><ul><li><a href="ch03_2_lineynaya-regressiya-i-metod-nai.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch03_0_intro.html">Часть III. Анализ данных и ИИ</a></li><li class="breadcrumb-item"><a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html">3.2 Линейная регрессия и метод наименьших квадратов</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">3.2 Линейная регрессия и метод наименьших квадратов</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>В предыдущем параграфе мы оценивали <em>скалярную</em> величину <span class="math inline">\mu</span>: вес быка, долю голосов, площадь множества. На практике куда чаще встречается другая постановка: мы хотим выяснить, <em>как</em> одна величина зависит от другой. Период обращения планеты от радиуса её орбиты. Время падения от высоты. Цена квартиры от её площади. Доход компании от числа сотрудников.</p>
+<p>Простейшая модель такой зависимости&nbsp;— <em>линейная</em>. И именно её мы и будем сейчас изучать.</p>
+<section id="ssec:ols-setup" class="level2">
+<h2 class="anchored" data-anchor-id="ssec:ols-setup">Постановка задачи</h2>
+<p>Дано: <span class="math inline">n</span> пар чисел <span class="math inline">(x_1,y_1),\dots,(x_n,y_n)</span>&nbsp;— результат измерений. Будем считать, что они связаны (приближённо!) линейной зависимостью</p>
+<p><span class="math display">\tag{3.15}
+y_i\;=\;a\,x_i+b+\xi_i,\qquad i=1,\dots,n,</span></p>
+<p>где</p>
+<ul>
+<li><p><span class="math inline">a,\,b</span>&nbsp;— неизвестные коэффициенты, которые предстоит определить;</p></li>
+<li><p><span class="math inline">\xi_i</span>&nbsp;— случайные ошибки измерений (или просто «отклонения от точной линейной зависимости», вызванные тем, что в природе идеально линейных зависимостей не бывает).</p></li>
+</ul>
+<p>Задача <strong>линейной регрессии</strong>&nbsp;— найти такие <span class="math inline">\hat a,\,\hat b</span>, чтобы прямая <span class="math inline">y=\hat a x+\hat b</span> как можно лучше описывала наши данные.</p>
+</section>
+<section id="ssec:ols-as-mle" class="level2">
+<h2 class="anchored" data-anchor-id="ssec:ols-as-mle">Метод наименьших квадратов как ОМП при гауссовом шуме</h2>
+<p>Какой смысл вкладывать в слова «как можно лучше»? Эту неопределённость снимает принцип максимума правдоподобия из параграфа&nbsp;3.1. Предположим, что ошибки <span class="math inline">\xi_i</span> независимы и имеют нормальное распределение <span class="math inline">\mathcal N(0,\sigma^{2})</span>. Тогда из модели&nbsp;(3.15) следует, что и каждое <span class="math inline">y_i</span> нормально распределено&nbsp;— с математическим ожиданием <span class="math inline">a x_i+b</span> и дисперсией <span class="math inline">\sigma^{2}</span>. Совместная плотность выборки:</p>
+<p><span class="math display">L(a,b)\;=\;\prod_{i=1}^{n}\frac{1}{\sigma\sqrt{2\pi}}
+\exp\!\left(-\frac{(y_i-a x_i-b)^{2}}{2\sigma^{2}}\right).</span></p>
+<p>Логарифмируем и оставляем только слагаемые, зависящие от <span class="math inline">a,b</span>:</p>
+<p><span class="math display">\tag{3.16}
+\ln L(a,b)\;=\;C\;-\;\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(y_i-ax_i-b)^{2},</span></p>
+<p><span class="math inline">C</span>&nbsp;— константа, нам не интересная. Максимизация <span class="math inline">\ln L</span> по <span class="math inline">(a,b)</span> эквивалентна минимизации функционала</p>
+<p><span class="math display">\tag{3.17}
+\;\;S(a,b)\;=\;\sum_{i=1}^{n}\bigl(y_i-a x_i-b\bigr)^{2}\longrightarrow\min_{a,b}.\;\;</span></p>
+<p>Это и есть знаменитый <strong>метод наименьших квадратов</strong> (МНК, англ.&nbsp;<em>Ordinary Least Squares</em>, OLS).</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Почему именно квадраты?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Почему именно квадраты?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>По теореме Гаусса (3.6), сумма квадратов&nbsp;— это <em>единственный</em> выбор функционала ошибки, при котором ОМП параметра <span class="math inline">\mu=a x+b</span> соответствует гауссовскому шуму. Замените квадраты на модули <span class="math inline">|y_i-ax_i-b|</span>&nbsp;— и вы будете неявно предполагать лапласовское распределение ошибок. Замените на четвёртую степень&nbsp;— и неявно предположите ещё более «острое» распределение. Гауссов шум <em>привилегирован</em> тем, что он естественно возникает в природе, когда ошибка&nbsp;— результат сложения большого числа независимых малых факторов.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="ssec:why-gauss" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ssec:why-gauss">Почему шум часто оказывается нормальным</h2>
+<p>Прежде чем считать формулы, разберёмся с предположением&nbsp;<span class="math inline">\xi_i\sim
+\mathcal N(0,\sigma^{2})</span>. Откуда такая уверенность? Дело в двух свойствах нормального распределения, которые делают его «магнитом» в теории вероятностей.</p>
+<p><strong>Свойство 1: устойчивость относительно суммирования.</strong> Если <span class="math inline">\eta_1\sim\mathcal N(\mu_1,\sigma_1^{2})</span> и <span class="math inline">\eta_2\sim\mathcal N(\mu_2,\sigma_2^{2})</span> независимы, то их сумма снова нормальна: <span class="math inline">\eta_1+\eta_2\sim\mathcal N(\mu_1+\mu_2,\,\sigma_1^{2}+\sigma_2^{2})</span>. Доказательство (через характеристические функции или прямой подсчёт свёртки плотностей) выходит за рамки школьной программы, но факт стоит запомнить: нормальное распределение&nbsp;— это «алгебраически самосогласованный» класс. Большинство других распределений после суммирования меняет форму, а нормальное&nbsp;— нет.</p>
+<p><strong>Свойство 2: ЦПТ.</strong> Гораздо более глубокий факт&nbsp;— центральная предельная теорема (3.3): сумма большого числа <em>независимых</em> случайных величин (любой природы, лишь бы с конечной дисперсией) распределена <em>приблизительно</em> нормально. В жизни ошибка измерения почти никогда не имеет одной-единственной природы: на неё влияют тепловые колебания прибора, вибрации, нечёткость зрения наблюдателя, погрешность шкалы, изменения освещённости и многое другое. Каждый из этих факторов даёт маленькую случайную поправку, а их сумма&nbsp;— по ЦПТ&nbsp;— получается почти нормальной (рис.&nbsp;3.8).</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/clt_demo.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 3.8. Иллюстрация ЦПТ. Слева: гистограмма единичной равномерной случайной величины (<span class="math inline">n=1</span>, форма — прямоугольник). В центре: сумма <span class="math inline">n=4</span> независимых равномерных СВ (после нормировки). Справа: <span class="math inline">n=16</span>. Красная кривая — плотность стандартного нормального распределения. Уже при <span class="math inline">n=16</span> совпадение почти идеальное.</figcaption>
+</figure>
+</div>
+<p>Поэтому, когда мы пишем «шум измерения&nbsp;— нормальный», за этим стоят <em>два</em> обоснования: ЦПТ говорит, что природа благосклонна к гауссовскому шуму; а теорема Гаусса (3.6) говорит, что, выбрав МНК как метод оценки, мы автоматически предполагаем именно такой шум.</p>
+</section>
+<section id="ssec:ols-formula" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ssec:ols-formula">Решение задачи МНК. Принцип Ферма</h2>
+<p>Найдём минимум функции <span class="math inline">S(a,b)</span> из&nbsp;(3.17). Это функция от двух переменных. По принципу Ферма (известному из главы&nbsp;2), в точке минимума обе частные производные обращаются в&nbsp;ноль:</p>
+<p><span class="math display">\tag{3.18}
+\frac{\partial S}{\partial a}\;=\;0,\qquad
+\frac{\partial S}{\partial b}\;=\;0.</span></p>
+<p>Вычислим частные производные явно:</p>
+<p><span class="math display">\begin{aligned}
+\frac{\partial S}{\partial a}
+&amp;=\sum_{i=1}^{n}\frac{\partial}{\partial a}(y_i-a x_i-b)^{2}
+  =\sum_{i=1}^{n}2(y_i-a x_i-b)\cdot(-x_i)
+  =-2\sum_{i=1}^{n}x_i(y_i-a x_i-b),\\[2pt]
+\frac{\partial S}{\partial b}
+&amp;=\sum_{i=1}^{n}2(y_i-a x_i-b)\cdot(-1)
+  =-2\sum_{i=1}^{n}(y_i-a x_i-b).
+\end{aligned}</span></p>
+<p>Приравнивание обеих производных нулю даёт систему <em>нормальных уравнений</em>:</p>
+<p><span class="math display">\begin{aligned}
+a\sum_{i=1}^{n}x_i^{2}+b\sum_{i=1}^{n}x_i
+   &amp;=\sum_{i=1}^{n}x_i y_i,\\
+a\sum_{i=1}^{n}x_i+b\,n
+   &amp;=\sum_{i=1}^{n}y_i.
+\end{aligned}</span></p>
+<p>Обозначим выборочные средние <span class="math inline">\bar x=\frac{1}{n}\sum x_i</span>, <span class="math inline">\bar y=\frac{1}{n}\sum y_i</span>. Делим&nbsp;(3.20) на&nbsp;<span class="math inline">n</span>: <span class="math inline">a\bar x+b=\bar y</span>, откуда</p>
+<p><span class="math display">\tag{3.21}
+\;\hat b\;=\;\bar y-\hat a\,\bar x.\;</span></p>
+<p>Это означает, что прямая <span class="math inline">y=\hat a x+\hat b</span> <em>всегда проходит через «центр масс» данных</em> <span class="math inline">(\bar x,\bar y)</span>.</p>
+<p>Подставляем <span class="math inline">\hat b</span> в&nbsp;(3.19) и после простых преобразований (умножаем&nbsp;(3.20) на <span class="math inline">\bar x</span> и вычитаем из&nbsp;(3.19)) получаем</p>
+<p><span class="math display">\tag{3.22}
+\;\hat a\;=\;\dfrac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^{n}(x_i-\bar x)^{2}}.\;</span></p>
+<p>Числитель&nbsp;— так называемая <em>ковариация</em> выборок <span class="math inline">x</span> и <span class="math inline">y</span> (точнее, <span class="math inline">n</span>&nbsp;раз ковариация), знаменатель&nbsp;— <span class="math inline">n</span> раз выборочная дисперсия&nbsp;<span class="math inline">x</span>. Формулы&nbsp;(3.21), (3.22)&nbsp;— основной рабочий инструмент простой линейной регрессии.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Геометрический смысл">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Геометрический смысл
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>МНК минимизирует сумму квадратов <em>вертикальных</em> расстояний от точек данных до прямой&nbsp;— не перпендикулярных и не горизонтальных, а именно <em>вертикальных</em> (рис.&nbsp;3.9). Это связано с тем, что в модели&nbsp;(3.15) мы считаем, что значение <span class="math inline">x_i</span>&nbsp;— <em>точное</em> (точка на оси абсцисс), а вся неопределённость сосредоточена в&nbsp;<span class="math inline">y_i</span>. Если, напротив, ошибки есть и в&nbsp;<span class="math inline">x</span>, и в&nbsp;<span class="math inline">y</span>, на смену МНК приходит так называемый <em>общий МНК</em> (Total Least Squares), минимизирующий перпендикулярные расстояния.</p>
+</div>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/ols_residuals.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 3.9. Геометрия МНК. Регрессионная прямая (синяя) проводится так, чтобы сумма площадей розовых квадратов была наименьшей. Сторона каждого квадрата — это <em>вертикальный</em> остаток <span class="math inline">|y_i-\hat a x_i-\hat b|</span>, а площадь — его квадрат.</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Пример 3.8. Прямой счёт по формуле">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Пример 3.8. Прямой счёт по формуле
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Возьмём шесть точек: <span class="math inline">(1,2{,}1)</span>, <span class="math inline">(2,3{,}9)</span>, <span class="math inline">(3,5{,}8)</span>, <span class="math inline">(4,8{,}3)</span>, <span class="math inline">(5,10{,}0)</span>, <span class="math inline">(6,11{,}9)</span>. Считаем по&nbsp;(3.21), (3.22):</p>
+<p><span class="math display">\bar x=3{,}5,\quad \bar y=7{,}0,\quad
+\sum(x_i-\bar x)^{2}=17{,}5,\quad
+\sum(x_i-\bar x)(y_i-\bar y)=34{,}65.</span></p>
+<p>Откуда <span class="math inline">\hat a=34{,}65/17{,}5\approx 1{,}980</span> и <span class="math inline">\hat b=7{,}0-1{,}98\cdot 3{,}5\approx 0{,}07</span>. Регрессионная прямая: <span class="math inline">\hat y\approx 1{,}98\,x+0{,}07</span>&nbsp;— то есть данные «выложены вдоль» зависимости <span class="math inline">y\approx 2x</span>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="ssec:kepler" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ssec:kepler">Пример 1. III закон Кеплера по данным Тихо Браге</h2>
+<p>В качестве первого «настоящего» применения МНК разберём задачу, с которой началась современная физика. К XVI&nbsp;веку астрономы уже умели определять для каждой планеты:</p>
+<ul>
+<li><p><em>период обращения</em>&nbsp;<span class="math inline">T</span> (за сколько лет планета возвращается на ту же точку звёздного неба), и</p></li>
+<li><p><em>средний радиус орбиты</em>&nbsp;<span class="math inline">a</span>&nbsp;— большую полуось эллипса.</p></li>
+</ul>
+<p>Тихо Браге (1546–1601), один из величайших астрономов-наблюдателей доньютоновской эпохи, посвятил всю жизнь точнейшим наблюдениям движения планет с помощью огромных угломерных инструментов на острове Вен (Дания). После его смерти эти таблицы достались его помощнику&nbsp;— молодому немцу <strong>Иоганну Кеплеру</strong> (1571–1630), который потратил два десятилетия на их интерпретацию.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Историческая справка
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Тихо Браге&nbsp;— величайший астроном-наблюдатель домикроскопной эпохи. Точность его измерений угловых положений планет составляла <span class="math inline">\sim\!1'</span> (угловая минута)&nbsp;— предел для невооружённого глаза. К концу жизни он накопил каталог из почти тысячи звёзд и подробнейшие записи о движении пяти видимых планет за 21&nbsp;год.</p>
+<p>Кеплер унаследовал эти таблицы и в 1605&nbsp;г.&nbsp;открыл <em>первый</em> закон движения планет: каждая планета движется по эллипсу, в одном из фокусов которого находится Солнце. В 1609&nbsp;г. он добавил <em>второй</em>: радиус-вектор планеты заметает равные площади за равные времена. А в 1619&nbsp;г.&nbsp;(в трактате <em>Harmonices Mundi</em>, «Гармонии мира») он опубликовал <em>третий</em> закон: квадраты периодов обращения относятся как кубы больших полуосей. Сам Кеплер выписал этот закон в форме <span class="math inline">T^{2}\sim a^{3}</span>, не зная ни логарифмов в общеупотребительном виде, ни тем более понятия регрессии. Но именно на «эпохе Браге–Кеплера» данные впервые позволили установить количественный закон одного астрономического параметра как функции другого.</p>
+</div>
+</div>
+</div>
+<p><strong>Постановка как задача регрессии.</strong> Подозреваем степенную зависимость <span class="math inline">T=C\cdot a^{\beta}</span>. Логарифмируя обе части, получаем линейную зависимость в логарифмических осях:</p>
+<p><span class="math display">\tag{3.23}
+\lg T\;=\;\beta\,\lg a\;+\;\lg C.</span></p>
+<p>Обозначим <span class="math inline">x_i=\lg a_i</span>, <span class="math inline">y_i=\lg T_i</span>. Это уже стандартная задача линейной регрессии&nbsp;— ищем <span class="math inline">\hat\beta</span> и <span class="math inline">\widehat{\lg C}</span> по формулам&nbsp;(3.22), (3.21).</p>
+<p><strong>Данные.</strong> Шесть планет, известных Кеплеру (значения близки к тем, что использовал он сам, но приведены в современных единицах):</p>
+<div class="center">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Планета</th>
+<th style="text-align: center;"><span class="math inline">a</span>, а. е.&nbsp;</th>
+<th style="text-align: center;"><span class="math inline">T</span>, лет</th>
+<th style="text-align: center;"><span class="math inline">\lg a</span></th>
+<th style="text-align: center;"><span class="math inline">\lg T</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Меркурий</td>
+<td style="text-align: center;">0,3871</td>
+<td style="text-align: center;">0,2408</td>
+<td style="text-align: center;"><span class="math inline">-0{,}4122</span></td>
+<td style="text-align: center;"><span class="math inline">-0{,}6183</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Венера</td>
+<td style="text-align: center;">0,7233</td>
+<td style="text-align: center;">0,6152</td>
+<td style="text-align: center;"><span class="math inline">-0{,}1407</span></td>
+<td style="text-align: center;"><span class="math inline">-0{,}2110</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Земля</td>
+<td style="text-align: center;">1,0000</td>
+<td style="text-align: center;">1,0000</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Марс</td>
+<td style="text-align: center;">1,5237</td>
+<td style="text-align: center;">1,8809</td>
+<td style="text-align: center;">0,1829</td>
+<td style="text-align: center;">0,2744</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Юпитер</td>
+<td style="text-align: center;">5,2034</td>
+<td style="text-align: center;">11,862</td>
+<td style="text-align: center;">0,7163</td>
+<td style="text-align: center;">1,0742</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Сатурн</td>
+<td style="text-align: center;">9,5371</td>
+<td style="text-align: center;">29,457</td>
+<td style="text-align: center;">0,9794</td>
+<td style="text-align: center;">1,4692</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Расчёт МНК.</strong> Программа из десяти строк (или подсчёт «вручную» по формулам&nbsp;(3.22), (3.21)) даёт:</p>
+<p><span class="math display">\tag{3.24}
+\hat\beta\;=\;1{,}4999628\dots,\qquad
+\widehat{\lg C}\;=\;-0{,}00003\dots,\qquad R^{2}\;=\;0{,}99999996.</span></p>
+<p><em>Коэффициент&nbsp;<span class="math inline">\hat\beta</span> совпадает с <span class="math inline">3/2</span> с точностью до четвёртого знака после запятой.</em> Это и есть III закон Кеплера:</p>
+<p><span class="math display">\;\;T^{2}\;=\;C\cdot a^{3},\qquad C\approx 1\;(\text{в единицах год/а.\,е.}^{3/2}).\;\;</span></p>
+<p>Это соотношение и графическое спрямление данных Кеплера в двойной логарифмической шкале показаны на рис.&nbsp;3.10.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/kepler_data.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 3.10. Слева: данные о периоде обращения и радиусе орбиты для шести известных Кеплеру планет — степенная зависимость. Справа: те же данные в двойной логарифмической шкале — идеальная прямая. Линия МНК (синяя) имеет наклон <span class="math inline">\hat\beta=1{,}5000</span> с коэффициентом детерминации <span class="math inline">R^{2}=0{,}999\,999\,96</span> — одно из самых аккуратных эмпирических соотношений в истории науки.</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Что увидел сам Кеплер?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Что увидел сам Кеплер?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Кеплер не имел в распоряжении ни МНК (его открыли через 100&nbsp;лет: Лежандр&nbsp;— в 1805&nbsp;г., Гаусс&nbsp;— в 1809&nbsp;г.), ни графиков логарифмов в современном виде. Он подбирал зависимость <em>руками</em>, сравнивая отношения. После многомесячных проб он заметил, что <span class="math inline">T^{2}_{\text{Юпитер}}/T^{2}_{\text{Земля}}\approx 140{,}7</span> и <span class="math inline">a^{3}_{\text{Юпитер}}/a^{3}_{\text{Земля}}\approx 140{,}9</span>&nbsp;— почти равенство. Сегодня та же зависимость устанавливается за десяток строк кода&nbsp;— но идею Кеплера это не уменьшает. Напротив, наглядно показывает, насколько мощным инструментом стал МНК для последующих поколений физиков.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="ssec:galileo" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ssec:galileo">Пример 2. Ускорение свободного падения по данным Галилея</h2>
+<p><strong>Галилео Галилей</strong> (1564–1642) стоял у истоков физики как <em>экспериментальной</em> науки. Его трактат «Беседы и математические доказательства, касающиеся двух новых отраслей науки» (1638) изложил закон свободного падения: пройденный путь пропорционален <em>квадрату</em> времени падения,</p>
+<p><span class="math display">\tag{3.25}
+h\;=\;\frac{g}{2}\,t^{2},</span></p>
+<p>где <span class="math inline">g</span>&nbsp;— ускорение свободного падения. Историки до сих пор спорят, на самом ли деле Галилей сбрасывал предметы с Пизанской башни (свидетельства его ученика Винченцо Вивиани, написанные через десятки лет, ставятся под сомнение). Но даже как «мысленный эксперимент» этот сюжет великолепно подходит, чтобы продемонстрировать МНК на ещё одной задаче (рис.&nbsp;3.11).</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/tikz_fig_pisa.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 3.11. Эксперимент Галилея на Пизанской башне (художественная реконструкция). Из-за небольшого наклона башни (около <span class="math inline">4^{\circ}</span> к вертикали в современном состоянии) экспериментатору удобно сбрасывать предметы <em>вертикально вниз</em>, без начальной скорости: они летят почти вдоль внешней стены, не задевая её. Время падения <span class="math inline">t</span> измеряется для разных уровней — разных значений высоты <span class="math inline">h</span>.</figcaption>
+</figure>
+</div>
+<p><strong>Регрессионная модель.</strong> Записывать <span class="math inline">t</span> через <span class="math inline">h</span> напрямую нельзя (получится корень):</p>
+<p><span class="math display">t\;=\;\sqrt{\frac{2 h}{g}}.</span></p>
+<p>Поэтому регрессия выписывается для <em>обратной</em> зависимости&nbsp;— высота от квадрата времени:</p>
+<p><span class="math display">\tag{3.26}
+h\;=\;\frac{g}{2}\,t^{2}+\xi.</span></p>
+<p>Введя <span class="math inline">X=t^{2}</span>, <span class="math inline">Y=h</span> и <span class="math inline">A=g/2</span>, получаем линейную модель <span class="math inline">Y=AX+\xi</span>&nbsp;— частный случай&nbsp;(3.15) с <span class="math inline">b=0</span>. (Свободный член можно оставить и формально&nbsp;— он покажет систематическую погрешность типа «реакции экспериментатора при пуске секундомера»; см.&nbsp;ниже.)</p>
+<p><strong>«Данные».</strong> Воспроизведём эксперимент в духе <em>Discorsi</em>. Высоты ярусов Пизанской башни (приблизительно): <span class="math inline">7</span>, <span class="math inline">12</span>, <span class="math inline">19</span>, <span class="math inline">25{,}5</span>, <span class="math inline">32</span>, <span class="math inline">38</span>, <span class="math inline">44</span>, <span class="math inline">50</span>&nbsp;м над землёй. Для каждой высоты «измеряем» время падения&nbsp;— настоящий Галилей использовал водяные часы (взвешивал воду, вытекшую за время падения!) с типичной погрешностью около <span class="math inline">\sigma\sim 0{,}05</span> секунды на одно измерение. Получим набор пар <span class="math inline">(h_i,t_i)</span>:</p>
+<div class="center">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">i</span></th>
+<th style="text-align: center;"><span class="math inline">h_i</span>, м</th>
+<th style="text-align: center;"><span class="math inline">t_i</span>, с (измерено)</th>
+<th style="text-align: center;"><span class="math inline">t_i^{2}</span>, с<span class="math inline">^{2}</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">7,0</td>
+<td style="text-align: center;">1,253</td>
+<td style="text-align: center;">1,569</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">12,0</td>
+<td style="text-align: center;">1,570</td>
+<td style="text-align: center;">2,465</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">19,0</td>
+<td style="text-align: center;">1,897</td>
+<td style="text-align: center;">3,597</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">25,5</td>
+<td style="text-align: center;">2,299</td>
+<td style="text-align: center;">5,287</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">32,0</td>
+<td style="text-align: center;">2,497</td>
+<td style="text-align: center;">6,235</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">38,0</td>
+<td style="text-align: center;">2,793</td>
+<td style="text-align: center;">7,799</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">44,0</td>
+<td style="text-align: center;">3,092</td>
+<td style="text-align: center;">9,562</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">50,0</td>
+<td style="text-align: center;">3,196</td>
+<td style="text-align: center;">10,213</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Расчёт МНК.</strong> Применяем формулы&nbsp;(3.22), (3.21) к парам <span class="math inline">(t_i^{2},h_i)</span>: <span class="math inline">\hat A\approx 4{,}757</span>, <span class="math inline">\hat b\approx 0{,}653</span>. Отсюда</p>
+<p><span class="math display">\hat g\;=\;2\hat A\;\approx\;9{,}51\;\text{м/с}^{2},</span></p>
+<p>при «истинном» значении <span class="math inline">g=9{,}81</span> м/с<span class="math inline">^{2}</span>. Относительная погрешность <span class="math inline">\sim\!3\,\%</span>&nbsp;— абсолютно реалистичный результат для экспериментатора XVII&nbsp;века с водяными часами. Коэффициент детерминации <span class="math inline">R^{2}\approx 0{,}9932</span>&nbsp;— то есть модель объясняет более <span class="math inline">99\,\%</span> дисперсии в данных (рис.&nbsp;3.12).</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/galileo_pisa.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 3.12. Слева: измеренные времена падения от высоты — зависимость <span class="math inline">t\sim\sqrt h</span>. Справа: те же данные после «спрямления» по оси <span class="math inline">t^{2}</span>. Линия МНК (синяя) почти проходит через начало координат, её угловой коэффициент <span class="math inline">\hat A=4{,}757</span> даёт <span class="math inline">\hat g=2\hat A\approx 9{,}51</span> м/с<span class="math inline">^{2}</span>. Маленький свободный член <span class="math inline">\hat b=0{,}65</span> м соответствует реакции экспериментатора — задержке между моментом разжатия пальцев и началом отсчёта по водяным часам.</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Зачем спрямлять?">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Зачем спрямлять?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>И в задаче Кеплера, и в задаче Галилея исходная зависимость&nbsp;— не линейная (<span class="math inline">T=Ca^{3/2}</span>, <span class="math inline">t=\sqrt{2h/g}</span>). Прежде чем применить МНК, мы её <em>линеаризуем</em>: берём логарифм у Кеплера и квадрат&nbsp;<span class="math inline">t</span> у Галилея. Это очень распространённый трюк: подбор показателя степени, экспоненциальный рост, степенные законы&nbsp;— все они сводятся к линейной регрессии заменой переменных.</p>
+<p>Однако с этим связано важное наблюдение. После замены переменных <em>меняется</em> и распределение шума: гауссов шум на исходных&nbsp;<span class="math inline">y</span> после взятия логарифма уже не гауссов на <span class="math inline">\lg y</span>. Поэтому формально «линеаризованная» оценка слегка отличается от ОМП в исходной модели&nbsp;— но в большинстве практических задач отличие незначительно, и линеаризацией пользуются как удобным и универсальным приёмом.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="ssec:multi-reg" class="level2">
+<h2 class="anchored" data-anchor-id="ssec:multi-reg">Множественная линейная регрессия (краткий обзор)</h2>
+<p>В реальных задачах одной входной переменной обычно мало. Цена квартиры зависит <em>одновременно</em> от её площади, расстояния до метро, этажа, года постройки. Время на маршруте&nbsp;— от длины пути, числа светофоров, загруженности, времени суток.</p>
+<p><strong>Постановка.</strong> Пусть <span class="math inline">n</span>&nbsp;— число наблюдений, <span class="math inline">d</span>&nbsp;— число входных признаков. Для <span class="math inline">i</span>-го наблюдения известны: вектор признаков <span class="math inline">\mathbf x_i=(x_{i,1},\dots,x_{i,d})\in\mathbb{R}^{d}</span> и значение отклика&nbsp;<span class="math inline">y_i\in\mathbb{R}</span>. Запишем общую <strong>множественную линейную модель</strong>:</p>
+<p><span class="math display">\tag{3.27}
+y_i\;=\;w_1 x_{i,1}+w_2 x_{i,2}+\dots+w_d x_{i,d}+w_0+\xi_i,
+\qquad i=1,\dots,n.</span></p>
+<p>Здесь <span class="math inline">w_1,\dots,w_d</span>&nbsp;— коэффициенты при признаках, <span class="math inline">w_0</span>&nbsp;— свободный член, <span class="math inline">\xi_i\sim\mathcal N(0,\sigma^{2})</span>&nbsp;— независимый гауссов шум.</p>
+<p><strong>Матричная запись.</strong> Соберём <strong>матрицу плана</strong>&nbsp;<span class="math inline">X\in\mathbb{R}^{n\times(d+1)}</span>, у которой <span class="math inline">i</span>-я строка&nbsp;— это <span class="math inline">(x_{i,1},x_{i,2},\dots,x_{i,d},1)</span> (последняя единица позволяет учесть свободный член <span class="math inline">w_0</span> как обычный коэффициент). Вектор параметров <span class="math inline">\mathbf w=(w_1,\dots,w_d,w_0)^{\top}\in\mathbb{R}^{d+1}</span>, вектор откликов <span class="math inline">\mathbf y=(y_1,\dots,y_n)^{\top}</span>. Тогда модель компактно записывается одной строкой:</p>
+<p><span class="math display">\mathbf y\;=\;X\,\mathbf w+\boldsymbol\xi.</span></p>
+<p><strong>Метод наименьших квадратов.</strong> Сумма квадратов ошибок принимает вид</p>
+<p><span class="math display">S(\mathbf w)\;=\;\sum_{i=1}^{n}\bigl(y_i-\mathbf x_i^{\top}\mathbf w\bigr)^{2}
+\;=\;\left\lVert \mathbf y-X\mathbf w \right\rVert^{2},</span></p>
+<p>где для краткости <span class="math inline">\mathbf x_i^{\top}\mathbf w=x_{i,1}w_1+\dots+x_{i,d}w_d+w_0</span> (т.&nbsp;е.&nbsp;стандартное скалярное произведение). Приравнивание градиента <span class="math inline">S</span> нулю даёт систему <em>нормальных уравнений</em>:</p>
+<p><span class="math display">\tag{3.28}
+\;\;(X^{\top}X)\,\hat{\mathbf w}\;=\;X^{\top}\mathbf y\;\;\qquad(\text{нормальные уравнения}).</span></p>
+<p>Если матрица <span class="math inline">X^{\top}X</span> размера <span class="math inline">(d+1)\times(d+1)</span> <em>невырождена</em>, отсюда <span class="math inline">\hat{\mathbf w}=(X^{\top}X)^{-1}X^{\top}\mathbf y</span>. Эта формула&nbsp;— наиболее известная в линейной алгебре статистической оценки.</p>
+<p><strong>Условие применимости.</strong> Невырожденность <span class="math inline">X^{\top}X</span> равносильна тому, что столбцы&nbsp;<span class="math inline">X</span> <em>линейно независимы</em>: ни один признак не является линейной комбинацией других, и число наблюдений не меньше числа признаков (<span class="math inline">n\geq d+1</span>). Если это не так&nbsp;— решение не единственно, и приходится либо отбирать признаки, либо использовать <em>регуляризацию</em> (см.&nbsp;3.18).</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Пример 3.9. Цена квартиры по двум признакам">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Пример 3.9. Цена квартиры по двум признакам
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Пусть для пяти квартир известны площадь <span class="math inline">x_{i,1}</span> (м<span class="math inline">^{2}</span>), расстояние до метро <span class="math inline">x_{i,2}</span> (минуты пешком) и цена <span class="math inline">y_i</span> (млн&nbsp;руб.):</p>
+<p><span class="math display">\begin{array}{c|c|c|c}
+i &amp; x_{i,1} &amp; x_{i,2} &amp; y_i \\ \hline
+1 &amp; 35 &amp; 5 &amp; 9{,}5 \\
+2 &amp; 45 &amp; 12 &amp; 10{,}0 \\
+3 &amp; 60 &amp; 8  &amp; 13{,}5 \\
+4 &amp; 75 &amp; 3  &amp; 17{,}0 \\
+5 &amp; 50 &amp; 20 &amp; 9{,}8
+\end{array}</span></p>
+<p>Подставим <span class="math inline">X\in\mathbb{R}^{5\times 3}</span> (последний столбец из единиц) в формулу&nbsp;(3.28) и численно решим систему. Получим <span class="math inline">\hat{\mathbf w}\approx(0{,}183,\,-0{,}142,\,2{,}74)</span>, то есть</p>
+<p><span class="math display">\hat y\;=\;0{,}183\,x_{1}\;-\;0{,}142\,x_{2}\;+\;2{,}74.</span></p>
+<p>Содержательно: каждый дополнительный квадратный метр прибавляет к цене <span class="math inline">\approx\!183</span>&nbsp;тыс.&nbsp;руб., каждая дополнительная минута до метро <em>уменьшает</em> цену на <span class="math inline">\approx\!142</span>&nbsp;тыс.&nbsp;руб., а свободный член <span class="math inline">2{,}74</span>&nbsp;млн&nbsp;— это «базовая стоимость», когда оба признака равны нулю.</p>
+</div>
+</div>
+</div>
+<p><strong>Главная идея.</strong> С ростом размерности <em>тип формул не меняется</em>. МНК&nbsp;— универсальный инструмент, одинаково работающий и для одного-единственного признака (Кеплер, Галилей), и для тысячи признаков (модели ценообразования, прогнозирование спроса, физика частиц). Мы вернёмся к этим формулам в параграфе&nbsp;3.4 при обсуждении малоранговых аппроксимаций матриц.</p>
+</section>
+<section id="резюме-параграфа" class="level2">
+<h2 class="anchored" data-anchor-id="резюме-параграфа">Резюме параграфа</h2>
+<p>Метод наименьших квадратов&nbsp;— первый <em>реальный</em> инструмент анализа данных, который мы получили. Его эквивалентность принципу максимума правдоподобия в гауссовой модели делает его универсальным.</p>
+<p>На примере Кеплера МНК даёт III закон с точностью до семи знаков: наклон <span class="math inline">\hat\beta=1{,}49996\approx 3/2</span>. На примере Галилея&nbsp;— ускорение свободного падения <span class="math inline">\hat g\approx 9{,}51</span> м/с<span class="math inline">^{2}</span> при истинном <span class="math inline">9{,}81</span>.</p>
+<p>Главные идеи, которые мы должны вынести из этого параграфа и которые будут проявляться дальше в более сложных моделях:</p>
+<ol type="1">
+<li><p><strong>Принцип максимума правдоподобия</strong>, применённый к модели «параметр плюс гауссов шум», даёт <em>минимизацию суммы квадратов</em> как универсальный функционал ошибки.</p></li>
+<li><p>Принцип Ферма (приравнивание частных производных к нулю) приводит к <em>системе линейных уравнений</em>, которая называется системой нормальных уравнений.</p></li>
+<li><p>Зависимость, не являющаяся линейной, часто <em>спрямляется</em> заменой переменных (логарифмирование, возведение в квадрат) и после этого тоже становится задачей МНК.</p></li>
+</ol>
+<p>В следующем параграфе мы шагнём от линейных моделей к существенно нелинейным&nbsp;— нейронным сетям. Принцип максимума правдоподобия и тут останется методологической отправной точкой, но функционал станет сложнее, а вместо аналитического решения нормальных уравнений мы будем использовать численные методы&nbsp;— градиентный спуск и его варианты.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Задачи для самостоятельной работы">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Задачи для самостоятельной работы
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p>Для точек <span class="math inline">(1,1{,}2)</span>, <span class="math inline">(2,2{,}3)</span>, <span class="math inline">(3,3{,}5)</span>, <span class="math inline">(4,4{,}3)</span>, <span class="math inline">(5,5{,}1)</span> найдите <span class="math inline">\hat a,\hat b</span> методом наименьших квадратов. Постройте график «данные + регрессионная прямая».</p></li>
+<li><p>Выведите формулу&nbsp;(3.22) в явном виде, проделав все преобразования между&nbsp;(3.19) и&nbsp;(3.22).</p></li>
+<li><p>Кеплер. По данным таблицы выше посчитайте&nbsp;<em>вручную</em> (или с помощью калькулятора) <span class="math inline">\bar x=\overline{\lg a}</span>, <span class="math inline">\bar y=\overline{\lg T}</span>, ковариацию и дисперсию, и убедитесь, что МНК даёт <span class="math inline">\hat\beta\approx 1{,}5</span>.</p></li>
+<li><p>Галилей. Зачем в&nbsp;(3.26) мы добавили свободный член <span class="math inline">\xi</span>? Какое физическое явление он моделирует?</p></li>
+<li><p>Постройте регрессию веса человека (<span class="math inline">y</span>) от его роста (<span class="math inline">x</span>) на выборке из 10 ваших знакомых (можно вымышленных). Сравните ваш результат с известной эмпирической формулой Брока <span class="math inline">y\approx x-100</span>&nbsp;(см.&nbsp;массой в кг, рост в см).</p></li>
+<li><p><span class="math inline">^{\star}</span> Покажите, что МНК-оценка <span class="math inline">\hat a</span> из&nbsp;(3.22) <em>несмещённая</em>: <span class="math inline">\mathbb E[\hat a]=a</span>, если на самом деле <span class="math inline">y_i=a x_i+b+\xi_i</span> с независимыми ошибками с нулевым математическим ожиданием. Найдите <span class="math inline">\mathbb D[\hat a]</span>.</p></li>
+<li><p><span class="math inline">^{\star}</span> Метод наименьших квадратов с весами. Пусть нам известно, что точность <span class="math inline">i</span>-го измерения характеризуется собственной дисперсией <span class="math inline">\sigma_i^{2}</span> (разные приборы&nbsp;— разная погрешность). Покажите, что ОМП-оценка минимизирует <em>взвешенную</em> сумму квадратов <span class="math inline">\sum_{i}\sigma_i^{-2}(y_i-a x_i-b)^{2}</span>. Найдите для этой задачи аналог формул&nbsp;(3.22), (3.21).</p></li>
+</ol>
+</div>
+</div>
+</div>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
+<script>
+// Переименовываем "Typst" → "PDF этой страницы" в Other Formats блоке
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".quarto-alternate-formats a").forEach(function (a) {
+    if (a.textContent.trim() === "Typst") {
+      const icon = a.querySelector("i");
+      a.textContent = "";
+      if (icon) a.appendChild(icon);
+      a.append(" PDF этой страницы");
+    }
+  });
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Скопировано");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Скопировано");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="pagination-link" aria-label="3.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">3.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="pagination-link" aria-label="3.3 Задача классификации и нейронные сети">
+        <span class="nav-page-text">3.3 Задача классификации и нейронные сети</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

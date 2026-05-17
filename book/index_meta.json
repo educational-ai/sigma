@@ -1,0 +1,7 @@
+{
+  "ch01_intro":     {"status": 1, "meta": "стаб · 30 строк .tex"},
+  "ch02_newton":    {"status": 3, "meta": "537 строк .tex · метод касательных Ньютона"},
+  "ch_linalg":      {"status": 2, "meta": "новая · SVD · eigenfaces · PageRank · Lipschitz"},
+  "ch03_ds":        {"status": 3, "meta": "3.6K строк .tex · самая объёмная глава"},
+  "ch04_numtheory": {"status": 3, "meta": "2.7K строк .tex · 6 параграфов"}
+}

@@ -1,0 +1,89 @@
+---
+title: "Сигма"
+toc: false
+page-layout: full
+---
+
+::: {.hero}
+
+# Сигма
+
+**Учебник по искусственному интеллекту** — углублённый уровень, 10–11 классы.
+Команда Альянса ИИ, идеолог — А. В. Гасников.
+
+[📕 PDF (текущая сборка)](book.pdf){.btn .btn-primary} &nbsp;
+[🔒 GitHub (private)](https://github.com/MerkulovDaniil/uchebniik){.btn .btn-outline-secondary} &nbsp;
+[☁️ Overleaf](https://overleaf.mipt.ru/2484959286nqqftjdwkqxc){.btn .btn-outline-secondary}
+
+:::
+
+## Три учебника
+
+```{=html}
+<div class="book-cards">
+
+  <a class="book-card book-dop" href="dop/">
+    <div class="book-icon">📐</div>
+    <h3>Дополнительный учебник</h3>
+    <p class="book-tagline">Углублённые сюжеты к 10 и 11 классам</p>
+    <ul class="book-toc">
+      <li>I. Введение в ИИ</li>
+      <li>II. Численные методы оптимизации (Ньютон)</li>
+      <li>III. Анализ данных и ИИ <em>(самая объёмная глава)</em></li>
+      <li>IV. Теория чисел и шифрование <em>(RSA, ДХ, HyperLogLog)</em></li>
+    </ul>
+    <div class="book-status">🟠 4 главы — черновики собраны в Overleaf</div>
+  </a>
+
+  <a class="book-card book-10" href="10/">
+    <div class="book-icon">📘</div>
+    <h3>Учебник 10 класса</h3>
+    <p class="book-tagline">Введение в искусственный интеллект · ~40 уроков</p>
+    <ul class="book-toc">
+      <li>Гл 1. Введение в интеллектуальный анализ данных</li>
+      <li>Гл 2. От Нейрона до нейронной сети</li>
+      <li>Гл 3. Свёрточные нейронные сети и линейная алгебра</li>
+      <li>Приложение. Биологические и исторические предпосылки ИИ</li>
+    </ul>
+    <div class="book-status">🟡 каркас + материалы в raw_materials</div>
+  </a>
+
+  <a class="book-card book-11" href="11/">
+    <div class="book-icon">📗</div>
+    <h3>Учебник 11 класса</h3>
+    <p class="book-tagline">Математические основы ML и ИИ · ~50 уроков</p>
+    <ul class="book-toc">
+      <li>Гл 1. Элементы матстатистики и байесовский вывод</li>
+      <li>Гл 2. Основы машинного обучения</li>
+      <li>Гл 3. Вероятностные основы обучения с подкреплением</li>
+      <li>Гл 4. Генеративный ИИ</li>
+      <li>Приложение. ИИ в жизни</li>
+    </ul>
+    <div class="book-status">⚪ план Гасникова, авторы расписаны</div>
+  </a>
+
+</div>
+```
+
+## Как устроена сборка
+
+```{mermaid}
+flowchart LR
+    OL["☁️ Overleaf<br/>main.tex"] -->|"tex_to_qmd.py"| QMD["📄 *.qmd"]
+    QMD -->|"3 × quarto render"| HTML["🌐 docs/{dop,10,11}/"]
+    HTML -->|"nginx (direct read)"| SITE["🚀 sigma.fmin.xyz"]
+    OL -.->|"xelatex"| PDF["📕 book.pdf"]
+    GH["🔒 GitHub<br/>uchebniik (private)"] <-.->|"git push/pull"| OL
+```
+
+Три независимых Quarto book-проекта: `dop/`, `10/`, `11/`. У каждого свой sidebar и нумерация глав.
+
+## Материалы
+
+**77 файлов** raw-материалов (плоско в `raw_materials/`): концепции от Гасникова, ноутбук Яроцкого, эталонные учебники Альянса (5–6/7–8/9 кл.), референсные учебники по информатике 10–11, промпты, шаблоны.
+
+[Полный список — в репозитории](https://github.com/MerkulovDaniil/uchebniik/tree/main/raw_materials)
+
+::: {.callout-note appearance="minimal"}
+**Карта по состоянию на {{< meta date >}}**. Структура взята из плана Гасникова (`raw_materials/03_Uchebnik_po_II_10_klass.md`).
+:::

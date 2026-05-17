@@ -16,7 +16,7 @@ import re
 import sys
 from pathlib import Path
 
-DOP = Path(__file__).resolve().parent.parent / "dop"
+DOP = Path(__file__).resolve().parent.parent / "book"
 
 # (source_qmd_basename, output_prefix, chapter_number)
 SPLIT_CHAPTERS = [
@@ -54,6 +54,10 @@ def split_one(src_basename: str, prefix: str, chapter_num: int) -> list[Path]:
     if not m:
         print(f"  skip {src.name}: no frontmatter")
         return []
+    # Pull the chapter's own title (set by tex_to_qmd from \chapter{...})
+    # to label the intro page — better than the generic "Введение".
+    src_title_m = re.search(r'title:\s*"([^"]+)"', m.group(1))
+    src_title = src_title_m.group(1) if src_title_m else None
     body = m.group(2)
 
     parts = SECTION_SPLIT_RE.split(body)
@@ -76,7 +80,7 @@ def split_one(src_basename: str, prefix: str, chapter_num: int) -> list[Path]:
                 tm = re.search(r'title:\s*"([^"]+)"', mm.group(1))
                 if tm:
                     existing_title = tm.group(1)
-        title = existing_title or f"Глава {chapter_num}. Введение"
+        title = existing_title or src_title or f"Глава {chapter_num}. Введение"
         intro_path.write_text(
             f"---\ntitle: \"{title}\"\n---\n\n{intro_text}\n",
             encoding="utf-8",

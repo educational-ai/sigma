@@ -23,28 +23,32 @@ import subprocess
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent.parent
-SRC = HERE / "source"
-DST = HERE / "converted"
-FIGURES = HERE / "figures"
+HERE = Path(__file__).resolve().parent.parent  # /var/www/sigma
+SRC = HERE / "overleaf_export"
+DST = HERE / "book"
+FIGURES = DST / "figures"
 TIKZ_BUILD = HERE / "_tikz_build"
 
+# Chapters to convert. Each becomes <DST>/<name>.qmd. Big chapters
+# (ch03_ds, ch04_numtheory) are then sliced per-section by split_chapters.py.
 MAIN_CHAPTERS = [
     "preface",
     "ch01_intro",
     "ch02_newton",
+    "ch_linalg",
     "ch03_ds",
     "ch04_numtheory",
 ]
-CH04_INCLUDES = [
-    "par1_theory",
-    "par2_history",
-    "par3_rsa_dh",
-    "par4_applications",
-    "par5_hashing",
-    "par6_hyperloglog",
-    "summary",
-]
+# Title prefix applied after \chapter{...} extraction.  None = unprefixed.
+# Модульный режим: префикс "Глава N." убран — главы независимы от позиции в книге.
+CHAPTER_PREFIX = {
+    "preface": None,
+    "ch01_intro": None,
+    "ch02_newton": None,
+    "ch_linalg": None,
+    "ch03_ds": None,
+    "ch04_numtheory": None,
+}
 
 # Pandoc post-processing patterns
 FIGURE_RE = re.compile(
@@ -58,8 +62,12 @@ BARE_EMBED_RE = re.compile(
     re.IGNORECASE,
 )
 # Pandoc markdown form: ![caption](path.pdf){#fig:label width="..."}
+# Caption may contain nested [text](link) pairs — match brackets balanced
+# at depth 1 (avoid swallowing the outer ] before (src.pdf).
 MD_FIG_RE = re.compile(
-    r'!\[(?P<cap>[^\]]*)\]\((?P<src>[^)]+\.pdf)\)(?:\{(?P<attrs>[^}]*)\})?'
+    r'!\[(?P<cap>(?:[^\[\]]|\[[^\[\]]*\])*)\]'
+    r'\((?P<src>[^)]+\.pdf)\)(?:\{(?P<attrs>[^}]*)\})?',
+    re.DOTALL,
 )
 ANCHOR_RE = re.compile(
     r'<a\s+href="#[^"]+"\s+data-reference[^>]*data-reference="([^"]+)"[^>]*>([^<]*)</a>',
@@ -600,30 +608,37 @@ def restore_tikz_figures(md: str, stash: list, registry: dict) -> str:
 
 def restore_callouts(md: str, stash: list) -> str:
     """Replace CALLOUTSTASH{i}STOP placeholders with proper Quarto callouts."""
+    # 3-й элемент: True если callout должен идти в margin-колонку (Tufte).
+    # Только короткие справочные блоки — иначе margin column (~320px) не
+    # вмещает длинный текст с figure.
     type_map = {
-        "historybox": ("tip",       "Историческая справка"),
-        "notebox":    ("note",      "Замечание"),
-        "tasksbox":   ("important", "Задачи для самостоятельной работы"),
-        "algorithmbox":("important", "Алгоритм"),
-        "interestbox": ("tip",       "Это интересно"),
-        "importantbox":("caution",   "Важно"),
-        "theorem":    ("warning",   None),   # title set from stash extra
-        "definition": ("note",      None),
-        "example":    ("tip",       None),
+        "historybox": ("tip",        "Историческая справка", False),
+        "notebox":    ("note",       "Замечание",            False),
+        "interestbox":("tip",        "Это интересно",        False),
+        "importantbox":("caution",   "Важно",                False),
+        "tasksbox":   ("important",  "Задачи для самостоятельной работы", False),
+        "algorithmbox":("important", "Алгоритм",             False),
+        "theorem":    ("warning",    None,                   False),
+        "definition": ("note",       None,                   False),
+        "example":    ("tip",        None,                   False),
     }
     def repl(m):
         idx = int(m.group(1))
         kind, body_tex, title_extra = stash[idx]
-        callout_type, fallback_title = type_map[kind]
+        callout_type, fallback_title, in_margin = type_map[kind]
         title_tex = title_extra or fallback_title or kind.capitalize()
         title = caption_to_markdown(title_tex).replace("\n", " ")
         title = title.replace('"', '\\"')
         body_md = pandoc_convert(body_tex).strip()
-        return (
-            f'\n\n::: {{.callout-{callout_type} title="{title}" collapse="false"}}\n'
+        callout = (
+            f'::: {{.callout-{callout_type} title="{title}" collapse="false"}}\n'
             f'{body_md}\n'
-            f':::\n\n'
+            f':::'
         )
+        if in_margin:
+            # Tufte: маленькие справочные блоки уходят в правую margin-колонку
+            callout = f'::: {{.column-margin}}\n{callout}\n:::'
+        return f'\n\n{callout}\n\n'
     return re.sub(r'CALLOUTSTASH(\d+)STOP', repl, md)
 
 
@@ -752,7 +767,8 @@ def blockify_display_math(md: str) -> str:
     return "\n".join(out) + ("\n" if md.endswith("\n") else "")
 
 
-def convert_one(tex_text: str, base_dir: Path, chap_num: int, global_ch_refs: dict) -> tuple[str, str]:
+def convert_one(tex_text: str, base_dir: Path, chap_num: int, global_ch_refs: dict,
+                title_prefix: str | None = None) -> tuple[str, str]:
     flat = flatten_inputs(tex_text, base_dir)
     registry = build_label_registry(flat, chap_num)
     flat, tikz_stash = stash_tikz_figures(flat)
@@ -770,10 +786,13 @@ def convert_one(tex_text: str, base_dir: Path, chap_num: int, global_ch_refs: di
     title, body = extract_title(md)
     if title:
         title = clean_title(title)
+        if title_prefix:
+            title = f"{title_prefix} {title}"
     return title, body.strip() + "\n"
 
 
-def write_qmd(name: str, title: str | None, body: str, out_dir: Path = DST, unnumbered: bool = False):
+def write_qmd(name: str, title: str | None, body: str, out_dir: Path | None = None, unnumbered: bool = False):
+    out_dir = out_dir if out_dir is not None else DST
     out_dir.mkdir(exist_ok=True)
     front = "---\n"
     if title:
@@ -805,19 +824,25 @@ def collect_chapter_refs(chapter_numbers: dict[str, int]) -> dict:
 
 def main():
     DST.mkdir(exist_ok=True)
-    # Numbering matches Quarto book sidebar: position in chapters list + 1
-    # (index.qmd is position 0 → "1", preface "2", ch01_intro "3", etc).
-    # We mirror Quarto so eq/fig refs in chapter N appear as "N.X" matching its H1.
-    QUARTO_POS = {"preface": 2, "ch01_intro": 3, "ch02_newton": 4, "ch03_ds": 5, "ch04_numtheory": 6}
-    global_ch_refs = collect_chapter_refs(QUARTO_POS)
+    # Chapter numbers used inside the chapter body for eq/fig refs.  Match
+    # the visible "Глава N" title — these are the same numbers used by split_chapters.
+    CH_NUM = {"preface": 0, "ch01_intro": 1, "ch02_newton": 2, "ch03_ds": 3, "ch04_numtheory": 4}
+    global_ch_refs = collect_chapter_refs(CH_NUM)
     for chap in MAIN_CHAPTERS:
         unnumbered = (chap == "preface")
-        chap_num = QUARTO_POS.get(chap, 0)
+        chap_num = CH_NUM.get(chap, 0)
         p = SRC / "chapters" / f"{chap}.tex"
         if not p.exists():
             print(f"skip (missing): {p}", file=sys.stderr)
             continue
-        title, body = convert_one(p.read_text(encoding="utf-8"), SRC / "chapters", chap_num, global_ch_refs)
+        title_prefix = CHAPTER_PREFIX.get(chap)
+        title, body = convert_one(
+            p.read_text(encoding="utf-8"),
+            SRC / "chapters",
+            chap_num,
+            global_ch_refs,
+            title_prefix=title_prefix,
+        )
         write_qmd(chap, title, body, unnumbered=unnumbered)
         print(f"wrote: {chap}.qmd  (n={chap_num} title={title!r})")
 

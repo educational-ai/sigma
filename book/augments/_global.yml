@@ -1,0 +1,28 @@
+# Глобальные augmentations для всех .qmd
+# Применяются скриптом scripts/augment.py после tex_to_qmd.py
+#
+# Действия:
+#   wrap_callout_in_margin: callouts с этими title уйдут в правую margin
+#   equation_page_if_chars_gt: длинные display-формулы (>N символов) → column-page
+#   figure_page_if_attr_width_gt: figure с width >= X → column-page
+
+callouts_in_margin_by_title:
+  - "Замечание"
+  - "Это интересно"
+
+# Помимо whitelist по title — выносим в margin любой callout-tip
+# короче N символов (для коротких заметок). НО исключаем «Пример N»,
+# «Теорема N», «Определение N» — они смысловые блоки, остаются в основной колонке.
+callout_to_margin_if_chars_lt: 380
+callout_margin_exclude_title_prefixes:
+  - "Пример"
+  - "Теорема"
+  - "Определение"
+  - "Лемма"
+  - "Задачи"
+  - "Алгоритм"
+  - "Листинг"
+
+equation_page_if_chars_gt: 70
+
+figure_page_if_attr_width_gt: 0.85

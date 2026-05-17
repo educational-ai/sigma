@@ -1,0 +1,95 @@
+project:
+  type: website
+  output-dir: ../docs
+
+lang: ru
+language: _language.yml
+
+website:
+  title: "Σ Сигма"
+  description: "Учебник по продвинутым сюжетам ИИ"
+  favicon: ../favicon.svg
+  back-to-top-navigation: true
+  page-navigation: true
+  search:
+    location: sidebar
+    type: textbox
+  sidebar:
+    style: floating
+    collapse-level: 2
+    background: "#fffff8"
+    contents:
+      - text: "Σ Главная"
+        href: index.qmd
+      - preface.qmd
+      - section: "Часть I. Введение в ИИ"
+        contents:
+          - ch01_intro.qmd
+      - section: "Часть II. Математические основы"
+        contents:
+          - ch02_newton.qmd
+          - ch_linalg.qmd
+      - section: "Часть III. Анализ данных и ИИ"
+        contents:
+          - ch03_0_intro.qmd
+          - ch03_1_prosteyshie-primery-zadach-anali.qmd
+          - ch03_2_lineynaya-regressiya-i-metod-nai.qmd
+          - ch03_3_zadacha-klassifikacii-i-neyronny.qmd
+          - ch03_4_zadachi-obucheniya-bez-uchitelya.qmd
+          - ch03_5_kak-iskusstvennyy-intellekt-meny.qmd
+      - section: "Часть IV. Дискретная математика и криптография"
+        contents:
+          - ch04_0_intro.qmd
+          - ch04_1_elementy-teorii-chisel.qmd
+          - ch04_2_shifrovanie-ot-taynopisi-k-matem.qmd
+          - ch04_3_kriptosistemy-rsa-i-diffi-hellma.qmd
+          - ch04_4_primeneniya-rsa-autentifikaciya.qmd
+          - ch04_5_heshirovanie-teoriya-chisel-vstr.qmd
+          - ch04_6_schetchiki-s-korotkoy-pamyatyu-h.qmd
+          - ch04_7_podvedenie-itogov-glavy.qmd
+  page-footer:
+    background: "#fffff8"
+    center: "Σ Сигма · [GitHub](https://github.com/MerkulovDaniil)"
+
+format:
+  html:
+    theme: cosmo
+    mainfont: "et-book, Palatino, 'Palatino Linotype', Georgia, serif"
+    monofont: "JetBrains Mono, SF Mono, Menlo, Consolas, monospace"
+    toc: false
+    code-fold: false
+    code-copy: true
+    code-overflow: wrap
+    code-block-bg: "#f5f3e8"
+    highlight-style: github
+    css: [sigma-tufte.css, mobile-safe.css]
+    include-after-body: sigma-rename-typst.html
+    html-math-method: katex
+    number-sections: false
+    # Tufte: footnote/citation/figure caption в правую margin-колонку (только HTML)
+    reference-location: margin
+    citation-location: margin
+    fig-cap-location: margin
+    grid:
+      sidebar-width: 240px
+      body-width: 760px
+      margin-width: 360px
+      gutter-width: 1.6rem
+  # Tufte: правая margin шириной 2in для caption/refs, основной текст ~5.5in
+  typst:
+    output-ext: pdf
+    papersize: "us-letter"
+    mainfont: "Palatino"
+    fontsize: 11pt
+    margin:
+      left: 1in
+      right: 2.0in
+      top: 1in
+      bottom: 1in
+    fig-cap-location: margin
+    reference-location: margin
+    citation-location: margin
+
+execute:
+  enabled: false
+  freeze: auto
