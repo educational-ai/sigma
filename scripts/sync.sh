@@ -1,30 +1,37 @@
 #!/usr/bin/env bash
-# Overleaf → uchebniik.fmin.xyz sync pipeline.
+# Overleaf → sigma.fmin.xyz sync pipeline.
 # Idempotent: only rebuilds when source actually changed.
+#
+# Source of truth: Overleaf MIPT project (share-token grants permanent access).
+# Pipeline: Overleaf ZIP → /var/www/sigma/overleaf_export/ → scripts/build.sh → docs/.
+# nginx читает /var/www/sigma/docs/ напрямую.
 set -euo pipefail
-trap 'echo "[$(date -Is)] FAILED at line $LINENO" >> "$LOG"' ERR
 
-HERE="/root/uchebniik"
-LOG="$HERE/logs/sync.log"
-COOKIE_JAR="$HERE/logs/overleaf_cookies.txt"
-ZIP_NEW="$HERE/logs/project.new.zip"
-ZIP_PREV="$HERE/logs/project.prev.zip"
-mkdir -p "$HERE/logs"
+REPO_ROOT="/var/www/sigma"
+LOG_DIR="${REPO_ROOT}/logs"
+LOG="${LOG_DIR}/sync.log"
+COOKIE_JAR="${LOG_DIR}/overleaf_cookies.txt"
+ZIP_NEW="${LOG_DIR}/project.new.zip"
+ZIP_PREV="${LOG_DIR}/project.prev.zip"
+WORK_DIR="${LOG_DIR}/zip_extract"
+mkdir -p "${LOG_DIR}"
+
+trap 'echo "[$(date -Is)] FAILED at line $LINENO" >> "$LOG"' ERR
 
 log() { echo "[$(date -Is)] $*" | tee -a "$LOG"; }
 
 # load creds
 set -a; source /root/config/.env; set +a
 : "${OVERLEAF_EMAIL:?missing}"; : "${OVERLEAF_PASSWORD:?missing}"
-SHARE_TOKEN="${OVERLEAF_PROJECT_ID:-2484959286nqqftjdwkqxc}"  # the token from URL
+SHARE_TOKEN="${OVERLEAF_PROJECT_ID:-2484959286nqqftjdwkqxc}"
 HOST="https://overleaf.mipt.ru"
 
-log "=== sync start ==="
+log "=== sigma sync start ==="
 
 # 1. Login (fresh CSRF each time; sessions can expire)
 rm -f "$COOKIE_JAR"
-curl -s -c "$COOKIE_JAR" "$HOST/login" -o "$HERE/logs/login.html"
-CSRF=$(grep -oE 'ol-csrfToken[^>]*content="[^"]+"' "$HERE/logs/login.html" \
+curl -s -c "$COOKIE_JAR" "$HOST/login" -o "${LOG_DIR}/login.html"
+CSRF=$(grep -oE 'ol-csrfToken[^>]*content="[^"]+"' "${LOG_DIR}/login.html" \
        | head -1 | sed -E 's/.*content="([^"]+)".*/\1/')
 [ -n "$CSRF" ] || { log "ERROR: no CSRF token"; exit 1; }
 
@@ -32,22 +39,20 @@ LOGIN_HTTP=$(curl -s -b "$COOKIE_JAR" -c "$COOKIE_JAR" -X POST "$HOST/login" \
   -H "X-CSRF-TOKEN: $CSRF" -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d "{\"_csrf\":\"$CSRF\",\"email\":\"$OVERLEAF_EMAIL\",\"password\":\"$OVERLEAF_PASSWORD\"}" \
-  -w "%{http_code}" -o "$HERE/logs/login_resp.json")
+  -w "%{http_code}" -o "${LOG_DIR}/login_resp.json")
 case "$LOGIN_HTTP" in
   200|302) log "login ok ($LOGIN_HTTP)";;
-  *) log "ERROR: login http=$LOGIN_HTTP body=$(cat $HERE/logs/login_resp.json)"; exit 1;;
+  *) log "ERROR: login http=$LOGIN_HTTP body=$(cat ${LOG_DIR}/login_resp.json)"; exit 1;;
 esac
 
-# 2. Find project ID from user's dashboard (project is permanently linked
-#    via share-token grant, so we just look it up by source=token)
-curl -s -b "$COOKIE_JAR" "$HOST/project" -o "$HERE/logs/dashboard.html"
-PROJECT_ID=$(python3 <<'PY'
-import re, html, json, sys
-h = open("/root/uchebniik/logs/dashboard.html").read()
+# 2. Find project ID from user's dashboard (linked via share-token).
+curl -s -b "$COOKIE_JAR" "$HOST/project" -o "${LOG_DIR}/dashboard.html"
+PROJECT_ID=$(LOG_DIR="${LOG_DIR}" python3 <<'PY'
+import re, html, json, os, sys
+h = open(os.path.join(os.environ["LOG_DIR"], "dashboard.html")).read()
 m = re.search(r'name="ol-prefetchedProjectsBlob"[^>]*content="([^"]*)"', h)
 if not m: sys.exit("no blob")
 data = json.loads(html.unescape(m.group(1)))
-# pick the first project sourced from share-token
 for p in data.get("projects", []):
     if p.get("source") == "token":
         print(p["id"]); break
@@ -75,50 +80,29 @@ if [ -f "$ZIP_PREV" ]; then
 fi
 log "content changed, rebuilding"
 
-# 5. Replace source/
-rm -rf "$HERE/source"
-mkdir -p "$HERE/source"
-unzip -oq "$ZIP_NEW" -d "$HERE/source/"
+# 5. Replace overleaf_export/ atomically.
+#    Распаковываем в WORK_DIR, потом mv. Это сохраняет main.pdf/main.aux от
+#    локального latexmk-run (build.sh их пересоберёт при необходимости).
+rm -rf "$WORK_DIR"
+mkdir -p "$WORK_DIR"
+unzip -oq "$ZIP_NEW" -d "$WORK_DIR/"
 
-# 6. Convert PDF figures → SVG (only those that changed)
-mkdir -p "$HERE/figures_svg" "$HERE/figures"
-for pdf in "$HERE/source/figures/"*.pdf; do
-  [ -f "$pdf" ] || continue
-  name=$(basename "$pdf" .pdf)
-  svg="$HERE/figures_svg/${name}.svg"
-  if [ ! -f "$svg" ] || [ "$pdf" -nt "$svg" ]; then
-    pdftocairo -svg "$pdf" "$svg" 2>/dev/null && log "svg: $name"
-  fi
-done
-cp -u "$HERE/figures_svg/"*.svg "$HERE/figures/"
+EXPORT_DIR="${REPO_ROOT}/overleaf_export"
+# Preserve build-artifact files (main.pdf etc) — но затрём всё, что есть в новом zip.
+# Стратегия: rsync поверх. Удаляем .tex/.cls/.bib/.sty + chapters/figures, остальное (artifacts) trust.
+rsync -a --delete \
+  --exclude='main.pdf' --exclude='main.aux' --exclude='main.log' \
+  --exclude='main.out' --exclude='main.toc' --exclude='main.fls' \
+  --exclude='main.fdb_latexmk' --exclude='main.xdv' --exclude='main.synctex.gz' \
+  "$WORK_DIR/" "$EXPORT_DIR/"
+rm -rf "$WORK_DIR"
+log "overleaf_export updated"
 
-# 7. Convert .tex → .qmd
-python3 "$HERE/scripts/tex_to_qmd.py" >> "$LOG" 2>&1
-log "converted .qmd"
+# 6. Запустить полный build pipeline (LaTeX → PDF, tex→qmd, quarto render).
+"${REPO_ROOT}/scripts/build.sh" >> "$LOG" 2>&1
+log "build.sh finished"
 
-# 8. Build HTML site
-cd "$HERE"
-quarto render >> "$LOG" 2>&1
-log "quarto rendered"
-
-# 9. Build authoritative PDF (best-effort; warnings ok)
-cd "$HERE/source"
-rm -f main.aux main.toc main.out main.log
-timeout 240 latexmk -xelatex -interaction=nonstopmode main.tex >> "$LOG" 2>&1 || true
-if [ -f main.pdf ]; then
-  cp main.pdf "$HERE/_site/book.pdf"
-  log "pdf: $(du -h $HERE/_site/book.pdf | cut -f1)"
-else
-  log "pdf: build failed (HTML still ok)"
-fi
-
-# 10. Publish to nginx web root (separate from /root/ which is 700)
-PUBROOT="/var/www/uchebniik"
-mkdir -p "$PUBROOT"
-rsync -a --delete "$HERE/_site/" "$PUBROOT/"
-log "published to $PUBROOT"
-
-# 11. Promote zip as prev
+# 7. Promote zip as prev
 mv "$ZIP_NEW" "$ZIP_PREV"
 
-log "=== sync done ==="
+log "=== sigma sync done ==="

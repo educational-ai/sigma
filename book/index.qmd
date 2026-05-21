@@ -3,10 +3,6 @@ title: "Σ Сигма"
 subtitle: "Учебник по продвинутым сюжетам ИИ"
 toc: false
 number-sections: false
-other-links:
-  - text: "📕 PDF всей книги"
-    href: "/book.pdf"
-    icon: file-pdf
 format-links: false
 format:
   html: default
@@ -16,100 +12,73 @@ format:
 современного искусственного интеллекта: оптимизацию, линейную
 алгебру, анализ данных, криптографию.
 
-Сборка ведётся в Overleaf, текущий PDF доступен по ссылке справа.
-
-[📕 Скачать PDF](/book.pdf){.btn .btn-outline-dark}
-
-## Карта глав
-
-<!-- CHAPTERS:START -->
-
 ```{=html}
-<div class="hm-legend">
-  <span class="hm-pill hm-0">0 · Пусто</span>
-  <span class="hm-pill hm-1">1 · Есть ответственный</span>
-  <span class="hm-pill hm-2">2 · AI-черновик</span>
-  <span class="hm-pill hm-3">3 · Вычитано 1 раз</span>
-  <span class="hm-pill hm-4">4 · Вычитано оракулом</span>
-  <span class="hm-pill hm-5">5 · Финал</span>
-</div>
+<div class="sigma-landing">
+  <a class="sigma-pdf-btn" href="/book.pdf">📕 Скачать PDF всей книги</a>
 
-<h3 class="hm-part-title">Введение в искусственный интеллект</h3>
-<div class="hm-chapter">
-  <a class="hm-chapter-head hm-1" href="ch01_intro.html">
-    <span class="hm-chapter-num">Гл 1.</span>
-    <span class="hm-chapter-title">Что такое искусственный интеллект</span>
-    <span class="hm-meta">стаб · 30 строк .tex</span>
-  </a>
-  <div class="hm-sub-grid">
-    <div class="hm-sub-cell hm-1">1.1 Краткая история идеи</div>
-    <div class="hm-sub-cell hm-1">1.2 Чему мы научимся в этой книге</div>
+  <div class="sigma-landing-assistant">
+    <div class="sigma-landing-assistant-hint">
+      Внизу справа на любой странице — ИИ-ассистент, который знает всю книгу.
+      Можно спросить определение, попросить пример, построить график или
+      разобрать формулу. Попробуйте:
+    </div>
+    <div class="sigma-landing-chips">
+      <button class="sigma-landing-chip" data-q="Объясни SVD простыми словами">
+        <span class="sigma-landing-chip-kind">📖 Объяснение</span>
+        <span class="sigma-landing-chip-text">Объясни SVD простыми словами</span>
+      </button>
+      <button class="sigma-landing-chip" data-q="Построй график функции f(x) = x² − 2 и касательную к ней в точке x = 1.5">
+        <span class="sigma-landing-chip-kind">📈 График</span>
+        <span class="sigma-landing-chip-text">Метод Ньютона: график f(x)=x²−2 с касательной</span>
+      </button>
+      <button class="sigma-landing-chip" data-q="Как работает алгоритм RSA? Объясни на маленьком примере с числами.">
+        <span class="sigma-landing-chip-kind">🔐 Разбор</span>
+        <span class="sigma-landing-chip-text">Как работает RSA — на маленьких числах</span>
+      </button>
+      <button class="sigma-landing-chip" data-q="Чем нейронная сеть принципиально отличается от линейной регрессии?">
+        <span class="sigma-landing-chip-kind">🤔 Сравнение</span>
+        <span class="sigma-landing-chip-text">Нейросеть vs линейная регрессия</span>
+      </button>
+    </div>
   </div>
 </div>
 
-<h3 class="hm-part-title">Математические основы</h3>
-<div class="hm-chapter">
-  <a class="hm-chapter-head hm-3" href="ch02_newton.html">
-    <span class="hm-chapter-num">Гл 2.</span>
-    <span class="hm-chapter-title">Численные методы оптимизации</span>
-    <span class="hm-meta">537 строк .tex · метод касательных Ньютона</span>
-  </a>
-  <div class="hm-sub-grid">
-    <div class="hm-sub-cell hm-3">2.1 Метод касательных Ньютона и его приложения</div>
-  </div>
-</div>
-
-<div class="hm-chapter">
-  <a class="hm-chapter-head hm-2" href="ch_linalg.html">
-    <span class="hm-chapter-num">Гл 3.</span>
-    <span class="hm-chapter-title">Вычислительная линейная алгебра</span>
-    <span class="hm-meta">новая · SVD · eigenfaces · PageRank · Lipschitz</span>
-  </a>
-  <div class="hm-sub-grid">
-    <div class="hm-sub-cell hm-2">3.1 Зачем линейной алгебре отдельная глава</div>
-    <div class="hm-sub-cell hm-2">3.2 Когда арифметика лжёт: числа с плавающей точкой</div>
-    <div class="hm-sub-cell hm-2">3.3 Сингулярное разложение SVD: главный фокус линейной алгебры</div>
-    <div class="hm-sub-cell hm-2">3.4 Лучшее малоранговое приближение: теорема Эккарта--Янга</div>
-    <div class="hm-sub-cell hm-2">3.5 Eigenfaces: как алгоритм узнаёт лицо</div>
-    <div class="hm-sub-cell hm-2">3.6 Eigencats: тот же приём для котов</div>
-    <div class="hm-sub-cell hm-2">3.7 PageRank: как Google нашёл порядок в Интернете</div>
-    <div class="hm-sub-cell hm-2">3.8 Когда нейросеть устойчива: оценки Липшицевости</div>
-    <div class="hm-sub-cell hm-2">3.9 QR-алгоритм: как находят все</div>
-  </div>
-</div>
-
-<h3 class="hm-part-title">Анализ данных и искусственный интеллект</h3>
-<div class="hm-chapter">
-  <a class="hm-chapter-head hm-3" href="ch03_ds.html">
-    <span class="hm-chapter-num">Гл 4.</span>
-    <span class="hm-chapter-title">Введение в анализ данных и искусственный интеллект</span>
-    <span class="hm-meta">3.6K строк .tex · самая объёмная глава</span>
-  </a>
-  <div class="hm-sub-grid">
-    <div class="hm-sub-cell hm-3">4.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</div>
-    <div class="hm-sub-cell hm-3">4.2 Линейная регрессия и метод наименьших квадратов</div>
-    <div class="hm-sub-cell hm-3">4.3 Задача классификации и нейронные сети</div>
-    <div class="hm-sub-cell hm-3">4.4 Задачи обучения без учителя</div>
-    <div class="hm-sub-cell hm-3">4.5 Как искусственный интеллект меняет мир</div>
-  </div>
-</div>
-
-<h3 class="hm-part-title">Дискретная математика и криптография</h3>
-<div class="hm-chapter">
-  <a class="hm-chapter-head hm-3" href="ch04_numtheory.html">
-    <span class="hm-chapter-num">Гл 5.</span>
-    <span class="hm-chapter-title">Элементы теории чисел и шифрование</span>
-    <span class="hm-meta">2.7K строк .tex · 6 параграфов</span>
-  </a>
-  <div class="hm-sub-grid">
-    <div class="hm-sub-cell hm-3">5.1 Элементы теории чисел</div>
-    <div class="hm-sub-cell hm-3">5.2 Шифрование: от тайнописи к математической задаче</div>
-    <div class="hm-sub-cell hm-3">5.3 Криптосистемы RSA и Диффи--Хеллмана</div>
-    <div class="hm-sub-cell hm-3">5.4 Применения RSA: аутентификация, цифровая подпись, электронное голосование</div>
-    <div class="hm-sub-cell hm-3">5.5 Хеширование: теория чисел встречается с рандомизацией</div>
-    <div class="hm-sub-cell hm-3">5.6 Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</div>
-  </div>
-</div>
-
+<script>
+(function () {
+  function bind() {
+    var chips = document.querySelectorAll('.sigma-landing-chip');
+    if (!chips.length) return;
+    chips.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var q = btn.getAttribute('data-q');
+        if (!q) return;
+        // Если ассистент уже подключился — даём ему через публичный API.
+        if (window.sigmaAssistant && typeof window.sigmaAssistant.ask === 'function') {
+          window.sigmaAssistant.ask(q);
+          return;
+        }
+        // Иначе — ждём загрузки (defer + IIFE могут отстать).
+        var tries = 0;
+        var t = setInterval(function () {
+          tries++;
+          if (window.sigmaAssistant && typeof window.sigmaAssistant.ask === 'function') {
+            clearInterval(t);
+            window.sigmaAssistant.ask(q);
+          } else if (tries > 50) {
+            clearInterval(t);
+            // Fallback — кликнуть лаунчер чтобы хотя бы открыть ассистента.
+            var launcher = document.querySelector('.sigma-launcher');
+            if (launcher) launcher.click();
+          }
+        }, 100);
+      });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
+</script>
 ```
-<!-- CHAPTERS:END -->

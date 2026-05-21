@@ -1,0 +1,30 @@
+{
+  "ch04_1_elementy-teorii-chisel": {
+    "Алгоритм: нахождение НОД (Евклид)": {
+      "params": [
+        {"name": "a", "label": "a", "default": "252", "type": "int"},
+        {"name": "b", "label": "b", "default": "105", "type": "int"}
+      ],
+      "code": "a, b = __a__, __b__\nA0, B0 = a, b\nprint(f'Ищем НОД({A0}, {B0}):')\nprint()\nprint(f'  {\"a\":>10} {\"b\":>10}  ->  {\"a mod b\":>10}')\nprint('  ' + '-' * 36)\nsteps = 0\nwhile b != 0:\n    r = a % b\n    print(f'  {a:>10} {b:>10}  ->  {r:>10}')\n    a, b = b, r\n    steps += 1\nprint('  ' + '-' * 36)\ntail = 'делений' if steps % 10 == 0 or steps % 10 >= 5 or 11 <= steps % 100 <= 14 else ('деления' if steps % 10 > 1 else 'деление')\nprint(f'НОД({A0}, {B0}) = {a}   (за {steps} {tail})')"
+    }
+  },
+  "ch04_3_kriptosistemy-rsa-i-diffi-hellma": {
+    "Алгоритм: генерация ключей RSA": {
+      "params": [
+        {"name": "p", "label": "p (простое)", "default": "61", "type": "int"},
+        {"name": "q", "label": "q (простое)", "default": "53", "type": "int"},
+        {"name": "msg", "label": "Сообщение m (число)", "default": "42", "type": "int"}
+      ],
+      "code": "from sympy import isprime, mod_inverse\np, q, m = __p__, __q__, __msg__\nfor name, val in ('p', p), ('q', q):\n    if not isprime(val):\n        print(f'! {name}={val} не простое — для демо нужно простое')\n        raise SystemExit\nn = p * q\nphi = (p - 1) * (q - 1)\n# Стандартное e = 65537, но для маленьких p,q возьмём первое e, взаимно простое с phi\nfrom math import gcd\ne = 65537 if gcd(65537, phi) == 1 else next(i for i in range(3, phi, 2) if gcd(i, phi) == 1)\nd = mod_inverse(e, phi)\nprint(f'p = {p},  q = {q}')\nprint(f'n = p·q = {n}')\nprint(f'phi(n) = (p-1)(q-1) = {phi}')\nprint(f'e = {e}   (открытая экспонента)')\nprint(f'd = {d}   (секретная экспонента; e·d mod phi = {(e*d) % phi})')\nprint()\nprint(f'Открытый ключ:  (n={n}, e={e})')\nprint(f'Закрытый ключ:  (n={n}, d={d})')\nprint()\nif m >= n:\n    print(f'! m={m} >= n={n} — нужно m < n. Возьми сообщение поменьше.')\nelse:\n    c = pow(m, e, n)\n    m2 = pow(c, d, n)\n    print(f'Шифрование:  c = m^e mod n = {m}^{e} mod {n} = {c}')\n    print(f'Дешифровка:  m = c^d mod n = {c}^{d} mod {n} = {m2}')\n    print(f'Совпало с исходным m={m}: {m == m2}')"
+    },
+    "Алгоритм: протокол Диффи–Хеллмана": {
+      "params": [
+        {"name": "p", "label": "p (простое)", "default": "23", "type": "int"},
+        {"name": "g", "label": "g (примитивный корень)", "default": "5", "type": "int"},
+        {"name": "a", "label": "a (секрет Алисы)", "default": "6", "type": "int"},
+        {"name": "b", "label": "b (секрет Боба)", "default": "15", "type": "int"}
+      ],
+      "code": "from sympy import isprime\np, g, a, b = __p__, __g__, __a__, __b__\nif not isprime(p):\n    print(f'! p={p} не простое')\n    raise SystemExit\nA = pow(g, a, p)\nB = pow(g, b, p)\nKa = pow(B, a, p)\nKb = pow(A, b, p)\nprint(f'Параметры: p = {p}, g = {g}')\nprint()\nprint(f'Алиса выбирает a = {a} (секрет)')\nprint(f'Боб   выбирает b = {b} (секрет)')\nprint()\nprint(f'Алиса -> Боб:  A = g^a mod p = {g}^{a} mod {p} = {A}')\nprint(f'Боб   -> Алиса: B = g^b mod p = {g}^{b} mod {p} = {B}')\nprint()\nprint(f'Общий ключ у Алисы: K = B^a mod p = {B}^{a} mod {p} = {Ka}')\nprint(f'Общий ключ у Боба:  K = A^b mod p = {A}^{b} mod {p} = {Kb}')\nprint()\nprint(f'Ключи совпали: {Ka == Kb}   -> общий секрет K = {Ka}')"
+    }
+  }
+}

@@ -127,4 +127,4 @@ for f in favicon.svg favicon.ico favicon-32.png favicon-180.png favicon-192.png 
 done
 echo "  ✓ favicon files synced"
 
-echo "✅ Готово: https://uchebniik.fmin.xyz/"
+echo "✅ Готово: https://sigma.fmin.xyz/"

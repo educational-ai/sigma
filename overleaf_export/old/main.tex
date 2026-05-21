@@ -1,0 +1,115 @@
+% !TEX program = xelatex
+% !TEX encoding = UTF-8
+% =====================================================================
+%  Учебник по искусственному интеллекту для 10–11 классов
+%  (Информатика, продвинутый уровень)
+%
+%  СБОРКА: проект собирается ЛЮБЫМ из трёх компиляторов:
+%       pdflatex main.tex   (классический путь, через cm-super + babel)
+%       xelatex  main.tex   (рекомендуется: лучшая типографика)
+%       lualatex main.tex   (то же, что и XeLaTeX)
+%  Преамбула в structure.tex автоматически выбирает правильную ветку
+%  через пакет iftex.
+%
+%  В Overleaf настройка компилятора не требуется: проект соберётся
+%  с настройкой по умолчанию (pdfLaTeX). Если хотите более красивые
+%  шрифты — переключите Menu → Settings → Compiler на XeLaTeX.
+%
+%  Файл-шаблон. Параграф «Метод касательных Ньютона и его приложения»
+%  (раздел \ref{sec:newton}) оформлен полностью; остальные главы
+%  представлены заготовками, демонстрирующими структуру шаблона.
+% =====================================================================
+
+\documentclass[11pt, openany, twoside]{book}
+
+\input{structure}
+
+\usepackage{xcolor}
+\usepackage{colortbl}
+
+\begin{document}
+
+% --- Титульный лист --------------------------------------------------
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\sffamily\Large Авторский коллектив}\\[1.4cm]
+{\color{accent}\rule{\linewidth}{1.2pt}}\\[0.4cm]
+{\sffamily\Huge\bfseries Информатика}\\[0.6cm]
+{\sffamily\LARGE Учебник для 10--11 классов}\\[0.3cm]
+{\sffamily\large Продвинутый уровень}\\[0.4cm]
+{\color{accent}\rule{\linewidth}{1.2pt}}\\[3cm]
+
+
+
+\begin{tikzpicture}[scale=1]
+  \draw[accent, line width=1.2pt] (-3,0) sin (-2,0.6) cos (-1,0)
+       sin (0,-0.6) cos (1,0) sin (2,0.6) cos (3,0);
+  \foreach \x in {-3,-2,-1,0,1,2,3}
+    \fill[accent2] (\x,0) circle (2pt);
+  \node[accent, font=\sffamily\itshape\large] at (0,-1.4)
+       {От уравнений до больших языковых моделей};
+\end{tikzpicture}
+
+\vfill
+{\sffamily\large Москва\quad\textbullet\quad\the\year}
+\end{titlepage}
+
+% Пустая «оборотка» титула с выходными данными
+\thispagestyle{empty}
+\vspace*{\fill}
+\noindent\small
+УДК~004.8\\
+ББК~32.813\\[1em]
+\textbf{Искусственный интеллект.} Учебник для 10--11 классов
+(продвинутый уровень). --- Авторский коллектив. --- \the\year.\\[1em]
+Учебник содержит изложение математических основ современного
+искусственного интеллекта, включая численные методы оптимизации,
+основы машинного обучения и глубоких нейронных сетей. Предназначен
+для школьников, изучающих информатику на профильном уровне, а также
+для подготовки к олимпиадам и проектной деятельности.\\[1em]
+\copyright{} Авторский коллектив, \the\year
+\clearpage
+
+% --- Содержание ------------------------------------------------------
+\frontmatter
+\tableofcontents
+\input{chapters/preface}
+
+% --- Основная часть --------------------------------------------------
+\mainmatter
+
+\part{Введение в искусственный интеллект}
+\input{chapters/ch01_intro}
+
+\part{Математические основы}
+\input{chapters/ch02_newton}
+
+\part{Анализ данных и искусственный интеллект}
+\input{chapters/ch03_ds}
+
+ \part{Дискретная математика и криптография}
+ \input{chapters/ch04_numtheory}
+
+% --- Заключение и алфавитный указатель -------------------------------
+\backmatter
+\chapter*{Литература и веб-ресурсы}
+\addcontentsline{toc}{chapter}{Литература и веб-ресурсы}
+\markboth{Литература}{Литература}
+
+\noindent\small
+\begin{enumerate}\itemsep2pt
+  \item \emph{Канторович Л.\,В., Акилов Г.\,П.} Функциональный анализ. ---
+        М.: Наука, 1984.
+  \item \emph{Бахвалов Н.\,С., Жидков Н.\,П., Кобельков Г.\,М.}
+        Численные методы. --- М.: БИНОМ, 2011.
+  \item \emph{Nocedal J., Wright S.} Numerical Optimization. ---
+        Springer, 2006.
+  \item Документация Python: \url{https://docs.python.org/3/}.
+  \item Открытый онлайн-курс «Методы оптимизации»:\\
+        \url{https://fmin.xyz}.
+  \item Описание оптимизатора Muon:\\
+        \url{https://kellerjordan.github.io/posts/muon/}.
+\end{enumerate}
+
+\end{document}

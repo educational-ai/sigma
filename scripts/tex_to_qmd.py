@@ -111,13 +111,46 @@ CHAPTER_RE = re.compile(r'\\chapter\{([^}]+)\}')
 
 # ---------------------------------------------------------------------------
 
-def flatten_inputs(tex: str, base_dir: Path) -> str:
+def flatten_inputs(tex: str, base_dir: Path, _visited: set | None = None) -> str:
+    if _visited is None:
+        _visited = set()
+    # Strip LaTeX line comments so commented-out \input{...} doesn't get expanded.
+    # Heuristic: collapse '%...EOL' to '' if % is not escaped (\%).
+    def _strip_comments(src: str) -> str:
+        out_lines = []
+        for line in src.splitlines(keepends=True):
+            i = 0
+            n = len(line)
+            cut = None
+            while i < n:
+                ch = line[i]
+                if ch == "\\" and i + 1 < n:
+                    i += 2
+                    continue
+                if ch == "%":
+                    cut = i
+                    break
+                i += 1
+            if cut is not None:
+                # keep the newline if there was one
+                eol = "\n" if line.endswith("\n") else ""
+                out_lines.append(line[:cut] + eol)
+            else:
+                out_lines.append(line)
+        return "".join(out_lines)
+
+    tex = _strip_comments(tex)
+
     def repl(m):
         path = m.group(1).strip()
         for p in (base_dir / path, base_dir / (path + ".tex"),
                   SRC / path, SRC / (path + ".tex")):
             if p.exists():
-                return "\n" + flatten_inputs(p.read_text(encoding="utf-8"), p.parent) + "\n"
+                p_resolved = p.resolve()
+                if p_resolved in _visited:
+                    return f"% CYCLE: \\input{{{path}}}"
+                _visited.add(p_resolved)
+                return "\n" + flatten_inputs(p.read_text(encoding="utf-8"), p.parent, _visited) + "\n"
         return f"% MISSING: \\input{{{path}}}"
     return re.sub(r"\\input\{([^}]+)\}", repl, tex)
 
