@@ -116,11 +116,23 @@
     for (const p of entry.params || []) {
       const label = el("label", { class: "sigma-algo-label" });
       label.appendChild(document.createTextNode(p.label + " "));
-      const input = el("input", {
-        type: p.type === "int" ? "number" : "text",
-        value: p.default,
-        class: "sigma-algo-input",
-      });
+      let input;
+      if (p.type === "select" && Array.isArray(p.options)) {
+        // Настоящий выпадающий список вместо текстового поля: видны все
+        // варианты, в числовые select нельзя вписать мусор.
+        input = el("select", { class: "sigma-algo-input" });
+        for (const opt of p.options) {
+          const o = el("option", { value: String(opt) }, String(opt));
+          if (String(opt) === String(p.default)) o.selected = true;
+          input.appendChild(o);
+        }
+      } else {
+        input = el("input", {
+          type: p.type === "int" ? "number" : "text",
+          value: p.default,
+          class: "sigma-algo-input",
+        });
+      }
       label.appendChild(input);
       form.appendChild(label);
       inputs[p.name] = input;
