@@ -83,6 +83,11 @@ fig.patch.set_facecolor('#fffff8')
 for ax, it in zip(axes, sorted(target_iters)):
     snap = snapshots[it]
 
+    # Растеризуем всё с zorder < 1.5 (тяжёлый контурный фон — десятки тысяч
+    # полигонов раздували SVG до ~19 МБ). Точки/стрелки/звезда/текст (zorder>=2)
+    # остаются вектором и резкими. dpi в savefig задаёт чёткость растра.
+    ax.set_rasterization_zorder(1.5)
+
     # Фон
     ax.contourf(X, Y, Z, levels=30, cmap=cmap_bg, alpha=0.9, zorder=0)
     ax.contour(X, Y, Z, levels=12, colors='#cccccc', linewidths=0.4,
@@ -149,5 +154,5 @@ plt.suptitle('PSO: 30 частиц на функции Растригина — 
              fontsize=11, fontweight='bold', y=1.01)
 plt.tight_layout()
 plt.savefig('/var/www/sigma/book/figures/stories/optim_pso.svg',
-            format='svg', bbox_inches='tight', facecolor='#fffff8')
+            format='svg', bbox_inches='tight', facecolor="#fffff8", dpi=150)
 print("Saved optim_pso.svg")
