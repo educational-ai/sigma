@@ -98,10 +98,23 @@ echo "[4/4] render book/ → docs/ (HTML + per-page typst PDF)"
 # -----------------------------------------------------------------
 (cd "${REPO_ROOT}/book" && quarto render --to html) 2>&1 | tail -3
 
+# Нативный фреймворк живых виджетов: core.js + widgets/*.js → docs/assistant/interactive.js
+# (быстро, без сетевых зависимостей; данные виджетов — git-tracked JSON, считаются
+#  отдельно через precompute_interactive.py и НЕ пересчитываются на каждом билде).
+echo "[4.2/5] bundle interactive widgets"
+bash "${REPO_ROOT}/scripts/build_interactive.sh" 2>&1 | sed 's/^/  /'
+
 echo "[4.5/5] typst PDF per page (errors ignored)"
+# story_*/index — HTML-only (интерактивные эссе + лендинг): анимации/виджеты/
+# pyodide в PDF не рендерятся, а старый tufte-extension (v1.0) несовместим с
+# marginalia-вёрсткой Quarto 1.9 на документах с margin-контентом. Канонический
+# печатный артефакт — docs/book.pdf (полный учебник из Overleaf).
 ok=0; fail=0
 for qmd in "${REPO_ROOT}/book"/*.qmd; do
     name=$(basename "$qmd" .qmd)
+    case "$name" in
+        story_*|index) continue ;;
+    esac
     if (cd "${REPO_ROOT}/book" && QUARTO_TYPST_FONT_PATHS="${REPO_ROOT}/book/fonts" quarto render "$(basename "$qmd")" --to tufte-inspired-typst >/dev/null 2>&1); then
         ok=$((ok+1))
     else

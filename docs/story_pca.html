@@ -577,21 +577,9 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 <figcaption class="margin-caption">Восстановление лица из 1, 5, 10, 25, 50, 100, 200 eigenfaces — уже при k=25 лицо узнаваемо</figcaption>
 </figure>
 </div>
-<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: eigenfaces и сжатие">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Поиграть: eigenfaces и сжатие
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>Сгенерируем набор простых «лиц», найдём их собственные компоненты (eigenfaces) и восстановим лицо первыми <span class="math inline">k</span> из них. Внизу — сами eigenfaces, вверху — оригинал, реконструкция и «среднее лицо», плюс кривая накопленной дисперсии. Двигай <span class="math inline">k</span>: уже <span class="math inline">k=5</span>–<span class="math inline">10</span> компонент дают узнаваемое лицо.</p>
-</div>
-</div>
+<p>Покрутите сами на <strong>настоящих</strong> лицах из датасета Olivetti: двигайте число компонент <span class="math inline">k</span> — лицо пересобирается из собственных лиц в реальном времени. Уже при <span class="math inline">k=10</span>–<span class="math inline">15</span> лицо узнаваемо, хотя вместо 4096 пикселей хранится лишь <span class="math inline">k</span> чисел.</p>
+<div class="column-page">
+<div data-sigma-widget="pca-eigenfaces"></div>
 </div>
 
 <div class="no-row-height column-margin column-container"><div class="">

@@ -1,0 +1,106 @@
+/* Sigma Interactive — стиль живых виджетов. Тон Tufte: бумага #fffff8,
+   сериф et-book, сдержанные акценты blue/red/green. */
+
+.sigma-int {
+  margin: 1.6rem 0;
+  padding: 1.1rem 1.2rem 1.2rem;
+  background: #fcfbf3;
+  border: 1px solid #e7e2d0;
+  border-radius: 6px;
+  font-family: "et-book", Palatino, Georgia, serif;
+  color: #111;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* На широких экранах виджет может выходить в правое поле — задаётся
+   через .column-page обёртку в qmd; сам блок просто тянется по ширине. */
+
+.sigma-int-canvas { display: block; image-rendering: auto; }
+.sigma-int-svg { display: block; }
+
+.sigma-int-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+.sigma-int-row.controls { margin-top: 0.9rem; }
+
+/* --- контролы --- */
+.sigma-int-ctl {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  min-width: 180px; flex: 1 1 200px; margin: 0.35rem 0;
+}
+.sigma-int-lbl {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 0.92rem; gap: 0.5rem;
+}
+.sigma-int-lbl-name { color: #333; }
+.sigma-int-lbl-val {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  font-size: 0.86rem; color: #1F4E79; font-variant-numeric: tabular-nums;
+  background: #f1eedd; padding: 0 0.35rem; border-radius: 3px;
+}
+
+.sigma-int-range {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; border-radius: 3px;
+  background: #ddd6c0; outline: none; cursor: pointer; margin: 0.35rem 0;
+}
+.sigma-int-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #1F4E79; border: 2px solid #fffff8; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+}
+.sigma-int-range::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #1F4E79; border: 2px solid #fffff8; cursor: pointer;
+}
+
+.sigma-int-select {
+  font-family: inherit; font-size: 0.9rem; padding: 0.3rem 0.5rem;
+  border: 1px solid #cfc8b3; border-radius: 4px; background: #fffff8; color: #111;
+}
+
+.sigma-int-seg { display: inline-flex; border: 1px solid #cfc8b3; border-radius: 5px; overflow: hidden; }
+.sigma-int-seg-btn {
+  font-family: inherit; font-size: 0.85rem; padding: 0.3rem 0.7rem;
+  border: none; background: #fffff8; color: #555; cursor: pointer; border-right: 1px solid #e7e2d0;
+}
+.sigma-int-seg-btn:last-child { border-right: none; }
+.sigma-int-seg-btn.active { background: #1F4E79; color: #fffff8; }
+
+.sigma-int-btn {
+  font-family: inherit; font-size: 0.88rem; padding: 0.35rem 0.85rem;
+  border: 1px solid #1F4E79; border-radius: 5px; background: #fffff8; color: #1F4E79;
+  cursor: pointer; transition: background 0.12s, color 0.12s;
+}
+.sigma-int-btn:hover { background: #1F4E79; color: #fffff8; }
+.sigma-int-btn.ghost { border-color: #cfc8b3; color: #555; }
+.sigma-int-btn.ghost:hover { background: #efe9d8; color: #111; }
+
+.sigma-int-readout {
+  margin-top: 0.7rem; font-size: 0.92rem; color: #333;
+  display: flex; flex-wrap: wrap; gap: 0.4rem 1.3rem;
+}
+.sigma-int-metric { white-space: nowrap; }
+.sigma-int-metric b { color: #555; font-weight: 600; }
+.sigma-int-metric span {
+  font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+}
+
+.sigma-int-cap {
+  margin-top: 0.7rem; font-size: 0.86rem; color: #777; font-style: italic; line-height: 1.45;
+}
+
+.sigma-int-err {
+  color: #C0392B; font-size: 0.88rem; padding: 0.5rem 0.6rem;
+  background: #fbeeec; border: 1px solid #e8c9c4; border-radius: 4px;
+}
+
+.sigma-int-hint {
+  font-size: 0.82rem; color: #8a8472; margin-bottom: 0.5rem;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.sigma-int-hint::before { content: "✋"; font-style: normal; }
+
+@media (max-width: 600px) {
+  .sigma-int { padding: 0.8rem 0.7rem; }
+  .sigma-int-ctl { min-width: 140px; }
+}
