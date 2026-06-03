@@ -2215,7 +2215,11 @@ SigmaInt.register("kmeans-cluster", function (root, opts, S) {
   }
   function inertia() {
     let s = 0;
-    for (const p of pts) { const c = cents[p.c]; s += (p.x - c.x) ** 2 + (p.y - c.y) ** 2; }
+    for (const p of pts) {
+      const c = cents[p.c];
+      if (!c) continue; // p.c мог устареть сразу после смены k — пропускаем до ближайшего assign()
+      s += (p.x - c.x) ** 2 + (p.y - c.y) ** 2;
+    }
     return s;
   }
 
@@ -2327,7 +2331,7 @@ SigmaInt.register("kmeans-cluster", function (root, opts, S) {
 
   // ---------- контролы ----------
   S.slider(controls, { label: "Число кластеров k", min: 2, max: 7, step: 1, value: k, fmt: (v) => v | 0 },
-    (v) => { k = v | 0; seedCentroids(); iter = 0; settle = 0; });
+    (v) => { k = v | 0; seedCentroids(); assign(); iter = 0; settle = 0; redraw(); });
   S.button(controls, "Новые точки", () => { genData(); seedCentroids(); iter = 0; settle = 0; redraw(); }, "ghost");
   S.button(controls, "Переставить центроиды", () => { seedCentroids(); iter = 0; settle = 0; redraw(); });
 
