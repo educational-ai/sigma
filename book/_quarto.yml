@@ -70,6 +70,8 @@ website:
           - ch03_1_prosteyshie-primery-zadach-anali.qmd
           - ch03_2_lineynaya-regressiya-i-metod-nai.qmd
           - ch03_3_zadacha-klassifikacii-i-neyronny.qmd
+          - text: "▶ Свёртка: скользящее окно, из которого выросли CNN"
+            href: story_convolution.qmd
           - ch03_4_zadachi-obucheniya-bez-uchitelya.qmd
           - text: "▶ k-средних: как машина находит кластеры сама"
             href: story_kmeans.qmd
