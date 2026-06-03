@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Ландшафт функции потерь и парадоксы высокой размерности – Σ Сигма</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./story_double_descent.html" rel="next">
+<link href="./story_mds.html" rel="prev">
+<link href="./../favicon.svg" rel="icon" type="image/svg+xml">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ab75c3f3a51278d2dffe6ea8ffe5777a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Поиск не дал результатов",
+    "search-matching-documents-text": "Результаты поиска",
+    "search-copy-link-title": "Скопировать ссылку",
+    "search-hide-matches-text": "Скрыть дополнительные результаты",
+    "search-more-match-text": "дополнительный результат в этом документе",
+    "search-more-matches-text": "дополнительных результата(-ов) в этом документе",
+    "search-clear-button-title": "Очистить",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Отменить",
+    "search-submit-button-title": "Найти",
+    "search-label": "Поиск"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="sigma-tufte.css">
+<link rel="stylesheet" href="mobile-safe.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Сюжеты: Машинное обучение</a></li><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Ландшафт функции потерь и парадоксы высокой размерности</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Σ Сигма</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Поиск"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Σ Главная</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Предисловие</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть I. Введение в ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что такое искусственный интеллект</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть II. Математические основы</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Численные методы оптимизации</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Введение в анализ данных и искусственный интеллект</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Линейная регрессия и метод наименьших квадратов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задача классификации и нейронные сети</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задачи обучения без учителя</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Как искусственный интеллект меняет мир</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Сюжеты: Линейная алгебра и данные</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Word2Vec: слова как векторы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">PCA и Eigenfaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_ica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ICA и задача коктейльной вечеринки</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Собственные значения: от PageRank до шатающихся мостов</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Сюжеты: Оптимизация</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Сюжеты: Машинное обучение</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Ландшафт функции потерь и парадоксы высокой размерности</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Элементы теории чисел и шифрование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_1_elementy-teorii-chisel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Элементы теории чисел</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_2_shifrovanie-ot-taynopisi-k-matem.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шифрование: от тайнописи к математической задаче</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_3_kriptosistemy-rsa-i-diffi-hellma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Криптосистемы RSA и Диффи–Хеллмана</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_4_primeneniya-rsa-autentifikaciya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_5_heshirovanie-teoriya-chisel-vstr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Хеширование: теория чисел встречается с рандомизацией</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_7_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Подведение итогов главы</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Сюжеты: Машинное обучение</a></li><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Ландшафт функции потерь и парадоксы высокой размерности</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Ландшафт функции потерь и парадоксы высокой размерности</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>Нейронная сеть с миллионами параметров минимизирует функцию потерь в пространстве, которое невозможно визуализировать. Что увидит человек, если «срежет» этот ландшафт плоскостью? Почему в пространстве тысяч измерений почти все точки — седловые, а не локальные минимумы? И есть ли смысл вообще «застрять» в плохом локальном минимуме?</em></p>
+<section id="зачем-проецировать-ландшафт" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="зачем-проецировать-ландшафт">Зачем проецировать ландшафт</h2>
+<p>Когда мы обучаем нейросеть, мы движемся по поверхности <span class="math inline">L(\theta)</span>, где <span class="math inline">\theta \in \mathbb{R}^d</span>, а <span class="math inline">d</span> может быть от десятков тысяч (LeNet) до сотен миллиардов (GPT-4). Визуализировать такое пространство напрямую нельзя — мы ограничены двумя или тремя измерениями на экране.</p>
+<p>Идея Li et al.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> проста: возьмём обученные веса <span class="math inline">\theta^*</span>, выберем случайные направления <span class="math inline">\delta_1, \delta_2 \in \mathbb{R}^d</span> и посмотрим на значение функции потерь вдоль них:</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Li, Xu, Taylor, Studer, Goldstein. <a href="https://arxiv.org/abs/1712.09913">Visualizing the Loss Landscape of Neural Nets</a>, NeurIPS 2018.</p></div></div><p><span class="math display">
+f(\alpha, \beta) = L(\theta^* + \alpha\,\delta_1 + \beta\,\delta_2).
+</span></p>
+<p>Результат — двумерная «карта высот», которую можно нарисовать.</p>
+<section id="проекция-на-прямую" class="level3">
+<h3 class="anchored" data-anchor-id="проекция-на-прямую">Проекция на прямую</h3>
+<p>Простейший случай — одно направление:</p>
+<p><span class="math display">
+f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
+</span></p>
+<p>Если <span class="math inline">\delta</span> — случайный гауссов вектор, мы получаем одномерный «срез» ландшафта. Для хорошо обученной сети этот срез выглядит как гладкая парабола вблизи минимума, но вдали от минимума — многомодально: встречаются плоские плато и острые пики.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Фильтр-нормализация">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Фильтр-нормализация
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Чтобы сравнивать архитектуры честно, Li et al.&nbsp;предложили нормализовать направления <span class="math inline">\delta</span> поканально: каждый фильтр в свёрточном слое масштабируется до нормы соответствующего фильтра в <span class="math inline">\theta^*</span>. Без этого трюка масштаб весов искажает картину, и все ландшафты выглядят одинаково.</p>
+</div>
+</div>
+</section>
+<section id="проекция-на-плоскость" class="level3">
+<h3 class="anchored" data-anchor-id="проекция-на-плоскость">Проекция на плоскость</h3>
+<p>Два случайных направления <span class="math inline">\delta_1, \delta_2</span> задают двумерное сечение. Для ResNet-56 без skip-connections ландшафт оказывается хаотичным с множеством глубоких впадин. Добавление residual connections <strong>драматически</strong> сглаживает его — это одно из самых наглядных объяснений того, <em>зачем</em> нужны skip-connections.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mpl_toolkits.mplot3d <span class="im">import</span> Axes3D</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> project_loss_surface(model, loss_fn, data, n_points<span class="op">=</span><span class="dv">51</span>, scale<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Проецируем функцию потерь на случайную плоскость."""</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    theta_star <span class="op">=</span> {k: v.clone() <span class="cf">for</span> k, v <span class="kw">in</span> model.state_dict().items()}</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Два случайных направления (filter-normalized)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    delta1, delta2 <span class="op">=</span> {}, {}</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> theta_star.items():</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        d1 <span class="op">=</span> torch.randn_like(v)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        d2 <span class="op">=</span> torch.randn_like(v)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Нормализация по фильтрам</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> v.dim() <span class="op">&gt;=</span> <span class="dv">2</span>:</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(v.shape[<span class="dv">0</span>]):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                d1[i] <span class="op">*=</span> v[i].norm() <span class="op">/</span> (d1[i].norm() <span class="op">+</span> <span class="fl">1e-10</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                d2[i] <span class="op">*=</span> v[i].norm() <span class="op">/</span> (d2[i].norm() <span class="op">+</span> <span class="fl">1e-10</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        delta1[k] <span class="op">=</span> d1</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        delta2[k] <span class="op">=</span> d2</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    alphas <span class="op">=</span> np.linspace(<span class="op">-</span>scale, scale, n_points)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    betas  <span class="op">=</span> np.linspace(<span class="op">-</span>scale, scale, n_points)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> np.zeros((n_points, n_points))</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, a <span class="kw">in</span> <span class="bu">enumerate</span>(alphas):</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j, b <span class="kw">in</span> <span class="bu">enumerate</span>(betas):</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>            <span class="co"># θ* + α·δ₁ + β·δ₂</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            new_state <span class="op">=</span> {}</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> k <span class="kw">in</span> theta_star:</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                new_state[k] <span class="op">=</span> theta_star[k] <span class="op">+</span> a <span class="op">*</span> delta1[k] <span class="op">+</span> b <span class="op">*</span> delta2[k]</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>            model.load_state_dict(new_state)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                Z[j, i] <span class="op">=</span> loss_fn(model, data).item()</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    model.load_state_dict(theta_star)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> alphas, betas, Z</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Визуализация</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># alphas, betas, Z = project_loss_surface(model, loss_fn, train_data)</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co"># fig, ax = plt.subplots(subplot_kw={"projection": "3d"})</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># A, B = np.meshgrid(alphas, betas)</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.plot_surface(A, B, Z, cmap="coolwarm", alpha=0.9)</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_xlabel("α"); ax.set_ylabel("β"); ax.set_zlabel("Loss")</span></span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: срезы ландшафта потерь">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Поиграть: срезы ландшафта потерь
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Возьмём функцию потерь в пространстве из десятков измерений и нарисуем её вдоль нескольких <em>случайных</em> направлений через одну и ту же точку. Профили получаются совершенно разными: где-то гладкая чаша, где-то частокол бугров. Вывод — любая красивая 2D-картинка «ландшафта» это лишь один из бесконечного числа срезов. Покрутите размерность.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="парадоксы-высокой-размерности" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="парадоксы-высокой-размерности">Парадоксы высокой размерности</h2>
+<p>Ландшафт функции потерь живёт в пространстве очень высокой размерности. Наша геометрическая интуиция, выработанная в 2D и 3D, систематически обманывает нас в таком мире.</p>
+<section id="парадокс-1-объём-сферы" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="парадокс-1-объём-сферы">Парадокс 1: объём сферы</h3>
+<p>Объём единичного шара в <span class="math inline">\mathbb{R}^d</span>:</p>
+<p><span class="math display">
+V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
+</span></p>
+<p>При <span class="math inline">d = 2</span> это <span class="math inline">\pi \approx 3.14</span>. При <span class="math inline">d = 10</span> — уже <span class="math inline">2.55</span>. При <span class="math inline">d = 100</span> — число <span class="math inline">V_{100} \approx 2.37 \times 10^{-40}</span> — это <span class="math inline">\approx 2.6 \times 10^{39}</span> раз меньше объёма атома водорода (<span class="math inline">\approx 0.62\,\text{Å}^3</span> при радиусе Бора <span class="math inline">\approx 0.53\,\text{Å}</span>). <strong>Единичный шар в высоких измерениях пуст.</strong></p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="figures/stories/loss_volume.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Объём единичного шара стремится к нулю экспоненциально с ростом размерности</figcaption>
+</figure>
+</div>
+</section>
+<section id="парадокс-2-весь-объём-у-поверхности" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="парадокс-2-весь-объём-у-поверхности">Парадокс 2: весь объём — у поверхности</h3>
+<p>Какая доля объёма шара радиуса <span class="math inline">R</span> лежит в тонкой корке шириной <span class="math inline">\varepsilon R</span> у поверхности? Отношение:</p>
+<div class="column-page">
+<p><span class="math display">
+\frac{V_d(R) - V_d(R - \varepsilon R)}{V_d(R)}
+= 1 - (1-\varepsilon)^d.
+</span></p>
+</div>
+<p>При <span class="math inline">d = 100</span> и <span class="math inline">\varepsilon = 0.05</span> корка содержит <span class="math inline">1 - 0.95^{100} \approx 99.4\%</span> всего объёма. В пространстве параметров нейросети «внутренность» шара фактически пуста — все точки прижаты к границе.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="figures/stories/loss_shell.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Доля объёма в тонкой корке у поверхности при разных размерностях</figcaption>
+</figure>
+</div>
+</section>
+<section id="парадокс-3-все-точки-далеко-друг-от-друга" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="парадокс-3-все-точки-далеко-друг-от-друга">Парадокс 3: все точки далеко друг от друга</h3>
+<p>Для <span class="math inline">N</span> точек, равномерно распределённых в единичном кубе <span class="math inline">[0,1]^d</span>, среднее расстояние между парой точек:</p>
+<p><span class="math display">
+\mathbb{E}[\|x_i - x_j\|] \approx \sqrt{d/6}.
+</span></p>
+<p>А дисперсия расстояний растёт как <span class="math inline">O(1/d)</span>, то есть <strong>все попарные расстояния стремятся к одному и тому же значению</strong>. В <span class="math inline">d = 10\,000</span> разброс расстояний — доли процента. Метрика расстояний теряет смысл.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="figures/stories/loss_concentration.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">При росте d все расстояния сжимаются к одному значению — коэффициент вариации падает к нулю</figcaption>
+</figure>
+</div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-note callout-titled" title="Концентрация меры">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Концентрация меры
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Это явление формализуется <strong>неравенством концентрации</strong>. Для стандартного гауссова вектора <span class="math inline">g \sim \mathcal{N}(0, I_d)</span>:</p>
+<p><span class="math display">
+\Pr\left[\left|\|g\| - \sqrt{d}\right| &gt; t\right] \leq 2\exp\left(-\frac{t^2}{2}\right).
+</span></p>
+<p>Норма случайного вектора в <span class="math inline">\mathbb{R}^d</span> сконцентрирована около <span class="math inline">\sqrt{d}</span> с отклонением порядка <span class="math inline">O(1)</span>. Гауссов вектор в высоких измерениях лежит на тонкой сферической оболочке.</p>
+</div>
+</div>
+</div></div></section>
+<section id="парадокс-4-седловые-точки-вместо-локальных-минимумов" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="парадокс-4-седловые-точки-вместо-локальных-минимумов">Парадокс 4: седловые точки вместо локальных минимумов</h3>
+<p>В двумерном ландшафте локальный минимум — обычное дело: обе кривизны положительны. Но в <span class="math inline">d</span>-мерном пространстве для стационарной точки нужно, чтобы <strong>все</strong> <span class="math inline">d</span> собственных значений гессиана были одного знака. В модели, где знаки собственных значений независимы и равновероятны (упрощение, но иллюстративное), вероятность этого — <span class="math inline">2^{-d}</span>.</p>
+<p>Dauphin et al.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали, что в высокомерных нейросетях критические точки с высоким значением loss — почти всегда седловые, а не локальные минимумы. Настоящие локальные минимумы имеют примерно одинаковое значение loss.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Dauphin, Pascanu, Gulcehre, Cho, Ganguli, Bengio. <a href="https://arxiv.org/abs/1406.2572">Identifying and attacking the saddle point problem in high-dimensional non-convex optimization</a>, NeurIPS 2014.</p></div></div><div class="callout callout-style-default callout-important callout-titled" title="Закон Dauphin: все минимумы одинаково хороши">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Закон Dauphin: все минимумы одинаково хороши
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Плохих локальных минимумов в глубоких нейросетях почти нет. Критические точки с высоким loss — <strong>почти всегда сёдла</strong>, а не ямы. Все настоящие локальные минимумы сосредоточены вблизи одного и того же уровня loss. Это означает: если SGD застрял — он застрял в седле, а не в плохом минимуме. Нужно не «вылезать» — нужно <strong>соскользнуть</strong>.</p>
+</div>
+</div>
+<p>Это объясняет, почему SGD работает: ему не нужно «перепрыгивать» через барьеры локальных минимумов — он просто «соскальзывает» с седловых точек вдоль направлений отрицательной кривизны.</p>
+</section>
+</section>
+<section id="что-показывают-проекции" class="level2">
+<h2 class="anchored" data-anchor-id="что-показывают-проекции">Что показывают проекции</h2>
+<p>Когда мы проецируем <span class="math inline">L(\theta)</span> на случайную прямую или плоскость, мы видим <strong>типичное</strong> сечение, а не специально выбранное. Теорема Джонсона–Линденштраусса гарантирует, что случайная проекция из <span class="math inline">\mathbb{R}^d</span> в <span class="math inline">\mathbb{R}^k</span> сохраняет попарные расстояния <span class="math inline">N</span> точек с точностью <span class="math inline">\varepsilon</span> при <span class="math inline">k = O(\log N / \varepsilon^2)</span> измерениях — для <span class="math inline">N = 10\,000</span> и <span class="math inline">\varepsilon = 0.1</span> достаточно <span class="math inline">k \approx 1\,900</span> измерений (константа в оценке зависит от формулировки теоремы, <span class="math inline">k \approx 2\!-\!4\,\ln N / \varepsilon^2</span>) — вместо исходных тысяч; при <span class="math inline">d \sim 10^6</span> это сжатие в сотни раз.</p>
+<p>Но одномерный срез показывает только одно из миллиона направлений. Гладкость среза не означает гладкости ландшафта: может существовать узкое «ущелье» в ортогональном направлении.</p>
+<section id="что-видно-на-практике" class="level3">
+<h3 class="anchored" data-anchor-id="что-видно-на-практике">Что видно на практике</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Архитектура</th>
+<th style="text-align: left;">Без skip-connections</th>
+<th style="text-align: left;">С skip-connections</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Plain-56 / ResNet-56</td>
+<td style="text-align: left;">Множество острых минимумов</td>
+<td style="text-align: left;">Один широкий бассейн</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Plain-110 / ResNet-110</td>
+<td style="text-align: left;">Ещё более хаотичный</td>
+<td style="text-align: left;">Идеально гладкий</td>
+</tr>
+</tbody>
+</table>
+<p>Skip-connections <strong>выпрямляют</strong> ландшафт, превращая его из хаотической поверхности в почти выпуклую чашу вблизи решения.</p>
+</section>
+</section>
+<section id="практическое-следствие-широкие-минимумы-обобщают-лучше" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="практическое-следствие-широкие-минимумы-обобщают-лучше">Практическое следствие: широкие минимумы обобщают лучше</h2>
+<p>Keskar et al.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> заметили, что <strong>широкие</strong> минимумы (с малой кривизной гессиана) обобщают лучше, чем <strong>острые</strong>. Маленький batch size в SGD добавляет шум, который «выталкивает» оптимизатор из острых минимумов в широкие — это одна из причин, почему SGD обобщает лучше полного градиентного спуска.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Keskar, Mudigere, Nocedal, Smelyanskiy, Tang. <a href="https://arxiv.org/abs/1609.04836">On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima</a>, ICLR 2017.</p></div></div><p>На проекциях это видно буквально: ландшафт для SGD с batch 256 выглядит как широкая долина, а для полного GD — как узкий каньон.</p>
+</section>
+<section id="резюме" class="level2">
+<h2 class="anchored" data-anchor-id="резюме">Резюме</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Размерность</th>
+<th style="text-align: left;">Интуиция 3D</th>
+<th style="text-align: left;">Реальность <span class="math inline">d \gg 1</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Критические точки</strong></td>
+<td style="text-align: left;"><strong>Минимумы и максимумы</strong></td>
+<td style="text-align: left;"><strong>Почти все — сёдла</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Оптимизация</td>
+<td style="text-align: left;">Застреваем в минимумах</td>
+<td style="text-align: left;">Соскальзываем с сёдел</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Объём шара</td>
+<td style="text-align: left;">Большой</td>
+<td style="text-align: left;"><span class="math inline">\to 0</span> экспоненциально</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Расстояния</td>
+<td style="text-align: left;">Разные</td>
+<td style="text-align: left;">Все почти одинаковы</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Случайная проекция</td>
+<td style="text-align: left;">Теряет информацию</td>
+<td style="text-align: left;">Сохраняет расстояния</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Закон, который стоит унести:</strong> все локальные минимумы глубокой сети примерно одинаковы по качеству — плохие критические точки почти всегда сёдла, а не ямы. Визуализация через проекции — мощный инструмент, но интерпретировать её нужно с осторожностью: гладкость одного среза не гарантирует гладкости ландшафта целиком.</p>
+
+
+</section>
+
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
+<script>
+// Переименовываем "Typst" → "PDF этой страницы" в Other Formats блоке
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".quarto-alternate-formats a").forEach(function (a) {
+    if (a.textContent.trim() === "Typst") {
+      const icon = a.querySelector("i");
+      a.textContent = "";
+      if (icon) a.appendChild(icon);
+      a.append(" PDF этой страницы");
+    }
+  });
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Скопировано");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Скопировано");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./story_mds.html" class="pagination-link" aria-label="Многомерное шкалирование и проклятие размерности для безградиентных методов">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./story_double_descent.html" class="pagination-link" aria-label="Феномен двойного спуска">
+        <span class="nav-page-text">Феномен двойного спуска</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

@@ -41,7 +41,7 @@ async function init() {
       stderr: (s) => { activeStderr += s + "\n"; },
     });
     post("progress", { stage: "packages", message: "Подгружаю numpy, matplotlib, sympy…" });
-    await pyodide.loadPackage(["numpy", "matplotlib", "sympy"]);
+    await pyodide.loadPackage(["numpy", "matplotlib", "sympy", "pillow"]);
     // Bootstrap the namespace: switch matplotlib to Agg, give code a place
     // to save figures, and define a tiny helper that the agent can call.
     await pyodide.runPythonAsync(`
@@ -105,6 +105,26 @@ _out
     const arr = extras.toJs ? extras.toJs() : Array.from(extras);
     images.push(...arr);
   } catch (_) { /* swallow */ }
+  // Animated/rich media side channel: collect .gif/.webp/.mp4 written to
+  // /tmp/figs as {mime, b64}. Kept separate from `images` (PNG-only) so the
+  // chat widget stays unchanged; the inline runner renders these animated.
+  let media = [];
+  try {
+    const rich = await pyodide.runPythonAsync(`
+import os, base64
+_mt = {"gif": "image/gif", "webp": "image/webp", "mp4": "video/mp4", "webm": "video/webm"}
+_m = []
+for fn in sorted(os.listdir("/tmp/figs")):
+    ext = fn.rsplit(".", 1)[-1].lower() if "." in fn else ""
+    if ext in _mt:
+        with open(os.path.join("/tmp/figs", fn), "rb") as f:
+            _m.append([_mt[ext], base64.b64encode(f.read()).decode("ascii")])
+        os.remove(os.path.join("/tmp/figs", fn))
+_m
+`);
+    const rarr = rich.toJs ? rich.toJs() : Array.from(rich);
+    media = rarr.map((x) => ({ mime: x[0], b64: x[1] }));
+  } catch (_) { /* swallow */ }
   // Trim trailing newlines; cap each stream to keep tool payload reasonable.
   const cap = (s) => {
     if (!s) return "";
@@ -117,6 +137,7 @@ _out
     stdout: cap(activeStdout),
     stderr: cap(activeStderr),
     images,
+    media,
   };
 }
 

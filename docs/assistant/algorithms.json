@@ -2,8 +2,18 @@
   "ch04_1_elementy-teorii-chisel": {
     "Алгоритм: нахождение НОД (Евклид)": {
       "params": [
-        {"name": "a", "label": "a", "default": "252", "type": "int"},
-        {"name": "b", "label": "b", "default": "105", "type": "int"}
+        {
+          "name": "a",
+          "label": "a",
+          "default": "252",
+          "type": "int"
+        },
+        {
+          "name": "b",
+          "label": "b",
+          "default": "105",
+          "type": "int"
+        }
       ],
       "code": "a, b = __a__, __b__\nA0, B0 = a, b\nprint(f'Ищем НОД({A0}, {B0}):')\nprint()\nprint(f'  {\"a\":>10} {\"b\":>10}  ->  {\"a mod b\":>10}')\nprint('  ' + '-' * 36)\nsteps = 0\nwhile b != 0:\n    r = a % b\n    print(f'  {a:>10} {b:>10}  ->  {r:>10}')\n    a, b = b, r\n    steps += 1\nprint('  ' + '-' * 36)\ntail = 'делений' if steps % 10 == 0 or steps % 10 >= 5 or 11 <= steps % 100 <= 14 else ('деления' if steps % 10 > 1 else 'деление')\nprint(f'НОД({A0}, {B0}) = {a}   (за {steps} {tail})')"
     }
@@ -11,20 +21,384 @@
   "ch04_3_kriptosistemy-rsa-i-diffi-hellma": {
     "Алгоритм: генерация ключей RSA": {
       "params": [
-        {"name": "p", "label": "p (простое)", "default": "61", "type": "int"},
-        {"name": "q", "label": "q (простое)", "default": "53", "type": "int"},
-        {"name": "msg", "label": "Сообщение m (число)", "default": "42", "type": "int"}
+        {
+          "name": "p",
+          "label": "p (простое)",
+          "default": "61",
+          "type": "int"
+        },
+        {
+          "name": "q",
+          "label": "q (простое)",
+          "default": "53",
+          "type": "int"
+        },
+        {
+          "name": "msg",
+          "label": "Сообщение m (число)",
+          "default": "42",
+          "type": "int"
+        }
       ],
       "code": "from sympy import isprime, mod_inverse\np, q, m = __p__, __q__, __msg__\nfor name, val in ('p', p), ('q', q):\n    if not isprime(val):\n        print(f'! {name}={val} не простое — для демо нужно простое')\n        raise SystemExit\nn = p * q\nphi = (p - 1) * (q - 1)\n# Стандартное e = 65537, но для маленьких p,q возьмём первое e, взаимно простое с phi\nfrom math import gcd\ne = 65537 if gcd(65537, phi) == 1 else next(i for i in range(3, phi, 2) if gcd(i, phi) == 1)\nd = mod_inverse(e, phi)\nprint(f'p = {p},  q = {q}')\nprint(f'n = p·q = {n}')\nprint(f'phi(n) = (p-1)(q-1) = {phi}')\nprint(f'e = {e}   (открытая экспонента)')\nprint(f'd = {d}   (секретная экспонента; e·d mod phi = {(e*d) % phi})')\nprint()\nprint(f'Открытый ключ:  (n={n}, e={e})')\nprint(f'Закрытый ключ:  (n={n}, d={d})')\nprint()\nif m >= n:\n    print(f'! m={m} >= n={n} — нужно m < n. Возьми сообщение поменьше.')\nelse:\n    c = pow(m, e, n)\n    m2 = pow(c, d, n)\n    print(f'Шифрование:  c = m^e mod n = {m}^{e} mod {n} = {c}')\n    print(f'Дешифровка:  m = c^d mod n = {c}^{d} mod {n} = {m2}')\n    print(f'Совпало с исходным m={m}: {m == m2}')"
     },
     "Алгоритм: протокол Диффи–Хеллмана": {
       "params": [
-        {"name": "p", "label": "p (простое)", "default": "23", "type": "int"},
-        {"name": "g", "label": "g (примитивный корень)", "default": "5", "type": "int"},
-        {"name": "a", "label": "a (секрет Алисы)", "default": "6", "type": "int"},
-        {"name": "b", "label": "b (секрет Боба)", "default": "15", "type": "int"}
+        {
+          "name": "p",
+          "label": "p (простое)",
+          "default": "23",
+          "type": "int"
+        },
+        {
+          "name": "g",
+          "label": "g (примитивный корень)",
+          "default": "5",
+          "type": "int"
+        },
+        {
+          "name": "a",
+          "label": "a (секрет Алисы)",
+          "default": "6",
+          "type": "int"
+        },
+        {
+          "name": "b",
+          "label": "b (секрет Боба)",
+          "default": "15",
+          "type": "int"
+        }
       ],
       "code": "from sympy import isprime\np, g, a, b = __p__, __g__, __a__, __b__\nif not isprime(p):\n    print(f'! p={p} не простое')\n    raise SystemExit\nA = pow(g, a, p)\nB = pow(g, b, p)\nKa = pow(B, a, p)\nKb = pow(A, b, p)\nprint(f'Параметры: p = {p}, g = {g}')\nprint()\nprint(f'Алиса выбирает a = {a} (секрет)')\nprint(f'Боб   выбирает b = {b} (секрет)')\nprint()\nprint(f'Алиса -> Боб:  A = g^a mod p = {g}^{a} mod {p} = {A}')\nprint(f'Боб   -> Алиса: B = g^b mod p = {g}^{b} mod {p} = {B}')\nprint()\nprint(f'Общий ключ у Алисы: K = B^a mod p = {B}^{a} mod {p} = {Ka}')\nprint(f'Общий ключ у Боба:  K = A^b mod p = {A}^{b} mod {p} = {Kb}')\nprint()\nprint(f'Ключи совпали: {Ka == Kb}   -> общий секрет K = {Ka}')"
+    }
+  },
+  "story_word2vec": {
+    "Поиграть: арифметика смыслов": {
+      "params": [
+        {
+          "name": "word_a",
+          "label": "Слово a",
+          "type": "select",
+          "options": [
+            "король",
+            "королева",
+            "мужчина",
+            "женщина",
+            "принц",
+            "принцесса",
+            "Франция",
+            "Париж",
+            "Германия",
+            "Берлин",
+            "Италия",
+            "Рим",
+            "Япония",
+            "Токио"
+          ],
+          "default": "король"
+        },
+        {
+          "name": "word_b",
+          "label": "Слово b (вычитаем)",
+          "type": "select",
+          "options": [
+            "король",
+            "королева",
+            "мужчина",
+            "женщина",
+            "принц",
+            "принцесса",
+            "Франция",
+            "Париж",
+            "Германия",
+            "Берлин",
+            "Италия",
+            "Рим",
+            "Япония",
+            "Токио"
+          ],
+          "default": "мужчина"
+        },
+        {
+          "name": "word_c",
+          "label": "Слово c (прибавляем)",
+          "type": "select",
+          "options": [
+            "король",
+            "королева",
+            "мужчина",
+            "женщина",
+            "принц",
+            "принцесса",
+            "Франция",
+            "Париж",
+            "Германия",
+            "Берлин",
+            "Италия",
+            "Рим",
+            "Япония",
+            "Токио"
+          ],
+          "default": "женщина"
+        }
+      ],
+      "code": "import numpy as np\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nfrom matplotlib.lines import Line2D\n\nplt.rcParams.update({\n    'font.family': 'serif',\n    'font.serif': ['DejaVu Serif', 'Times New Roman'],\n    'mathtext.fontset': 'dejavuserif',\n})\n\nBLUE  = '#1F4E79'\nRED   = '#C0392B'\nGREEN = '#2E7D5B'\nGRAY  = '#AAAAAA'\nBG    = '#fffff8'\n\nVOCAB = {\n    'король':    np.array([0.10, 0.90]),\n    'королева':  np.array([0.90, 0.90]),\n    'мужчина':   np.array([0.10, 0.10]),\n    'женщина':   np.array([0.90, 0.10]),\n    'принц':     np.array([0.10, 0.55]),\n    'принцесса': np.array([0.90, 0.55]),\n    'Франция':   np.array([0.10, 0.22]),\n    'Париж':     np.array([0.10, 0.78]),\n    'Германия':  np.array([0.50, 0.22]),\n    'Берлин':    np.array([0.50, 0.78]),\n    'Италия':    np.array([0.70, 0.22]),\n    'Рим':       np.array([0.70, 0.78]),\n    'Япония':    np.array([0.30, 0.22]),\n    'Токио':     np.array([0.30, 0.78]),\n}\n\nword_a = __word_a__\nword_b = __word_b__\nword_c = __word_c__\n\nif word_a == word_b or word_a == word_c or word_b == word_c:\n    print('Выберите три разных слова.')\nelse:\n    va = VOCAB[word_a]\n    vb = VOCAB[word_b]\n    vc = VOCAB[word_c]\n    target = va - vb + vc\n\n    exclude = {word_a, word_b, word_c}\n    best_word, best_dist = None, np.inf\n    scores = {}\n    for w, v in VOCAB.items():\n        d = np.linalg.norm(v - target)\n        scores[w] = d\n        if w not in exclude and d < best_dist:\n            best_dist = d\n            best_word = w\n\n    best_v = VOCAB[best_word]\n\n    print(f'{word_a} − {word_b} + {word_c} ≈ {best_word}  (dist={best_dist:.3f})')\n    sorted_cands = sorted([(w, d) for w, d in scores.items() if w not in exclude], key=lambda x: x[1])\n    print('Расстояния до target:')\n    for w, d in sorted_cands[:5]:\n        mark = ' ← найдено' if w == best_word else ''\n        print(f'  {w}: {d:.3f}{mark}')\n\n    fig, ax = plt.subplots(figsize=(7, 5.5), facecolor=BG)\n    ax.set_facecolor(BG)\n    ax.set_xlim(-0.05, 1.25)\n    ax.set_ylim(-0.08, 1.08)\n    ax.spines[['top', 'right']].set_visible(False)\n    ax.spines[['left', 'bottom']].set_alpha(0.3)\n    ax.tick_params(labelsize=8, color='#aaaaaa')\n    ax.grid(True, linewidth=0.4, alpha=0.2, color='gray')\n    ax.set_xlabel('ось 1 (пол)', fontsize=9, fontfamily='serif', color='#555555')\n    ax.set_ylabel('ось 2 (статус)', fontsize=9, fontfamily='serif', color='#555555')\n\n    for w, v in VOCAB.items():\n        if w not in {word_a, word_b, word_c, best_word}:\n            ax.scatter(*v, s=28, color=GRAY, zorder=2, alpha=0.5)\n            ax.text(v[0] + 0.02, v[1] + 0.02, w, fontsize=7.5,\n                    color=GRAY, fontfamily='serif', alpha=0.65)\n\n    def arrow(ax, p1, p2, color, lw=2.0, ls='-'):\n        ax.annotate('', xy=p2, xytext=p1,\n                    arrowprops=dict(arrowstyle='->', color=color, lw=lw,\n                                    linestyle=ls,\n                                    connectionstyle='arc3,rad=0.0'))\n\n    arrow(ax, vb, va, BLUE, lw=2.2)\n    arrow(ax, vc, target, BLUE, lw=2.2)\n    arrow(ax, va, target, RED, lw=1.8, ls='dashed')\n    arrow(ax, vb, vc, GREEN, lw=1.8, ls='dashed')\n\n    for w, v, col in [(word_a, va, BLUE), (word_b, vb, BLUE), (word_c, vc, GREEN)]:\n        ax.scatter(*v, s=80, color=col, zorder=5)\n        ax.text(v[0] + 0.025, v[1] + 0.025, w, fontsize=10.5,\n                fontweight='bold', color=col, fontfamily='serif',\n                bbox=dict(boxstyle='round,pad=0.1', fc=BG, ec='none', alpha=0.85))\n\n    ax.scatter(*target, s=60, marker='x', color=RED, zorder=5, linewidths=2)\n    ax.scatter(*best_v, s=120, color=RED, zorder=6)\n    ax.text(best_v[0] + 0.025, best_v[1] + 0.025,\n            f'{best_word}\\n(dist={best_dist:.2f})',\n            fontsize=10.5, fontweight='bold', color=RED, fontfamily='serif',\n            bbox=dict(boxstyle='round,pad=0.15', fc=BG, ec=RED, alpha=0.9, linewidth=0.8))\n\n    cands_text = '\\n'.join([f'  {w}: {d:.3f}' for w, d in sorted_cands[:4]])\n    info = f'{word_a} − {word_b} + {word_c} ≈\\n{cands_text}'\n    ax.text(1.02, 0.98, info, transform=ax.transAxes,\n            fontsize=8, fontfamily='serif', color='#444444', va='top', ha='left',\n            bbox=dict(boxstyle='round,pad=0.4', fc=BG, ec='#cccccc', alpha=0.9))\n\n    handles = [\n        Line2D([0], [0], color=BLUE,  lw=2, label=f'вектор {word_b}→{word_a}'),\n        Line2D([0], [0], color=BLUE,  lw=2, label=f'вектор {word_c}→результат'),\n        Line2D([0], [0], color=RED,   lw=1.8, ls='--', label=f'{word_a}→результат (итог)'),\n        Line2D([0], [0], color=GREEN, lw=1.8, ls='--', label=f'{word_b}→{word_c} (смещение)'),\n    ]\n    ax.legend(handles=handles, fontsize=7.5, frameon=True, framealpha=0.85,\n              loc='lower left', fancybox=False)\n\n    ax.set_title(f'{word_a} − {word_b} + {word_c} = ?', fontsize=12,\n                 fontfamily='serif', pad=8)\n    plt.tight_layout()\n    plt.show()"
+    }
+  },
+  "story_fft_matrix": {
+    "Два тона — одно ДПФ": {
+      "params": [
+        {
+          "name": "freq1",
+          "label": "Частота 1, Гц",
+          "type": "slider",
+          "min": 100,
+          "max": 2000,
+          "step": 10,
+          "default": 440
+        },
+        {
+          "name": "freq2",
+          "label": "Частота 2, Гц",
+          "type": "slider",
+          "min": 100,
+          "max": 2000,
+          "step": 10,
+          "default": 880
+        },
+        {
+          "name": "N",
+          "label": "Размер N (степень 2)",
+          "type": "select",
+          "options": [
+            128,
+            256,
+            512,
+            1024
+          ],
+          "default": 512
+        },
+        {
+          "name": "fs",
+          "label": "Частота дискретизации, Гц",
+          "type": "select",
+          "options": [
+            4000,
+            8000,
+            16000
+          ],
+          "default": 8000
+        }
+      ],
+      "code": "import numpy as np\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\nplt.rcParams.update({\n    'font.family': 'serif',\n    'font.serif': ['DejaVu Serif', 'Times New Roman'],\n    'mathtext.fontset': 'dejavuserif',\n})\n\nfreq1 = __freq1__\nfreq2 = __freq2__\nN = __N__\nfs = __fs__\n\nBLUE = '#1F4E79'\nRED  = '#C0392B'\nGREEN = '#2E7D5B'\n\nt = np.arange(N) / fs\nsignal = np.sin(2 * np.pi * freq1 * t) + np.sin(2 * np.pi * freq2 * t)\n\n# ДПФ через умножение на матрицу Фурье (явное)\nj_idx = np.arange(N)\nF_N = np.exp(-2j * np.pi * np.outer(j_idx, j_idx) / N)\nX = F_N @ signal\nmag = np.abs(X) / N * 2  # нормировка амплитуды\n\nfreqs = j_idx * fs / N\nhalf = N // 2\nmag_half = mag[:half]\n\n# Два пика\npeak_idx = np.argsort(mag_half)[-2:]\npeak_idx.sort()\npeak_freqs = freqs[peak_idx]\npeak_rows = peak_idx\n\nprint(f'Пик 1: {peak_freqs[0]:.1f} Гц — строка №{peak_rows[0]} матрицы F_{N}')\nprint(f'Пик 2: {peak_freqs[1]:.1f} Гц — строка №{peak_rows[1]} матрицы F_{N}')\nprint(f'Каждая строка — синусоида: строка k «настроена» на частоту k·fs/N')\n\n# Строки матрицы для двух пиков (вещественные части)\nrow1_vec = F_N[peak_rows[0]].real\nrow2_vec = F_N[peak_rows[1]].real\n\nfig, axes = plt.subplots(1, 3, figsize=(10, 3.2))\n\n# 1. Сигнал (первые 128 отсчётов для читаемости)\nshow = min(128, N)\naxes[0].plot(t[:show] * 1000, signal[:show], color=BLUE, linewidth=0.9)\naxes[0].set_title('Сигнал $x(t)$', fontsize=10)\naxes[0].set_xlabel('мс', fontsize=9)\naxes[0].set_ylabel('амплитуда', fontsize=9)\naxes[0].spines[['top','right']].set_visible(False)\naxes[0].tick_params(labelsize=8)\naxes[0].grid(True, linewidth=0.3, alpha=0.3)\n\n# 2. Спектр с пометкой пиков\naxes[1].plot(freqs[:half], mag_half, color=BLUE, linewidth=1.0)\nfor pk_freq, pk_row, col in zip(peak_freqs, peak_rows, [RED, GREEN]):\n    axes[1].axvline(pk_freq, color=col, linewidth=1.2, linestyle='--', alpha=0.8)\n    y_pos = mag_half.max() * (0.9 if col == RED else 0.70)\n    axes[1].annotate(\n        f'{pk_freq:.0f} Гц\\nстрока №{pk_row}',\n        xy=(pk_freq, mag_half[pk_row]),\n        xytext=(pk_freq + fs / N * 3, y_pos),\n        fontsize=7, color=col, fontfamily='serif',\n        arrowprops=dict(arrowstyle='->', color=col, lw=0.7),\n    )\naxes[1].set_title(r'Спектр $|X_k|$' + f'\\n(ДПФ = $F_{{{N}}} \\\\cdot x$)', fontsize=9)\naxes[1].set_xlabel('Частота, Гц', fontsize=9)\naxes[1].spines[['top','right']].set_visible(False)\naxes[1].tick_params(labelsize=8)\naxes[1].set_xlim(0, min(fs / 2, 3000))\n\n# 3. Строки матрицы F_N для двух пиков\nshow2 = min(64, N)\naxes[2].plot(np.arange(show2), row1_vec[:show2],\n             color=RED, linewidth=1.0, label=f'строка №{peak_rows[0]} ({peak_freqs[0]:.0f} Гц)')\naxes[2].plot(np.arange(show2), row2_vec[:show2],\n             color=GREEN, linewidth=1.0, label=f'строка №{peak_rows[1]} ({peak_freqs[1]:.0f} Гц)')\naxes[2].axhline(0, color='gray', linewidth=0.4)\naxes[2].set_title(f'Строки матрицы $F_{{{N}}}$\\n(«настроены» на частоты пиков)', fontsize=9)\naxes[2].set_xlabel('отсчёт $j$', fontsize=9)\naxes[2].set_ylabel(r'$\\mathrm{Re}(\\omega^{jk})$', fontsize=9)\naxes[2].spines[['top','right']].set_visible(False)\naxes[2].tick_params(labelsize=8)\naxes[2].legend(fontsize=7, frameon=False)\n\nfig.tight_layout()\n"
+    }
+  },
+  "story_double_descent": {
+    "Поиграть: кривая двойного спуска": {
+      "params": [
+        {
+          "name": "n",
+          "label": "Точек обучения n",
+          "default": "40",
+          "type": "int"
+        },
+        {
+          "name": "noise",
+          "label": "Шум, %",
+          "default": "30",
+          "type": "int"
+        },
+        {
+          "name": "D",
+          "label": "Макс. признаков D",
+          "default": "220",
+          "type": "int"
+        }
+      ],
+      "code": "\nn = __n__; noise = __noise__/100.0; D = __D__\nrng = np.random.default_rng(0)\nbeta = rng.standard_normal(D)/np.sqrt(D)\nXtr = rng.standard_normal((n, D)); ytr = Xtr@beta + noise*rng.standard_normal(n)\nXte = rng.standard_normal((500, D)); yte = Xte@beta\nPs = sorted(set(list(range(1, D+1, 2)) + [n-1, n, n+1]))\nPs = [p for p in Ps if 1 <= p <= D]\ntr, te = [], []\nfor p in Ps:\n    A = Xtr[:, :p]\n    w, *_ = np.linalg.lstsq(A, ytr, rcond=None)\n    tr.append(np.mean((A@w - ytr)**2))\n    te.append(np.mean((Xte[:, :p]@w - yte)**2))\ntr = np.clip(np.array(tr), 1e-6, 1e4); te = np.clip(np.array(te), 1e-3, 1e4)\nParr = np.array(Ps)\nfig, ax = plt.subplots(figsize=(7, 4.2))\n# Фоновые зоны: классическая / критическая / сверхпараметризованная\nax.axvspan(0,     max(n-2, 1), alpha=0.04, color='#1F4E79')\nax.axvspan(max(n-2,1), n+2,   alpha=0.08, color='#C0392B')\nax.axvspan(n+2,   D,           alpha=0.04, color='#2E7D5B')\nax.plot(Ps, tr, color='#1F4E79', lw=1.4, label='ошибка на обучении')\nax.plot(Ps, te, color='#C0392B', lw=1.8, label='ошибка на тесте')\nax.axvline(n, ls=':', color='#888888', lw=1.2)\nip = min(range(len(Ps)), key=lambda i: abs(Ps[i]-n))\nax.annotate('порог\\n$P=n$', (n, te[ip]), fontsize=8, color='#888888',\n            xytext=(8, 0), textcoords='offset points')\nax.set_yscale('log'); ax.set_xlabel('число признаков P', fontsize=10)\nax.set_ylabel('MSE (лог)', fontsize=10)\nax.set_title(f'Двойной спуск (n={n}, шум={int(noise*100)}%, D={D})', fontsize=10)\nax.legend(fontsize=9, frameon=False)\nax.spines[['top','right']].set_visible(False)\nax.grid(True, alpha=0.2, lw=0.5)\nplt.tight_layout()\npeak_i = int(np.argmax(te))\npre_min  = float(te[:peak_i].min()) if peak_i > 0 else float('nan')\npost_min = float(te[peak_i:].min())\nprint(f'n={n}, шум={noise:.2f}, D={D}. Тест: до порога ~{te[max(0,ip//3)]:.2f}, пик у P=n ~{te[ip]:.1f}, сверхпараметризация ~{te[-1]:.2f}.')\nif not (pre_min != pre_min) and pre_min > 0:\n    gain = (pre_min - post_min) / pre_min * 100\n    if gain > 0:\n        print(f'Выигрыш в зоне сверхпараметризации: {gain:.0f}% (post={post_min:.3f} vs pre={pre_min:.3f})')\n    else:\n        print(f'Феномен слаб при этих параметрах: post={post_min:.3f} >= pre={pre_min:.3f}. Попробуйте увеличить D.')\nprint('U-спуск → шпиль на пороге → второй спуск. Это двойной спуск.')\n"
+    }
+  },
+  "story_global_optim": {
+    "Поиграть: коммивояжёр и отжиг": {
+      "params": [
+        {
+          "name": "n_cities",
+          "label": "Число городов",
+          "type": "slider",
+          "min": 10,
+          "max": 40,
+          "step": 5,
+          "default": 20
+        },
+        {
+          "name": "seed",
+          "label": "Зерно случайности",
+          "type": "slider",
+          "min": 1,
+          "max": 99,
+          "step": 1,
+          "default": 42
+        },
+        {
+          "name": "alpha",
+          "label": "Скорость охлаждения α",
+          "type": "select",
+          "options": [
+            0.999,
+            0.998,
+            0.995
+          ],
+          "default": 0.998
+        }
+      ],
+      "code": "import numpy as np, io\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nfrom PIL import Image\nplt.rcParams['font.family'] = 'serif'\nplt.rcParams['font.serif'] = ['DejaVu Serif', 'Times New Roman']\n\nn_cities = int(__n_cities__)\nseed = int(__seed__)\nalpha = float(__alpha__)\n\nnp.random.seed(seed)\ncoords = np.random.rand(n_cities, 2) * 100\nn = n_cities\nD = np.sqrt(((coords[:, None] - coords[None, :]) ** 2).sum(2))\ndef tl(t):\n    return sum(D[t[i], t[(i + 1) % n]] for i in range(n))\n\nT0 = 10.0\nmax_iter = min(60000, int(np.log(2e-3 / T0) / np.log(alpha)) + 1500)\nFRAMES = 30\nsnaps = set(int(round(x)) for x in np.geomspace(1, max_iter, FRAMES))\n\nnp.random.seed(seed)\ntour = np.random.permutation(n)\ncur = tl(tour)\nbest = tour.copy(); bl = cur; init_len = cur\nhist_s = []; hist_b = []\nframes = []\nT = T0\n\ndef render(cur_tour, cur_len, blen, Tv):\n    phase = 'exploration (горячо)' if Tv > 0.5 else ('exploitation (холодно)' if Tv < 0.08 else 'переход')\n    col = '#C0392B' if Tv > 0.5 else ('#1F4E79' if Tv < 0.08 else '#B8860B')\n    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.2, 4.2)); fig.patch.set_facecolor('#fffff8')\n    for ax in (ax1, ax2):\n        ax.set_facecolor('#fffff8')\n    r = list(cur_tour) + [cur_tour[0]]\n    ax1.plot(coords[r, 0], coords[r, 1], '-', color=col, lw=1.3, alpha=0.85)\n    ax1.scatter(coords[:, 0], coords[:, 1], color='#333333', s=34, zorder=3)\n    ax1.set_title(f'Текущий тур: {cur_len:.0f}', fontsize=11)\n    ax1.text(0.5, -0.06, f'T = {Tv:.2f} — {phase}', transform=ax1.transAxes,\n             ha='center', va='top', fontsize=9.5, color=col)\n    ax1.set_xticks([]); ax1.set_yticks([])\n    ax1.spines[['top', 'right', 'left', 'bottom']].set_visible(False)\n    if hist_s:\n        ax2.plot(hist_s, hist_b, color='#1F4E79', lw=1.7)\n        ax2.scatter([hist_s[-1]], [hist_b[-1]], color='#1F4E79', s=26, zorder=5)\n    ax2.set_xlim(1, max_iter); ax2.set_xscale('log')\n    ax2.set_ylim(bl * 0.9, init_len * 1.05)\n    ax2.set_xlabel('Шаг отжига (лог)', fontsize=9)\n    ax2.set_ylabel('Длина лучшего тура', fontsize=9)\n    ax2.set_title(f'Лучший: {blen:.0f}', fontsize=11)\n    ax2.spines[['top', 'right']].set_visible(False)\n    ax2.grid(True, alpha=0.18, lw=0.5)\n    plt.tight_layout()\n    buf = io.BytesIO(); fig.savefig(buf, format='png', dpi=85); plt.close(fig); buf.seek(0)\n    return Image.open(buf).convert('RGB')\n\nfor step in range(max_iter + 1):\n    if step in snaps:\n        hist_s.append(max(step, 1)); hist_b.append(bl)\n        frames.append(render(tour, cur, bl, T))\n    i, j = sorted(np.random.choice(n, 2, replace=False))\n    nt = tour.copy(); nt[i:j + 1] = nt[i:j + 1][::-1]\n    nl = tl(nt); dE = nl - cur\n    if dE < 0 or np.random.rand() < np.exp(-dE / max(T, 1e-10)):\n        tour = nt; cur = nl\n        if cur < bl:\n            best = tour.copy(); bl = cur\n    T *= alpha\nframes += [frames[-1]] * 5\n\nprint(f'SA TSP (n={n_cities}, alpha={alpha}): {init_len:.0f} -> {bl:.0f}  (улучшение x{init_len/bl:.2f})')\nprint(f'Горячая фаза «распутывает» клубок (принимая ухудшения), холодная — только улучшает. Это и есть exploration -> exploitation.')\n\nimport os\nos.makedirs('/tmp/figs', exist_ok=True)\npal = [f.convert('P', palette=Image.ADAPTIVE, colors=64) for f in frames]\npal[0].save('/tmp/figs/tsp_anneal.gif', save_all=True, append_images=pal[1:], duration=170, loop=0)\n"
+    }
+  },
+  "story_loss_landscape": {
+    "Поиграть: срезы ландшафта потерь": {
+      "params": [
+        {
+          "name": "dim",
+          "label": "Размерность d (высокая)",
+          "type": "int",
+          "default": 200,
+          "min": 10,
+          "max": 1000,
+          "step": 10
+        },
+        {
+          "name": "n_lines",
+          "label": "Число срезов",
+          "type": "int",
+          "default": 6,
+          "min": 2,
+          "max": 12,
+          "step": 1
+        },
+        {
+          "name": "seed",
+          "label": "Seed",
+          "type": "int",
+          "default": 42,
+          "min": 0,
+          "max": 999,
+          "step": 1
+        }
+      ],
+      "code": "import numpy as np\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\nplt.rcParams.update({\n    'font.family': 'serif',\n    'font.serif': ['DejaVu Serif', 'Times New Roman', 'serif'],\n    'mathtext.fontset': 'dejavuserif',\n    'axes.facecolor': '#fffff8',\n    'figure.facecolor': '#fffff8',\n})\n\nBASE = '#1F4E79'\nRED  = '#C0392B'\n\ndim = __dim__\nn_lines = __n_lines__\nseed = __seed__\n\ndef make_slices(d, n_lines, seed):\n    rng = np.random.default_rng(seed)\n    alpha_arr = np.linspace(-1, 1, 200)\n    theta_star = np.zeros(d)\n    slices = []\n    for _ in range(n_lines):\n        direction = rng.standard_normal(d)\n        direction /= np.linalg.norm(direction)\n        sl_vals = []\n        for a in alpha_arr:\n            theta = theta_star + a * direction\n            # Среднее по нелинейной функции координат — ЦПТ даёт концентрацию\n            val = np.mean(np.sin(np.pi * theta) + 0.5 * np.cos(2 * np.pi * theta) ** 2)\n            sl_vals.append(val)\n        slices.append(np.array(sl_vals))\n    return alpha_arr, np.array(slices)\n\nfig, axes = plt.subplots(1, 2, figsize=(10, 4))\nfig.patch.set_facecolor('#fffff8')\n\ndims_show = [2, dim]\nsubtitles = ['d = 2  (малая размерность)', f'd = {dim}  (высокая размерность)']\n\nfor i, (d_val, subtitle) in enumerate(zip(dims_show, subtitles)):\n    ax = axes[i]\n    ax.set_facecolor('#fffff8')\n    alpha_arr, slices = make_slices(d_val, n_lines, seed)\n    mean_sl = slices.mean(axis=0)\n    std_sl = slices.std(axis=0)\n\n    for sl in slices:\n        ax.plot(alpha_arr, sl, color=BASE, alpha=0.45, lw=1.1)\n    ax.plot(alpha_arr, mean_sl, color=RED, lw=2.0, label='среднее')\n    ax.fill_between(alpha_arr, mean_sl - std_sl, mean_sl + std_sl,\n                    alpha=0.18, color=RED, label='±std')\n\n    cv = std_sl.mean() / (abs(mean_sl).mean() + 1e-8)\n    ax.set_title(subtitle, fontsize=11)\n    ax.text(0.97, 0.05, f'CV = {cv:.3f}', transform=ax.transAxes,\n            fontsize=9, color='#444444', ha='right', va='bottom')\n    ax.set_xlabel(r'$\\alpha$', fontsize=10)\n    ax.spines[['top', 'right']].set_visible(False)\n    ax.grid(True, alpha=0.2, lw=0.5, color='gray')\n    ax.legend(fontsize=8, frameon=False)\n\naxes[0].set_ylabel(r'f($\\alpha$) = L($\\theta^* + \\alpha\\delta$)', fontsize=10)\nfig.suptitle('Концентрация меры: при высоком d все срезы почти одинаковы', fontsize=11)\nplt.tight_layout(pad=0.8)\nplt.savefig('widget_output.svg', format='svg', bbox_inches='tight', facecolor='#fffff8')\n\nprint(f'При d=2:   CV = {make_slices(2, n_lines, seed)[1].std(axis=0).mean() / (abs(make_slices(2, n_lines, seed)[1].mean(axis=0)).mean() + 1e-8):.3f}')\nprint(f'При d={dim}: CV = {make_slices(dim, n_lines, seed)[1].std(axis=0).mean() / (abs(make_slices(dim, n_lines, seed)[1].mean(axis=0)).mean() + 1e-8):.3f}')\nprint('Концентрация меры: при высоком d коэффициент вариации срезов падает к нулю.')"
+    }
+  },
+  "story_mds": {
+    "Поиграть: первый порядок vs безградиентные": {
+      "params": [
+        {
+          "name": "n_points",
+          "label": "Число городов (n)",
+          "type": "int",
+          "min": 5,
+          "max": 30,
+          "default": 15
+        },
+        {
+          "name": "dim",
+          "label": "Размерность d",
+          "type": "int",
+          "min": 1,
+          "max": 30,
+          "default": 5
+        },
+        {
+          "name": "max_iter",
+          "label": "Итерации",
+          "type": "int",
+          "min": 50,
+          "max": 500,
+          "default": 300
+        }
+      ],
+      "code": "import numpy as np\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\nnp.random.seed(42)\nn_points = __n_points__\ndim = __dim__\nmax_iter = __max_iter__\n\ntrue_W = np.random.randn(n_points, dim)\nD = np.zeros((n_points, n_points))\nfor i in range(n_points):\n    for j in range(n_points):\n        D[i, j] = np.linalg.norm(true_W[i] - true_W[j])\n\np = n_points * dim\n\ndef stress(W_flat):\n    W = W_flat.reshape(n_points, dim)\n    s = 0.0\n    for i in range(n_points):\n        for j in range(i + 1, n_points):\n            s += (np.linalg.norm(W[i] - W[j]) - D[i, j]) ** 2\n    return s\n\ndef stress_grad(W_flat):\n    W = W_flat.reshape(n_points, dim)\n    grad = np.zeros_like(W)\n    for i in range(n_points):\n        for j in range(i + 1, n_points):\n            diff = W[i] - W[j]\n            d_ij = np.linalg.norm(diff) + 1e-10\n            factor = 2.0 * (d_ij - D[i, j]) / d_ij\n            grad[i] += factor * diff\n            grad[j] -= factor * diff\n    return grad.flatten()\n\nrng = np.random.default_rng(7)\nx0 = rng.standard_normal(p) * 3\n\n# Gradient Descent\nx_gd = x0.copy()\nlr_gd = 1e-4\nhist_gd = []\nfor _ in range(max_iter):\n    x_gd -= lr_gd * stress_grad(x_gd)\n    hist_gd.append(stress(x_gd))\n\n# Zero-Order GD — двухточечная оценка (как в теореме Шамира)\nx_zo = x0.copy()\nlr_zo = 1e-4 / p\neps = 1e-3\nhist_zo = []\nfor _ in range(max_iter):\n    v = rng.standard_normal(p)\n    v /= np.linalg.norm(v) + 1e-10\n    g_est = p * (stress(x_zo + eps * v) - stress(x_zo - eps * v)) / (2.0 * eps) * v\n    x_zo -= lr_zo * g_est\n    hist_zo.append(stress(x_zo))\n\n# Plot\nplt.rcParams['font.family'] = 'serif'\nfig, ax = plt.subplots(figsize=(7, 4))\nfig.patch.set_facecolor('#fffff8')\nax.set_facecolor('#fffff8')\niters = np.arange(1, max_iter + 1)\nax.semilogy(iters, hist_gd, color='#1F4E79', linewidth=2, label='GD (градиентный)')\nax.semilogy(iters, hist_zo, color='#C0392B', linewidth=2, label=f'ZO-GD (безградиентный, d={dim})')\nax.set_xlabel('Итерация', fontsize=11)\nax.set_ylabel('Стресс (лог. шкала)', fontsize=11)\nax.set_title(f'MDS: GD vs ZO-GD  (n={n_points}, d={dim}, p={p})', fontsize=12)\nax.spines[['top', 'right']].set_visible(False)\nax.grid(True, alpha=0.25, linewidth=0.5)\nax.legend(frameon=False, fontsize=10)\nfig.tight_layout()\n\n# Print summary\nratio = hist_zo[-1] / (hist_gd[-1] + 1e-12)\nprint(f'n={n_points}, d={dim}, p={p} переменных')\nprint(f'GD финальный стресс:    {hist_gd[-1]:.3f}')\nprint(f'ZO-GD финальный стресс: {hist_zo[-1]:.3f}')\nprint(f'Разрыв: безградиентный в {ratio:.0f}x хуже GD')\nif dim > 20:\n    print(f'[!] dim={dim} > 20 — ZO-GD практически не сходится (фактор {p} по теореме Шамира)')\n"
+    }
+  },
+  "story_ica": {
+    "Поиграть: вечеринка с коктейлями": {
+      "params": [
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 42,
+          "min": 0,
+          "max": 200,
+          "label": "Зерно смешивания"
+        },
+        {
+          "name": "signal_type",
+          "type": "select",
+          "options": [
+            "square+saw",
+            "sine+saw",
+            "gaussian+saw"
+          ],
+          "default": "square+saw",
+          "label": "Тип источников"
+        }
+      ],
+      "code": "import matplotlib\nmatplotlib.use('Agg')\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom sklearn.decomposition import FastICA\n\nseed = __seed__\nsignal_type = '__signal_type__'\n\nnp.random.seed(seed)\nn_samples = 2000\nt = np.linspace(0, 8, n_samples)\n\nif signal_type == 'square+saw':\n    s1 = np.sign(np.sin(3 * t))\n    s2 = (t % 1.5) / 1.5 - 0.5\n    src_labels = ['Меандр', 'Пила']\n    note = 'Оба сигнала негауссовы — ICA разделяет успешно'\nelif signal_type == 'sine+saw':\n    s1 = np.sin(2 * t)\n    s2 = (t % 1.5) / 1.5 - 0.5\n    src_labels = ['Синус', 'Пила']\n    note = 'Оба сигнала негауссовы — ICA разделяет успешно'\nelif signal_type == 'gaussian+saw':\n    s1 = np.random.randn(n_samples)\n    s2 = (t % 1.5) / 1.5 - 0.5\n    src_labels = ['Гаусс (шум)', 'Пила']\n    note = 'Один источник гауссов — ICA не может его отделить!'\nelse:\n    raise ValueError(f'Unknown signal_type: {signal_type}')\n\nS = np.c_[s1 / (np.max(np.abs(s1)) + 1e-9),\n          s2 / (np.max(np.abs(s2)) + 1e-9)].T\n\nA = np.array([[1.0, 0.7], [0.5, 1.0]])\nX = A @ S\n\nica = FastICA(n_components=2, random_state=seed, max_iter=500, tol=1e-6)\nS_hat = ica.fit_transform(X.T).T\nfor i in range(2):\n    mx = np.max(np.abs(S_hat[i]))\n    if mx > 0:\n        S_hat[i] /= mx\n\nC = np.abs(np.corrcoef(S, S_hat)[:2, 2:])\nperm = np.argmax(C, axis=0)\nSRC_COLORS = ['#1F4E79', '#C0392B']\nMIX_COLOR = '#666666'\n\nplt.rcParams.update({\n    'font.family': 'serif',\n    'font.serif': ['DejaVu Serif', 'Times New Roman'],\n    'mathtext.fontset': 'dejavuserif',\n})\n\nfig, axes = plt.subplots(3, 2, figsize=(9, 5.5), sharex='col')\nfig.suptitle(f'FastICA: {signal_type}  |  seed={seed}\\n{note}', fontsize=11, fontfamily='serif')\n\nfor col in range(2):\n    ax = axes[0, col]\n    ax.plot(t, S[col], color=SRC_COLORS[col], lw=0.9)\n    ax.set_title(f'Источник {col+1}: {src_labels[col]}', fontsize=9)\n    ax.spines[['top', 'right']].set_visible(False)\n    ax.set_ylim(-1.4, 1.4)\n\n    ax = axes[1, col]\n    ax.plot(t, X[col], color=MIX_COLOR, lw=0.7, alpha=0.85)\n    ax.set_title(f'Смесь {col+1}', fontsize=9)\n    ax.spines[['top', 'right']].set_visible(False)\n\n    ax = axes[2, col]\n    src_idx = int(perm[col])\n    hat = S_hat[col].copy()\n    if np.corrcoef(S[src_idx], hat)[0, 1] < 0:\n        hat = -hat\n    corr_val = abs(np.corrcoef(S[src_idx], hat)[0, 1])\n    ax.plot(t, hat, color=SRC_COLORS[src_idx], lw=0.9)\n    ax.set_title(f'ICA ≈ источник {src_idx+1}  (r={corr_val:.2f})', fontsize=9,\n                 color=SRC_COLORS[src_idx])\n    ax.spines[['top', 'right']].set_visible(False)\n    ax.set_ylim(-1.4, 1.4)\n\nfor col in range(2):\n    axes[2, col].set_xlabel('Время (с)', fontsize=8)\naxes[0, 0].set_ylabel('Источники', fontsize=8)\naxes[1, 0].set_ylabel('Смеси', fontsize=8)\naxes[2, 0].set_ylabel('Восстановлено', fontsize=8)\n\nfig.tight_layout(pad=0.6, h_pad=0.8)\nplt.show()\nprint(f'signal_type={signal_type}, seed={seed}, note={note}')"
+    }
+  },
+  "story_eigenvalues": {
+    "Поиграть: резонанс моста": {
+      "params": [
+        {
+          "name": "n_masses",
+          "type": "int",
+          "default": 8,
+          "min": 3,
+          "max": 20,
+          "label": "Число масс"
+        },
+        {
+          "name": "damping",
+          "type": "float",
+          "default": 0.04,
+          "min": 0.01,
+          "max": 0.3,
+          "step": 0.01,
+          "label": "Коэффициент демпфирования ζ"
+        },
+        {
+          "name": "wind_freq",
+          "type": "float",
+          "default": 0.2,
+          "min": 0.01,
+          "max": 0.5,
+          "step": 0.01,
+          "label": "Частота ветра (Гц)"
+        }
+      ],
+      "code": "import numpy as np, io\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nfrom PIL import Image\nplt.rcParams['font.family'] = 'serif'\nplt.rcParams['font.serif'] = ['DejaVu Serif', 'Times New Roman']\n\nn_masses = int(__n_masses__)\ndamping = float(__damping__)\nwind_freq = float(__wind_freq__)\n\n# Цепочка масс (модель пролёта моста), закреплённая с обоих концов\nK = np.diag([2.0] * n_masses) + np.diag([-1.0] * (n_masses - 1), 1) + np.diag([-1.0] * (n_masses - 1), -1)\nevals, evecs = np.linalg.eigh(K)\nnat_freqs = np.sqrt(np.abs(evals)) / (2 * np.pi)     # собственные частоты, Гц\nmode_i = int(np.argmin(np.abs(nat_freqs - wind_freq)))  # ближайшая к ветру мода\nf0 = nat_freqs[mode_i]\nphi = evecs[:, mode_i]\nphi = phi / np.max(np.abs(phi))\ndetune = abs(f0 - wind_freq) / f0\nresonance = detune < 0.08\n\n# Вынужденные колебания резонансной моды: q'' + 2 zeta w0 q' + w0^2 q = F cos(w t)\nw0 = 2 * np.pi * f0\nw = 2 * np.pi * wind_freq\nzeta = damping\nF = 1.0\nT_total = 60.0\ndt = 0.02\nsteps = int(T_total / dt)\nq = 0.0; qd = 0.0\nqs = np.zeros(steps); ts = np.linspace(0, T_total, steps)\nfor s in range(steps):\n    a = F * np.cos(w * ts[s]) - 2 * zeta * w0 * qd - w0**2 * q\n    qd += a * dt; q += qd * dt\n    qs[s] = q\namp = np.abs(qs)\nymax = max(np.max(amp) * 1.1, 1.0)\n\nx = np.linspace(0, 1, n_masses + 2)\ndeck = np.concatenate([[0], phi, [0]])\n\nFRAMES = 36\nidx = np.linspace(0, steps - 1, FRAMES).astype(int)\nframes = []\nfor k, si in enumerate(idx):\n    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7.6, 5.0),\n                                   gridspec_kw={'height_ratios': [1.1, 1]})\n    fig.patch.set_facecolor('#fffff8')\n    for ax in (ax1, ax2):\n        ax.set_facecolor('#fffff8')\n    col = '#C0392B' if resonance else '#1F4E79'\n    y = qs[si] * deck\n    ax1.axhline(0, color='#bbbbbb', lw=0.8, zorder=1)\n    ax1.plot(x, y, '-', color=col, lw=2.0, zorder=3)\n    ax1.scatter(x[1:-1], y[1:-1], color=col, s=26, zorder=4)\n    ax1.scatter([x[0], x[-1]], [0, 0], marker='s', color='#333333', s=55, zorder=5)\n    ax1.set_ylim(-ymax, ymax); ax1.set_xlim(-0.02, 1.02)\n    ax1.set_xticks([]); ax1.set_yticks([])\n    ax1.set_title(f'Пролёт моста ({n_masses} масс):  ветер {wind_freq:.2f} Гц,  мода {mode_i+1} = {f0:.2f} Гц', fontsize=10.5)\n    ax1.text(0.5, -0.13, ('РЕЗОНАНС — амплитуда растёт' if resonance else 'вне резонанса — колебания ограничены'),\n             transform=ax1.transAxes, ha='center', va='top', fontsize=10, color=col)\n    ax1.spines[['top', 'right', 'left', 'bottom']].set_visible(False)\n\n    ax2.plot(ts[:si+1], qs[:si+1], color=col, lw=1.0, alpha=0.55)\n    ax2.plot(ts[:si+1], amp[:si+1], color=col, lw=1.6)\n    ax2.plot(ts[:si+1], -amp[:si+1], color=col, lw=1.6)\n    ax2.set_xlim(0, T_total); ax2.set_ylim(-ymax, ymax)\n    ax2.set_xlabel('Время, с', fontsize=9); ax2.set_ylabel('Амплитуда', fontsize=9)\n    ax2.set_title('Огибающая колебаний', fontsize=10)\n    ax2.spines[['top', 'right']].set_visible(False); ax2.grid(True, alpha=0.18, lw=0.5)\n    plt.tight_layout()\n    buf = io.BytesIO(); fig.savefig(buf, format='png', dpi=85); plt.close(fig); buf.seek(0)\n    frames.append(Image.open(buf).convert('RGB'))\nframes += [frames[-1]] * 5\n\nprint(f'Собственные частоты (Гц): ' + ', '.join(f'{f:.2f}' for f in nat_freqs[:6]) + (' …' if len(nat_freqs) > 6 else ''))\nprint(f'Ветер {wind_freq:.2f} Гц ближе всего к моде {mode_i+1} ({f0:.2f} Гц), расстройка {detune*100:.0f}%.')\nprint('При совпадении частот амплитуда нарастает во времени (резонанс), демпфирование ζ ограничивает её сверху ~1/ζ.' if resonance\n      else 'Частоты не совпали — система отдаёт энергию обратно, колебания остаются малыми.')\n\nimport os\nos.makedirs('/tmp/figs', exist_ok=True)\npal = [f.convert('P', palette=Image.ADAPTIVE, colors=48) for f in frames]\npal[0].save('/tmp/figs/resonance.gif', save_all=True, append_images=pal[1:], duration=120, loop=0)\n"
+    }
+  },
+  "story_pca": {
+    "Поиграть: eigenfaces и сжатие": {
+      "params": [
+        {
+          "name": "k",
+          "label": "Число компонент k",
+          "type": "int",
+          "min": 1,
+          "max": 50,
+          "default": 10
+        },
+        {
+          "name": "i",
+          "label": "Номер лица (0–9)",
+          "type": "int",
+          "min": 0,
+          "max": 9,
+          "default": 0
+        }
+      ],
+      "code": "import numpy as np\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nimport matplotlib.ticker\n\nk = __k__\ni = __i__\n\nplt.rcParams.update({\n    'font.family': 'serif',\n    'font.serif': ['DejaVu Serif', 'Times New Roman'],\n    'mathtext.fontset': 'dejavuserif',\n})\n\nBLUE = '#1F4E79'\nRED  = '#C0392B'\n\n# ---- синтетические 20x20 \"лица\" с 4 Гауссовыми пятнами ----\nH, W = 20, 20\nd = H * W\nn_samples = 200\n\ndef make_face(rng):\n    img = np.zeros((H, W))\n    for ey, ex in [(6, 6), (6, 14)]:\n        for dy in range(-2, 3):\n            for dx in range(-2, 3):\n                if 0 <= ey+dy < H and 0 <= ex+dx < W:\n                    img[ey+dy, ex+dx] += rng.uniform(0.3, 0.8) * np.exp(-(dy**2+dx**2)/3)\n    img[11, 10] += rng.uniform(0.2, 0.5)\n    for mx in range(7, 14):\n        img[15, mx] += rng.uniform(0.2, 0.5) * np.exp(-((mx-10)**2)/8)\n    img += rng.normal(0, 0.05, (H, W))\n    img *= rng.uniform(0.7, 1.3)\n    return np.clip(img, 0, 1).flatten()\n\nrng = np.random.default_rng(0)\nX = np.array([make_face(rng) for _ in range(n_samples)])\n\n# --- PCA через SVD ---\nmean = X.mean(axis=0)\nXc = X - mean\nU, s, Vt = np.linalg.svd(Xc, full_matrices=False)\nevr = (s**2) / (s**2).sum()\ncumvar = np.cumsum(evr)\n\nface = X[i % n_samples]\nface_c = face - mean\ncoords = Vt @ face_c\nrec = mean + Vt[:k].T @ coords[:k]\nmse = np.mean((face - rec)**2)\n\nprint(f'k={k}, лицо №{i % n_samples}, MSE={mse:.5f}, объяснено {cumvar[k-1]:.1%}')\n\n# --- компоновка ---\nfig = plt.figure(figsize=(12, 6))\ngs = fig.add_gridspec(3, 8, hspace=0.6, wspace=0.3)\n\nax_orig = fig.add_subplot(gs[0, 0])\nax_rec  = fig.add_subplot(gs[0, 1])\nax_mean = fig.add_subplot(gs[0, 2])\nax_var  = fig.add_subplot(gs[0, 3:8])\n\nax_orig.imshow(face.reshape(H,W), cmap='gray', vmin=0, vmax=1)\nax_orig.set_title('Оригинал', fontsize=9)\nax_orig.axis('off')\n\nax_rec.imshow(rec.reshape(H,W), cmap='gray', vmin=0, vmax=1)\nax_rec.set_title(f'k={k}\\nMSE={mse:.4f}', fontsize=9, color=BLUE)\nax_rec.axis('off')\n\nax_mean.imshow(mean.reshape(H,W), cmap='gray', vmin=0, vmax=1)\nax_mean.set_title('Среднее', fontsize=9, color='#888')\nax_mean.axis('off')\n\nks_plot = np.arange(1, min(len(evr)+1, 51))\nax_var.plot(ks_plot, cumvar[:len(ks_plot)], color=BLUE, lw=1.5)\nax_var.axvline(x=k, color=RED, lw=1.5, ls='--', alpha=0.8)\nax_var.axhline(y=cumvar[k-1], color=RED, lw=0.8, ls=':', alpha=0.6)\nax_var.set_xlabel('k', fontsize=8)\nax_var.set_ylabel('Накопл. дисперсия', fontsize=8)\nax_var.set_title(f'Объяснено {cumvar[k-1]:.1%}', fontsize=9)\nax_var.spines[['top','right']].set_visible(False)\nax_var.tick_params(labelsize=7)\nax_var.grid(True, alpha=0.25, lw=0.4)\nax_var.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(xmax=1.0))\n\n# Eigenfaces: первые min(k,8) подсвечены красным, остальные серые\nn_show_rows = 2\nfor row_offset in range(n_show_rows):\n    for col in range(8):\n        idx = row_offset * 8 + col\n        ax = fig.add_subplot(gs[1 + row_offset, col])\n        if idx < len(Vt):\n            ef = Vt[idx].reshape(H, W)\n            vmax = np.abs(ef).max() + 1e-8\n            ax.imshow(ef, cmap='gray', vmin=-vmax, vmax=vmax)\n            active = idx < k\n            color = RED if active else '#AAAAAA'\n            ax.set_title(f'PC{idx+1}', fontsize=8, color=color)\n            if active:\n                ax.axis('on')\n                ax.set_xticks([]); ax.set_yticks([])\n                for sp in ax.spines.values():\n                    sp.set_visible(True); sp.set_linewidth(1.0); sp.set_edgecolor(RED)\n            else:\n                ax.axis('off')\n        else:\n            ax.axis('off')\n\nplt.savefig('widget_output.png', bbox_inches='tight', dpi=120)\nplt.show()\n"
     }
   }
 }

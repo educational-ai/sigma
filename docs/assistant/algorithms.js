@@ -76,9 +76,17 @@
     let out = code;
     for (const p of params) {
       const v = values[p.name];
-      // Always inject as a raw literal — the JSON code already expects
-      // numeric or string contexts.
-      const lit = p.type === "int" ? String(parseInt(v, 10)) : JSON.stringify(v);
+      // Inject numeric params as raw number literals; string params as quoted
+      // literals. Sliders/floats and numeric selects (e.g. cooling rate 0.998)
+      // must NOT be stringified, or Python sees "42" and crashes; string
+      // selects (word lists, signal type) must stay quoted.
+      const numericSelect =
+        p.type === "select" && v != null && String(v).trim() !== "" && !isNaN(Number(v));
+      let lit;
+      if (p.type === "int") lit = String(parseInt(v, 10));
+      else if (p.type === "float" || p.type === "number" || p.type === "slider" || numericSelect)
+        lit = String(Number(v));
+      else lit = JSON.stringify(v);
       out = out.replaceAll(`__${p.name}__`, lit);
     }
     return out;
@@ -171,6 +179,19 @@
         for (const b64 of r.images || []) {
           const img = el("img", { src: `data:image/png;base64,${b64}`, alt: "" });
           outImages.appendChild(img);
+        }
+        // Animated/rich media (GIF animates natively in <img>; video in <video>)
+        for (const m of r.media || []) {
+          if (!m || !m.b64) continue;
+          const src = `data:${m.mime};base64,${m.b64}`;
+          if (m.mime && m.mime.startsWith("video/")) {
+            const v = el("video", { src, loop: "", playsinline: "", controls: "" });
+            v.muted = true;
+            v.autoplay = true;
+            outImages.appendChild(v);
+          } else {
+            outImages.appendChild(el("img", { src, alt: "анимация" }));
+          }
         }
       } catch (err) {
         outStatus.textContent = "Ошибка";

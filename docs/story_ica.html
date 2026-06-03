@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ICA и задача коктейльной вечеринки – Σ Сигма</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./story_eigenvalues.html" rel="next">
+<link href="./story_pca.html" rel="prev">
+<link href="./../favicon.svg" rel="icon" type="image/svg+xml">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ab75c3f3a51278d2dffe6ea8ffe5777a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Поиск не дал результатов",
+    "search-matching-documents-text": "Результаты поиска",
+    "search-copy-link-title": "Скопировать ссылку",
+    "search-hide-matches-text": "Скрыть дополнительные результаты",
+    "search-more-match-text": "дополнительный результат в этом документе",
+    "search-more-matches-text": "дополнительных результата(-ов) в этом документе",
+    "search-clear-button-title": "Очистить",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Отменить",
+    "search-submit-button-title": "Найти",
+    "search-label": "Поиск"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="sigma-tufte.css">
+<link rel="stylesheet" href="mobile-safe.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_word2vec.html">Сюжеты: Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./story_ica.html">ICA и задача коктейльной вечеринки</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Σ Сигма</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Поиск"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Σ Главная</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Предисловие</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть I. Введение в ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что такое искусственный интеллект</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть II. Математические основы</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Численные методы оптимизации</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Введение в анализ данных и искусственный интеллект</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Линейная регрессия и метод наименьших квадратов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задача классификации и нейронные сети</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задачи обучения без учителя</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Как искусственный интеллект меняет мир</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Сюжеты: Линейная алгебра и данные</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Word2Vec: слова как векторы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">PCA и Eigenfaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_ica.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">ICA и задача коктейльной вечеринки</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Собственные значения: от PageRank до шатающихся мостов</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Сюжеты: Оптимизация</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Сюжеты: Машинное обучение</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ландшафт функции потерь и парадоксы высокой размерности</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Элементы теории чисел и шифрование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_1_elementy-teorii-chisel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Элементы теории чисел</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_2_shifrovanie-ot-taynopisi-k-matem.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шифрование: от тайнописи к математической задаче</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_3_kriptosistemy-rsa-i-diffi-hellma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Криптосистемы RSA и Диффи–Хеллмана</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_4_primeneniya-rsa-autentifikaciya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_5_heshirovanie-teoriya-chisel-vstr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Хеширование: теория чисел встречается с рандомизацией</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_7_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Подведение итогов главы</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_word2vec.html">Сюжеты: Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./story_ica.html">ICA и задача коктейльной вечеринки</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">ICA и задача коктейльной вечеринки</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>Представьте комнату с тремя людьми и тремя микрофонами. Каждый микрофон записывает смесь всех трёх голосов. Задача — восстановить отдельные голоса, не зная ни расположения микрофонов, ни характеристик голосов. Это <strong>задача коктейльной вечеринки</strong> (cocktail party problem), и её решает метод независимых компонент (ICA) — одна из самых элегантных идей на стыке линейной алгебры и статистики. Удивительно: для этого не нужно знать ни матрицу смешивания <span class="math inline">A</span>, ни форму сигналов — достаточно того, что они не гауссовы.</em></p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="figures/stories/ica_separation.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">ICA разделяет три смешанных сигнала обратно на исходные компоненты. Цвет восстановленного сигнала совпадает с цветом соответствующего источника — ICA не сохраняет порядок компонент, форму восстанавливает с точностью до масштаба и знака.</figcaption>
+</figure>
+</div>
+<section id="постановка-задачи" class="level2">
+<h2 class="anchored" data-anchor-id="постановка-задачи">Постановка задачи</h2>
+<p>Пусть <span class="math inline">s(t) = (s_1(t), \ldots, s_n(t))^T</span> — вектор из <span class="math inline">n</span> исходных сигналов (голоса, музыка, шум). Микрофоны записывают линейные смеси:</p>
+<p><span class="math display">
+x(t) = A \cdot s(t),
+</span></p>
+<p>где <span class="math inline">A \in \mathbb{R}^{n \times n}</span> — неизвестная матрица смешивания. Мы наблюдаем только <span class="math inline">x(t)</span>. Нужно найти матрицу <span class="math inline">W \approx A^{-1}</span>, чтобы восстановить:</p>
+<p><span class="math display">
+\hat{s}(t) = W \cdot x(t).
+</span></p>
+<div class="callout callout-style-default callout-important callout-titled" title="Чем ICA отличается от PCA">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Чем ICA отличается от PCA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>PCA</strong> ищет ортогональные направления максимальной дисперсии и делает компоненты <strong>некоррелированными</strong> (<span class="math inline">\text{Cov}(y_i, y_j) = 0</span>). Но некоррелированность ≠ независимость.</p>
+<p><strong>ICA</strong> ищет направления, делающие компоненты <strong>статистически независимыми</strong> (<span class="math inline">P(y_i, y_j) = P(y_i) P(y_j)</span>). Это гораздо более сильное условие, и именно оно нужно для разделения сигналов.</p>
+</div>
+</div>
+</section>
+<section id="почему-pca-не-справляется" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="почему-pca-не-справляется">Почему PCA не справляется</h2>
+<p>Рассмотрим два независимых равномерных сигнала <span class="math inline">s_1, s_2 \sim U[-1, 1]</span>. Их совместное распределение — квадрат. После линейного смешивания <span class="math inline">x = As</span> квадрат превращается в параллелограмм.</p>
+<p>PCA находит оси максимальной дисперсии — это главные оси эллипса, вписанного в параллелограмм. Но стороны параллелограмма (= направления исходных сигналов) в общем случае <strong>не совпадают</strong> с осями эллипса.</p>
+<p>ICA ищет именно стороны параллелограмма — направления, при проецировании на которые распределения <strong>максимально негауссовы</strong>.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="figures/stories/ica_pca_vs_ica.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">PCA декоррелирует (поворачивает к осям дисперсии), ICA восстанавливает независимость (возвращает квадрат)</figcaption>
+</figure>
+</div>
+</section>
+<section id="ключевая-идея-негауссовость" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ключевая-идея-негауссовость">Ключевая идея: негауссовость</h2>
+<p>Центральная предельная теорема говорит: сумма независимых случайных величин стремится к гауссову распределению. Значит, <strong>смесь</strong> сигналов более гауссова, чем каждый сигнал по отдельности.</p>
+<p>Если мы найдём линейные комбинации <span class="math inline">w^T x</span>, которые <strong>максимально далеки от гауссовости</strong>, — это и будут исходные компоненты. Это эквивалентно минимизации взаимной информации между компонентами (см. раздел «<a href="#связь-с-информационной-теорией">Связь с информационной теорией</a>» ниже).</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Закон ICA">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Закон ICA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>ЦПТ — ваш ориентир.</strong> Смесь сигналов гауссовее каждого компонента. Ищите самые негауссовые проекции — там спрятаны источники.</p>
+</div>
+</div>
+<p>Меры негауссовости:</p>
+<ul>
+<li><p><strong>Куртозис</strong> (эксцесс): для центрированной величины (<span class="math inline">\mathbb{E}[y] = 0</span>): <span class="math display">\kappa_4 = \mathbb{E}[y^4] - 3(\mathbb{E}[y^2])^2.</span> Для гауссова <span class="math inline">\kappa_4 = 0</span>. Для равномерного <span class="math inline">\kappa_4 &lt; 0</span> (плосковершинное). Для лапласова <span class="math inline">\kappa_4 &gt; 0</span> (острый пик).</p></li>
+<li><p><strong>Негэнтропия</strong>: <span class="math inline">J(y) = H(y_{\text{gauss}}) - H(y) \geq 0</span>, где <span class="math inline">y_{\text{gauss}}</span> — гауссова случайная величина с такой же дисперсией. Негэнтропия = 0 только для гауссовой.</p></li>
+</ul>
+<section id="почему-гауссов-сигнал-слепое-пятно-ica" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="почему-гауссов-сигнал-слепое-пятно-ica">Почему гауссов сигнал — слепое пятно ICA</h3>
+<p>Если один из исходных сигналов <span class="math inline">s_i</span> — гауссов, ICA <strong>не может</strong> его отделить. Это фундаментальное ограничение: гауссово распределение инвариантно относительно ортогональных поворотов, и любой поворот «выглядит одинаково».</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-note callout-titled" title="Условия работоспособности ICA">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Условия работоспособности ICA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Не более одного гауссова сигнала среди компонент</li>
+<li>Число наблюдений (микрофонов) ≥ числа источников</li>
+<li>Данные порождены независимыми источниками (предположение модели; нарушение ведёт к смысловым артефактам, не к ошибке алгоритма)</li>
+<li>Матрица смешивания <span class="math inline">A</span> обратима</li>
+<li>ICA не определяет порядок компонент и их знак — это нормально (восстановленный сигнал 1 может соответствовать источнику 3)</li>
+</ol>
+</div>
+</div>
+</div></div></section>
+</section>
+<section id="алгоритм-fastica" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="алгоритм-fastica">Алгоритм FastICA</h2>
+<p>Hyvärinen<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> предложил эффективный итеративный алгоритм:</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Hyvärinen, Oja. <a href="https://doi.org/10.1016/S0893-6080(00)00026-5">Independent Component Analysis: Algorithms and Applications</a>, Neural Networks, 2000.</p></div></div><p><strong>Шаг 0.</strong> Центрирование и отбеливание (PCA-предобработка): <span class="math display">
+z = \Lambda^{-1/2} U^T (x - \bar{x}),
+</span> где <span class="math inline">U\Lambda U^T</span> — собственное разложение ковариационной матрицы. После отбеливания <span class="math inline">\text{Cov}(z) = I</span>.</p>
+<p><strong>Шаг 1.</strong> Инициализация случайного вектора <span class="math inline">w</span> единичной нормы.</p>
+<p><strong>Шаг 2.</strong> Итерация с фиксированной точкой:</p>
+<div class="column-page">
+<p><span class="math display">
+w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
+</span></p>
+</div>
+<p>где <span class="math inline">g(u) = \tanh(u)</span> — нелинейность (приближение негэнтропии).</p>
+<p><strong>Шаг 3.</strong> Нормализация: <span class="math inline">w \leftarrow w / \|w\|</span>.</p>
+<p><strong>Шаг 4.</strong> Повторять шаги 2–3 до сходимости.</p>
+<p>Для нескольких компонент добавляется ортогонализация Грама–Шмидта между найденными направлениями.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fastica(X, n_components, max_iter<span class="op">=</span><span class="dv">200</span>, tol<span class="op">=</span><span class="fl">1e-6</span>):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Минимальная реализация FastICA."""</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    n, m <span class="op">=</span> X.shape  <span class="co"># n — число каналов, m — число отсчётов</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Центрирование</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> X <span class="op">-</span> X.mean(axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Отбеливание</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> np.cov(X)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    eigvals, eigvecs <span class="op">=</span> np.linalg.eigh(cov)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> np.diag(<span class="fl">1.0</span> <span class="op">/</span> np.sqrt(eigvals <span class="op">+</span> <span class="fl">1e-10</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> D <span class="op">@</span> eigvecs.T <span class="op">@</span> X  <span class="co"># отбелённые данные</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    W <span class="op">=</span> np.zeros((n_components, n))</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> <span class="bu">range</span>(n_components):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        w <span class="op">=</span> np.random.randn(n)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        w <span class="op">/=</span> np.linalg.norm(w)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(max_iter):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            <span class="co"># g(u) = tanh(u), g'(u) = 1 - tanh(u)^2</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            proj <span class="op">=</span> w <span class="op">@</span> Z</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            g <span class="op">=</span> np.tanh(proj)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            gp <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> g<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            w_new <span class="op">=</span> (Z <span class="op">*</span> g).mean(axis<span class="op">=</span><span class="dv">1</span>) <span class="op">-</span> gp.mean() <span class="op">*</span> w</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ортогонализация к уже найденным</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(p):</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>                w_new <span class="op">-=</span> (w_new <span class="op">@</span> W[j]) <span class="op">*</span> W[j]</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            w_new <span class="op">/=</span> np.linalg.norm(w_new)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">abs</span>(<span class="bu">abs</span>(w_new <span class="op">@</span> w) <span class="op">-</span> <span class="dv">1</span>) <span class="op">&lt;</span> tol:</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            w <span class="op">=</span> w_new</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        W[p] <span class="op">=</span> w</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    S <span class="op">=</span> W <span class="op">@</span> Z  <span class="co"># восстановленные компоненты</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> S, W</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="демо-разделение-звуков" class="level2">
+<h2 class="anchored" data-anchor-id="демо-разделение-звуков">Демо: разделение звуков</h2>
+<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: вечеринка с коктейлями">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Важное уведомление</span>Поиграть: вечеринка с коктейлями
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Три независимых сигнала (синусоида, меандр, пила) смешиваются в трёх «микрофонах» фиксированной матрицей — слышна каша. FastICA, не зная ни источников, ни матрицы смешивания, восстанавливает исходные сигналы, опираясь только на их негауссовость. Сверху — источники, в середине — смеси, снизу — то, что вытащила ICA. ICA не гарантирует порядок — поэтому цвет восстановленного сигнала показывает, какому источнику он соответствует. Меняйте зерно смешивания.</p>
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> FastICA</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">0</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">8</span>, n_samples)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Три независимых источника</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> np.sin(<span class="dv">2</span> <span class="op">*</span> t)                           <span class="co"># синусоида</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>s2 <span class="op">=</span> np.sign(np.sin(<span class="dv">3</span> <span class="op">*</span> t))                  <span class="co"># прямоугольная волна</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>s3 <span class="op">=</span> (t <span class="op">%</span> <span class="fl">1.5</span>) <span class="op">/</span> <span class="fl">1.5</span> <span class="op">-</span> <span class="fl">0.5</span>                   <span class="co"># пилообразная волна</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> np.c_[s1, s2, s3].T  <span class="co"># (3, n_samples)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Матрица смешивания</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="fl">0.2</span>],</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>              [<span class="fl">0.3</span>, <span class="fl">1.0</span>, <span class="fl">0.7</span>],</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>              [<span class="fl">0.6</span>, <span class="fl">0.4</span>, <span class="fl">1.0</span>]])</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> A <span class="op">@</span> S  <span class="co"># наблюдаемые смеси</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Восстановление через FastICA</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>ica <span class="op">=</span> FastICA(n_components<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>S_hat <span class="op">=</span> ica.fit_transform(X.T).T</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">8</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>titles <span class="op">=</span> [[<span class="st">"Источник 1"</span>, <span class="st">"Источник 2"</span>, <span class="st">"Источник 3"</span>],</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>          [<span class="st">"Смесь 1"</span>, <span class="st">"Смесь 2"</span>, <span class="st">"Смесь 3"</span>],</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>          [<span class="st">"Восстановленный 1"</span>, <span class="st">"Восстановленный 2"</span>, <span class="st">"Восстановленный 3"</span>]]</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [S, X, S_hat]</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        axes[row, col].plot(t, data[row][col], lw<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        axes[row, col].set_title(titles[row][col])</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="применения-ica" class="level2">
+<h2 class="anchored" data-anchor-id="применения-ica">Применения ICA</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Область</th>
+<th style="text-align: left;">Задача</th>
+<th style="text-align: left;">Что разделяем</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Нейронауки</strong></td>
+<td style="text-align: left;">Очистка ЭЭГ</td>
+<td style="text-align: left;">Мозговая активность от моргания глаз</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>fMRI</strong></td>
+<td style="text-align: left;">Spatial ICA</td>
+<td style="text-align: left;">Независимые нейронные сети мозга</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Финансы</strong></td>
+<td style="text-align: left;">Выделение факторов</td>
+<td style="text-align: left;">Независимые рыночные драйверы</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Телеком</strong></td>
+<td style="text-align: left;">MIMO</td>
+<td style="text-align: left;">Сигналы от разных антенн</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Астрономия</strong></td>
+<td style="text-align: left;">Выделение CMB из смеси с галактической пылью</td>
+<td style="text-align: left;">Реликтовое излучение и галактическая пыль</td>
+</tr>
+</tbody>
+</table>
+<section id="пример-очистка-ээг" class="level3">
+<h3 class="anchored" data-anchor-id="пример-очистка-ээг">Пример: очистка ЭЭГ</h3>
+<p>Электроэнцефалограмма — сигнал с 64 электродов на голове. Помимо мозговой активности, электроды ловят моргание (EOG), сердцебиение (ECG), мышечные артефакты (EMG). ICA разделяет эти компоненты, и нейробиолог вручную отмечает артефактные (по характерной пространственной карте и спектру) — затем данные восстанавливаются без них.</p>
+</section>
+</section>
+<section id="связь-с-информационной-теорией" class="level2">
+<h2 class="anchored" data-anchor-id="связь-с-информационной-теорией">Связь с информационной теорией</h2>
+<p>Максимизация негауссовости эквивалентна <strong>минимизации взаимной информации</strong> между компонентами:</p>
+<p><span class="math display">
+I(y_1, \ldots, y_n) = \sum_i H(y_i) - H(y_1, \ldots, y_n).
+</span></p>
+<p>Если компоненты действительно независимы, <span class="math inline">I = 0</span>. ICA ищет такое линейное преобразование, которое минимизирует <span class="math inline">I</span> — то есть делает компоненты максимально «не знающими» друг о друге.</p>
+<p>Это связывает ICA с энтропией Шеннона из Части I книги и с cross-entropy loss нейросетей.</p>
+</section>
+<section id="связи" class="level2">
+<h2 class="anchored" data-anchor-id="связи">Связи</h2>
+<ul>
+<li><strong>PCA</strong> (§ PCA): предобработка перед ICA (отбеливание)</li>
+<li><strong>SVD</strong> (§ SVD): PCA = SVD центрированных данных</li>
+<li><strong>Энтропия</strong> (§ Часть I): минимизация взаимной информации</li>
+<li><strong>Байесовский подход</strong>: вариационный ICA через EM-алгоритм</li>
+</ul>
+
+
+</section>
+
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
+<script>
+// Переименовываем "Typst" → "PDF этой страницы" в Other Formats блоке
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".quarto-alternate-formats a").forEach(function (a) {
+    if (a.textContent.trim() === "Typst") {
+      const icon = a.querySelector("i");
+      a.textContent = "";
+      if (icon) a.appendChild(icon);
+      a.append(" PDF этой страницы");
+    }
+  });
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Скопировано");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Скопировано");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./story_pca.html" class="pagination-link" aria-label="PCA и Eigenfaces">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">PCA и Eigenfaces</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./story_eigenvalues.html" class="pagination-link" aria-label="Собственные значения: от PageRank до шатающихся мостов">
+        <span class="nav-page-text">Собственные значения: от PageRank до шатающихся мостов</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
