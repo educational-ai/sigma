@@ -797,27 +797,15 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 <p>Все три задачи — TSP, минимизация Растригина, генерация текста — сводятся к одной: найти хорошее решение в огромном дискретном или непрерывном пространстве, избегая ловушек локальных оптимумов.</p>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: коммивояжёр и отжиг">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Поиграть: коммивояжёр и отжиг
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>Разбросайте города случайно и запустите имитацию отжига вживую: алгоритм 2-opt переставляет рёбра, с убывающей температурой иногда соглашаясь на ухудшение — и выходит из локальных ловушек. Слева — найденный маршрут, справа — как падала его длина. Меняйте число городов и зерно.</p>
-</div>
-</div>
+<p>Покрутите температуру и посмотрите, как отжиг прямо на глазах перекраивает маршрут: при жаре он смело принимает ухудшения и выпрыгивает из ловушек, а остывая — застывает в найденном минимуме. Кликайте по полю, чтобы подбросить новый город.</p>
+<div class="column-page">
+<div data-sigma-widget="annealing-tsp"></div>
 </div>
 </section>
 <section id="сравнение-на-tsp" class="level2">
 <h2 class="anchored" data-anchor-id="сравнение-на-tsp">Сравнение на TSP</h2>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: имитация отжига для TSP">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -826,7 +814,7 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SA для TSP</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_tsp_sa(D, T0<span class="op">=</span><span class="dv">100</span>, alpha<span class="op">=</span><span class="fl">0.9995</span>, max_iter<span class="op">=</span><span class="dv">100000</span>):</span>

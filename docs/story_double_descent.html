@@ -544,7 +544,7 @@ window.Quarto = {
 </div>
 <p>Это и есть <strong>двойной спуск</strong>.</p>
 </section>
-<section id="демо-полиномиальная-регрессия" class="level2">
+<section id="демо-полиномиальная-регрессия" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="демо-полиномиальная-регрессия">Демо: полиномиальная регрессия</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -597,28 +597,16 @@ window.Quarto = {
 <span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Двойной спуск в полиномиальной регрессии"</span>)</span>
 <span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
 <span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="что-видно-на-графике" class="level3">
+<section id="что-видно-на-графике" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="что-видно-на-графике">Что видно на графике</h3>
 <ol type="1">
 <li><p><strong>Классическая зона</strong> (<span class="math inline">d &lt; n</span>): ошибка сначала падает, потом растёт — U-образная кривая.</p></li>
 <li><p><strong>Пик при <span class="math inline">d = n</span></strong>: модель точно проходит через все точки, но с огромными коэффициентами — «шпиль» переобучения. Это <strong>interpolation threshold</strong>.</p></li>
 <li><p><strong>Сверхпараметризация</strong> (<span class="math inline">d &gt; n</span>): из всех полиномов степени <span class="math inline">d</span>, точно проходящих через данные, выбирается тот, у которого <strong>минимальная норма коэффициентов</strong>. Этот implicit regularization приводит к гладким решениям и падению ошибки.</p></li>
 </ol>
-<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: кривая двойного спуска">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Поиграть: кривая двойного спуска
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>Запустите ridgeless-регрессию (МНК минимальной нормы) и наращивайте число признаков <span class="math inline">P</span>, следя за ошибкой на тесте. До порога <span class="math inline">P=n</span> — классическая U-кривая; ровно на <span class="math inline">P=n</span> тест взлетает «шпилем»; за порогом, в зоне сверхпараметризации, — второй спуск к ещё меньшей ошибке. Меняйте число точек обучения и уровень шума.</p>
-</div>
-</div>
+<p>Потяни ползунок ёмкости через порог интерполяции <span class="math inline">d = n</span> — и почувствуй, как ровно на нём подгонка взрывается «шпилем», а сразу за ним МНК минимальной нормы снова приводит кривую к гладкому, хорошо обобщающему решению.</p>
+<div class="column-page">
+<div data-sigma-widget="double-descent"></div>
 </div>
 </section>
 </section>

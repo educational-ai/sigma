@@ -64,19 +64,28 @@
       const cssW = canvas.clientWidth || w;
       const ratio = h / w;
       const cssH = cssW * ratio;
-      canvas.style.height = cssH + "px";
       const r = dpr();
-      canvas.width = Math.round(cssW * r);
-      canvas.height = Math.round(cssH * r);
+      const pw = Math.round(cssW * r), ph = Math.round(cssH * r);
+      // ВАЖНО: присваивание canvas.width/height ОЧИЩАЕТ канвас даже при том же
+      // значении. ResizeObserver выстреливает initial-колбэк с неизменным
+      // размером → стёр бы синхронную build-time отрисовку (баг пустого канваса
+      // у drag-only виджетов без loop/слайдера). Поэтому трогаем bitmap только
+      // при реальном изменении размера.
+      if (pw === canvas.width && ph === canvas.height) return false;
+      canvas.style.height = cssH + "px";
+      canvas.width = pw;
+      canvas.height = ph;
       ctx.setTransform(r * cssW / w, 0, 0, r * cssH / h, 0, 0); // logical coords = w×h
       state.cssW = cssW; state.cssH = cssH;
+      return true;
     }
     resize();
+    const onChange = () => { if (resize() && opts.onResize) opts.onResize(); };
     if (typeof ResizeObserver !== "undefined") {
-      const ro = new ResizeObserver(() => { resize(); if (opts.onResize) opts.onResize(); });
+      const ro = new ResizeObserver(onChange);
       ro.observe(canvas);
     } else {
-      window.addEventListener("resize", () => { resize(); if (opts.onResize) opts.onResize(); });
+      window.addEventListener("resize", onChange);
     }
     return state;
   }
@@ -386,6 +395,1923 @@
 })();
 
 
+// ===== widget: annealing_tsp.js =====
+// annealing-tsp — живой имитационный отжиг для задачи коммивояжёра.
+// Отжиг крутится НЕПРЕРЫВНО (S.loop): каждый кадр делает пачку 2-opt/swap
+// ходов, тур перерисовывается, длина падает на глазах. Температурой можно
+// управлять ползунком или схватив маркер на кривой охлаждения. Клик по полю
+// добавляет город. Никакой кнопки «Запустить» — алгоритм идёт сам.
+SigmaInt.register("annealing-tsp", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Отжиг идёт сам. Тяни ползунок T (или схвати точку на кривой охлаждения), кликни по полю — добавить город, «перемешать» — новая раскладка.",
+  }));
+
+  const stage = S.row(root);
+  const W = 760, H = 380;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 760, pan: false });
+  const ctx = cv.ctx;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Имитация отжига для коммивояжёра. При высокой температуре алгоритм охотно " +
+    "принимает ухудшающие ходы (исследование, выход из локальных ловушек); по мере " +
+    "остывания становится придирчивым и замораживается в найденном минимуме (эксплуатация). " +
+    "Слева — текущий тур, справа — история длины и кривая температуры.");
+
+  // ---- геометрия панелей (логические координаты W×H) --------------------
+  const map = { x: 8, y: 28, w: 420, h: H - 44 };   // карта городов
+  const plot = { x: 478, y: 28, w: W - 478 - 8, h: H - 86 }; // график длины
+  const tbar = { x: 478, y: H - 44, w: W - 478 - 8, h: 26 }; // полоса температуры
+
+  // ---- RNG (детерминированный по seed) ----------------------------------
+  let seed = 12345;
+  function rng() {
+    // mulberry32
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  // ---- состояние задачи -------------------------------------------------
+  let cities = [];        // [{x,y}] в логических координатах внутри map
+  let tour = [];          // перестановка индексов
+  let dist = [];          // матрица расстояний (плоская)
+  let curLen = 0;
+  let bestTour = [], bestLen = Infinity;
+  let iter = 0, accepted = 0, rejected = 0, acceptedWorse = 0;
+  let history = [];       // длина тура по времени (для графика)
+  const HIST_MAX = 240;
+
+  // температура
+  let T = 0;              // текущая
+  let manualT = false;    // пользователь держит T вручную
+  let Tmax = 1;           // верхняя граница (масштаб) — задаётся от данных
+
+  function pad(n) { return Math.max(2, n); }
+
+  function rebuildDist() {
+    const n = cities.length;
+    dist = new Array(n * n).fill(0);
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const dx = cities[i].x - cities[j].x, dy = cities[i].y - cities[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        dist[i * n + j] = d; dist[j * n + i] = d;
+      }
+    }
+  }
+
+  function tourLength(t) {
+    const n = t.length; if (n < 2) return 0;
+    let s = 0;
+    for (let i = 0; i < n; i++) s += dist[t[i] * n + t[(i + 1) % n]];
+    return s;
+  }
+
+  // средняя длина ребра — масштаб для температуры
+  function avgEdge() {
+    const n = cities.length; if (n < 2) return 1;
+    let s = 0, c = 0;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { s += dist[i * n + j]; c++; }
+    return c ? s / c : 1;
+  }
+
+  function resetSearch() {
+    const n = cities.length;
+    tour = Array.from({ length: n }, (_, i) => i);
+    // лёгкая перетасовка старта
+    for (let i = n - 1; i > 0; i--) { const j = (rng() * (i + 1)) | 0; const tmp = tour[i]; tour[i] = tour[j]; tour[j] = tmp; }
+    curLen = tourLength(tour);
+    bestTour = tour.slice(); bestLen = curLen;
+    iter = 0; accepted = 0; rejected = 0; acceptedWorse = 0;
+    history = [curLen];
+    Tmax = Math.max(1e-6, avgEdge() * 1.0);
+    if (!manualT) T = Tmax * tFromSlider();   // позиция ползунка задаёт долю Tmax
+  }
+
+  function scatterCities(n) {
+    cities = [];
+    const pm = 26; // отступ внутри карты
+    for (let i = 0; i < n; i++) {
+      cities.push({
+        x: map.x + pm + rng() * (map.w - 2 * pm),
+        y: map.y + pm + rng() * (map.h - 2 * pm),
+      });
+    }
+    rebuildDist();
+    resetSearch();
+  }
+
+  // ---- шаг отжига: 2-opt с реверсом сегмента + иногда swap --------------
+  function deltaTwoOpt(t, a, b) {
+    // ребро (a, a+1) и (b, b+1) → реверс сегмента a+1..b
+    const n = t.length;
+    const A = t[a], An = t[(a + 1) % n];
+    const B = t[b], Bn = t[(b + 1) % n];
+    if (A === B || An === B || A === Bn) return null;
+    const before = dist[A * n + An] + dist[B * n + Bn];
+    const after = dist[A * n + B] + dist[An * n + Bn];
+    return after - before;
+  }
+
+  function applyTwoOpt(t, a, b) {
+    // реверс участка (a+1 .. b)
+    let i = a + 1, j = b;
+    while (i < j) { const tmp = t[i]; t[i] = t[j]; t[j] = tmp; i++; j--; }
+  }
+
+  function annealStep() {
+    const n = tour.length;
+    if (n < 4) { curLen = tourLength(tour); return; }
+    // выбрать два индекса для 2-opt
+    let a = (rng() * n) | 0;
+    let b = (rng() * n) | 0;
+    if (a > b) { const t = a; a = b; b = t; }
+    if (b - a < 1 || (a === 0 && b === n - 1)) return;
+    const d = deltaTwoOpt(tour, a, b);
+    if (d == null) return;
+    iter++;
+    let accept;
+    if (d <= 0) accept = true;
+    else if (T <= 1e-12) accept = false;
+    else accept = rng() < Math.exp(-d / T);
+    if (accept) {
+      applyTwoOpt(tour, a, b);
+      curLen += d;
+      accepted++;
+      if (d > 0) acceptedWorse++;
+      if (curLen < bestLen - 1e-9) { bestLen = curLen; bestTour = tour.slice(); }
+    } else {
+      rejected++;
+    }
+  }
+
+  // ---- ползунок температуры: значение 0..1 = доля Tmax ------------------
+  let tSlider;
+  function tFromSlider() { return tSlider ? tSlider.get() : 0.35; }
+
+  // ---- отрисовка ---------------------------------------------------------
+  function drawMap() {
+    // рамка/фон
+    ctx.fillStyle = P.panel; ctx.fillRect(map.x, map.y, map.w, map.h);
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(map.x + 0.5, map.y + 0.5, map.w - 1, map.h - 1);
+    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    ctx.fillText("Маршрут (клик — добавить город)", map.x, map.y - 8);
+
+    const n = cities.length;
+    if (n >= 2) {
+      // «призрак» лучшего тура — тонкий
+      if (bestTour.length === n && bestLen < curLen - 1e-6) {
+        ctx.strokeStyle = "rgba(46,125,91,0.30)"; ctx.lineWidth = 1.4; ctx.beginPath();
+        for (let i = 0; i <= n; i++) { const c = cities[bestTour[i % n]]; i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y); }
+        ctx.stroke();
+      }
+      // текущий тур
+      ctx.strokeStyle = P.blue; ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i <= n; i++) { const c = cities[tour[i % n]]; i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y); }
+      ctx.stroke();
+    }
+    // города
+    for (let i = 0; i < n; i++) {
+      const c = cities[i];
+      ctx.fillStyle = i === tour[0] ? P.red : P.ink;
+      ctx.beginPath(); ctx.arc(c.x, c.y, i === tour[0] ? 5 : 3.4, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = P.bg; ctx.lineWidth = 1.2; ctx.stroke();
+    }
+  }
+
+  function drawPlot() {
+    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    ctx.fillText("Длина тура во времени", plot.x, plot.y - 8);
+    // фон
+    ctx.fillStyle = P.bg; ctx.fillRect(plot.x, plot.y, plot.w, plot.h);
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(plot.x + 0.5, plot.y + 0.5, plot.w - 1, plot.h - 1);
+
+    if (history.length < 2) return;
+    let mn = Infinity, mx = -Infinity;
+    for (const v of history) { if (v < mn) mn = v; if (v > mx) mx = v; }
+    if (mx - mn < 1e-6) { mx = mn + 1; }
+    const pad = (mx - mn) * 0.08;
+    const yS = S.scale(mn - pad, mx + pad, plot.y + plot.h - 6, plot.y + 6);
+    const xS = S.scale(0, Math.max(1, history.length - 1), plot.x + 6, plot.x + plot.w - 6);
+    // линия best (горизонталь)
+    ctx.strokeStyle = "rgba(46,125,91,0.5)"; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(plot.x + 6, yS(bestLen)); ctx.lineTo(plot.x + plot.w - 6, yS(bestLen)); ctx.stroke();
+    ctx.setLineDash([]);
+    // история
+    ctx.strokeStyle = P.blue; ctx.lineWidth = 1.6; ctx.beginPath();
+    for (let i = 0; i < history.length; i++) { const X = xS(i), Y = yS(history[i]); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
+    ctx.stroke();
+    // подпись best
+    ctx.fillStyle = P.green; ctx.font = "11px Palatino, serif"; ctx.textAlign = "right";
+    ctx.fillText("best " + bestLen.toFixed(0), plot.x + plot.w - 6, yS(bestLen) - 4);
+  }
+
+  // полоса температуры — её можно «схватить» и тянуть, как кривую охлаждения
+  function drawTempBar() {
+    ctx.fillStyle = P.mut; ctx.font = "11px Palatino, serif"; ctx.textAlign = "left";
+    ctx.fillText("Температура T (схвати и тяни)", tbar.x, tbar.y - 5);
+    // фон-градиент дискретно: холодно→горячо (синий→золото→красный)
+    const steps = 60;
+    for (let i = 0; i < steps; i++) {
+      const f = i / (steps - 1);
+      // интерполяция синий→красный через золото
+      let col;
+      if (f < 0.5) col = mix(P.blue, P.gold, f / 0.5);
+      else col = mix(P.gold, P.red, (f - 0.5) / 0.5);
+      ctx.fillStyle = col;
+      ctx.fillRect(tbar.x + f * tbar.w, tbar.y, tbar.w / steps + 1, tbar.h);
+    }
+    ctx.strokeStyle = P.grid; ctx.strokeRect(tbar.x + 0.5, tbar.y + 0.5, tbar.w - 1, tbar.h - 1);
+    // маркер текущей T
+    const frac = Tmax > 0 ? Math.max(0, Math.min(1, T / Tmax)) : 0;
+    const mxp = tbar.x + frac * tbar.w;
+    ctx.fillStyle = P.bg; ctx.strokeStyle = P.ink; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(mxp, tbar.y + tbar.h / 2, 7, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(mxp, tbar.y + tbar.h / 2, 2.5, 0, 2 * Math.PI); ctx.fillStyle = P.ink; ctx.fill();
+  }
+
+  function mix(h1, h2, t) {
+    const a = hex(h1), b = hex(h2);
+    const r = Math.round(a[0] + (b[0] - a[0]) * t);
+    const g = Math.round(a[1] + (b[1] - a[1]) * t);
+    const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+    return "rgb(" + r + "," + g + "," + bl + ")";
+  }
+  function hex(h) {
+    const v = parseInt(h.slice(1), 16);
+    return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawMap();
+    drawPlot();
+    drawTempBar();
+    updateReadout();
+  }
+
+  function updateReadout() {
+    const total = accepted + rejected;
+    const accRate = total ? (accepted / total * 100) : 0;
+    const phase = T > Tmax * 0.5 ? "исследование" : (T > Tmax * 0.08 ? "переход" : "заморозка");
+    const phaseColor = T > Tmax * 0.5 ? P.red : (T > Tmax * 0.08 ? P.gold : P.blue);
+    out.set([
+      { k: "длина", v: curLen.toFixed(0), color: P.blue },
+      { k: "лучшая", v: (bestLen === Infinity ? "—" : bestLen.toFixed(0)), color: P.green },
+      { k: "T", v: T.toFixed(2), color: phaseColor },
+      { k: "режим", v: phase, color: phaseColor },
+      { k: "итер.", v: String(iter), color: P.mut },
+      { k: "принято", v: accRate.toFixed(0) + "%", color: P.mut },
+      { k: "ухудш. принято", v: String(acceptedWorse), color: P.gold },
+      { k: "городов", v: String(cities.length), color: P.mut },
+    ]);
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  // ---- взаимодействие: клик/тяни ----------------------------------------
+  function inside(box, p) { return p.x >= box.x && p.x <= box.x + box.w && p.y >= box.y && p.y <= box.y + box.h; }
+
+  let draggingT = false;
+  S.dragify(cv.canvas, { w: W, h: H }, {
+    onDown: (p) => {
+      // если по полоске температуры — начать тянуть T
+      if (p.y >= tbar.y - 10 && p.y <= tbar.y + tbar.h + 10 && p.x >= tbar.x - 8 && p.x <= tbar.x + tbar.w + 8) {
+        draggingT = true; manualT = true; setTFromBar(p); return;
+      }
+      // если по карте — добавить город
+      if (inside(map, p) && cities.length < 60) {
+        cities.push({ x: p.x, y: p.y });
+        rebuildDist();
+        // вставить новый город в тур рядом с ближайшим, не сбрасывая прогресс
+        insertCity(cities.length - 1);
+        history.push(curLen); if (history.length > HIST_MAX) history.shift();
+        redraw();
+      }
+    },
+    onMove: (p) => { if (draggingT) setTFromBar(p); },
+    onUp: () => { draggingT = false; },
+  });
+
+  function setTFromBar(p) {
+    let frac = (p.x - tbar.x) / tbar.w;
+    frac = Math.max(0, Math.min(1, frac));
+    T = frac * Tmax;
+    if (tSlider) tSlider.set(frac); // синхронизируем ползунок
+    redraw();
+  }
+
+  function insertCity(idx) {
+    const n = tour.length;
+    if (n === 0) { tour = [idx]; curLen = 0; bestTour = [idx]; bestLen = 0; return; }
+    if (n === 1) { tour = [tour[0], idx]; curLen = tourLength(tour); bestTour = tour.slice(); bestLen = curLen; return; }
+    const N = cities.length;
+    let bestPos = 0, bestInc = Infinity;
+    for (let i = 0; i < n; i++) {
+      const a = tour[i], b = tour[(i + 1) % n];
+      const inc = dist[a * N + idx] + dist[idx * N + b] - dist[a * N + b];
+      if (inc < bestInc) { bestInc = inc; bestPos = i + 1; }
+    }
+    tour.splice(bestPos, 0, idx);
+    curLen = tourLength(tour);
+    if (curLen < bestLen) { bestLen = curLen; bestTour = tour.slice(); }
+  }
+
+  // ---- контролы ----------------------------------------------------------
+  S.slider(controls, {
+    label: "Число городов", min: 5, max: 40, step: 1, value: 18, fmt: (v) => v | 0,
+  }, (v) => { scatterCities(v | 0); redraw(); });
+
+  tSlider = S.slider(controls, {
+    label: "Температура T", min: 0, max: 1, step: 0.01, value: 0.35,
+    fmt: (v) => (v * (Tmax || 1)).toFixed(2),
+  }, (v) => { manualT = true; T = v * Tmax; redraw(); });
+
+  S.segmented(controls, {
+    label: "T-режим", value: "manual",
+    options: [
+      { value: "manual", label: "ручная" },
+      { value: "cool", label: "охлаждение" },
+    ],
+  }, (v) => {
+    coolMode = (v === "cool");
+    manualT = !coolMode;
+    if (coolMode) coolClock = 0; // перезапустить расписание
+  });
+
+  S.button(controls, "перемешать города", () => {
+    seed = (Math.random() * 1e9) | 0;
+    const n = cities.length || 18;
+    scatterCities(n);
+    redraw();
+  }, "ghost");
+
+  // ---- расписание охлаждения --------------------------------------------
+  let coolMode = false;
+  let coolClock = 0; // секунды в режиме охлаждения
+
+  // ---- непрерывный отжиг -------------------------------------------------
+  // стартовая раскладка
+  scatterCities(18);
+
+  const STEPS_PER_FRAME = 140;
+  let histClock = 0;
+
+  S.loop((dt) => {
+    if (cities.length >= 4) {
+      // авто-охлаждение: экспоненциальный спад с периодическим reheat
+      if (coolMode) {
+        coolClock += dt;
+        const period = 14; // секунд на полный цикл охлаждения
+        const phase = (coolClock % period) / period; // 0..1
+        // T: Tmax при phase=0 → ~0 к концу; затем снова разогрев (цикл)
+        const frac = Math.max(0.0, Math.pow(1 - phase, 2.2));
+        T = Tmax * frac;
+        if (tSlider) tSlider.set(Math.max(0, Math.min(1, frac)));
+      }
+      for (let s = 0; s < STEPS_PER_FRAME; s++) annealStep();
+    }
+    // запись истории ~25 раз/сек
+    histClock += dt;
+    if (histClock > 0.04) {
+      histClock = 0;
+      history.push(curLen);
+      if (history.length > HIST_MAX) history.shift();
+    }
+    draw();
+  }).start();
+
+  // первый кадр немедленно
+  draw();
+});
+
+
+// ===== widget: double_descent.js =====
+// double-descent — живая кривая двойного спуска + реальная полиномиальная
+// подгонка. Двигаешь степень d / шум / число точек — обе панели мгновенно
+// пересчитываются на чистом JS (без Pyodide, без кнопок).
+SigmaInt.register("double-descent", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тяни ползунок «ёмкость d» (или кликай по левой кривой) — слева бежит маркёр по кривым train/test, " +
+      "справа полиномиальная подгонка перестраивается в реальном времени. Пройди через порог интерполяции d = n.",
+  }));
+
+  const stage = S.row(root);
+  const cv = S.makeCanvas(stage, 760, 360, { maxWidth: 760 });
+  const ctx = cv.ctx;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Слева — канонические кривые ошибки обучения (синяя) и теста (красная) от ёмкости модели: " +
+    "U-образный спуск, «шпиль» переобучения на пороге интерполяции (число параметров ≈ числу точек), " +
+    "затем второй спуск в сверхпараметризованном режиме. Справа — настоящая полиномиальная регрессия " +
+    "минимальной нормы по зашумлённым точкам: при больших d решение снова становится гладким.");
+
+  // -------------------------------------------------- параметры (состояние)
+  let d = 6;        // текущая степень (ёмкость) — число параметров = d+1
+  let noise = 0.18; // ст. отклонение шума
+  let nPts = 15;    // число обучающих точек
+  const DMAX = 40;
+  const RIDGE = 1e-7; // лёгкая регуляризация для устойчивости псевдообратной
+
+  // детерминированный ГПСЧ, чтобы данные не «прыгали» между перерисовками
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // стандартная нормаль из двух uniform (Box–Muller)
+  function gauss(rnd) {
+    let u = 0, v = 0;
+    while (u === 0) u = rnd();
+    while (v === 0) v = rnd();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  // истинная (гладкая) функция, которую учим
+  const trueF = (x) => Math.sin(2.3 * x) * 0.7 + 0.25 * x;
+
+  // ---- данные: обучающая выборка (фикс. сид) + тестовая (другой сид) ----
+  let train = null, test = null;
+  function genData() {
+    const rTr = mulberry32(12345), rNo = mulberry32(777);
+    const xs = [], ys = [], yc = [];
+    for (let i = 0; i < nPts; i++) {
+      // равномерно по [-1,1] с лёгким джиттером — точки не сливаются
+      const x = -1 + 2 * (i + 0.5) / nPts + (rTr() - 0.5) * (0.8 / nPts);
+      xs.push(x); yc.push(trueF(x));
+      ys.push(trueF(x) + noise * gauss(rNo));
+    }
+    train = { x: xs, y: ys, clean: yc };
+    // тест: плотная регулярная сетка, чистые значения (мерим обобщение)
+    const tx = [], ty = [];
+    const M = 200;
+    for (let i = 0; i < M; i++) {
+      const x = -1 + 2 * i / (M - 1);
+      tx.push(x); ty.push(trueF(x));
+    }
+    test = { x: tx, y: ty };
+  }
+
+  // ---- признаки: ОРТОНОРМИРОВАННЫЕ полиномы Лежандра на [-1,1] ----
+  // Ортонормированный базис критичен: только в нём решение минимальной нормы
+  // коэффициентов соответствует ГЛАДКОЙ функции → за порогом интерполяции
+  // действительно виден второй спуск (на сыром мономиальном базисе xⁿ его нет).
+  function feat(x, deg) {
+    const row = new Array(deg + 1);
+    let p0 = 1, p1 = x; // P_{j-1}, P_j (рекуррента Бонне)
+    for (let j = 0; j <= deg; j++) {
+      let Pj;
+      if (j === 0) Pj = 1;
+      else if (j === 1) Pj = x;
+      else { Pj = ((2 * j - 1) * x * p1 - (j - 1) * p0) / j; p0 = p1; p1 = Pj; }
+      row[j] = Pj * Math.sqrt((2 * j + 1) / 2); // L²-нормировка на [-1,1]
+    }
+    return row;
+  }
+
+  // решение линейной системы A w = b методом Гаусса с частичным выбором
+  function solve(A, b) {
+    const n = b.length;
+    const M = A.map((r, i) => r.concat(b[i]));
+    for (let c = 0; c < n; c++) {
+      let piv = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r;
+      if (piv !== c) { const t = M[piv]; M[piv] = M[c]; M[c] = t; }
+      const d0 = M[c][c];
+      if (Math.abs(d0) < 1e-12) continue; // вырождение — пропускаем
+      for (let r = 0; r < n; r++) {
+        if (r === c) continue;
+        const f = M[r][c] / d0;
+        if (f === 0) continue;
+        for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k];
+      }
+    }
+    const w = new Array(n).fill(0);
+    for (let c = 0; c < n; c++) { const dd = M[c][c]; w[c] = Math.abs(dd) < 1e-12 ? 0 : M[c][n] / dd; }
+    return w;
+  }
+
+  // подгонка полинома степени deg к обучающим точкам.
+  //   p = deg+1 параметров, n точек.
+  //   p <= n (недо/идеально): обычный МНК через нормальное уравнение
+  //                           (XᵀX + λI) w = Xᵀy.
+  //   p  > n (сверхпарам.):   решение минимальной нормы w = Xᵀ (XXᵀ + λI)⁻¹ y.
+  function fitPoly(deg) {
+    const n = train.x.length, p = deg + 1;
+    const X = train.x.map((x) => feat(x, deg)); // n×p
+    const y = train.y;
+    if (p <= n) {
+      // XᵀX (p×p) + λI, Xᵀy (p)
+      const G = [], g = new Array(p).fill(0);
+      for (let i = 0; i < p; i++) G.push(new Array(p).fill(0));
+      for (let i = 0; i < p; i++) {
+        for (let j = 0; j < p; j++) {
+          let s = 0;
+          for (let k = 0; k < n; k++) s += X[k][i] * X[k][j];
+          G[i][j] = s + (i === j ? RIDGE : 0);
+        }
+        let gs = 0;
+        for (let k = 0; k < n; k++) gs += X[k][i] * y[k];
+        g[i] = gs;
+      }
+      return solve(G, g);
+    } else {
+      // min-norm: a = (XXᵀ + λI)⁻¹ y  (n×n),  w = Xᵀ a
+      const K = [];
+      for (let i = 0; i < n; i++) {
+        const rowI = new Array(n).fill(0);
+        for (let j = 0; j < n; j++) {
+          let s = 0;
+          for (let t = 0; t < p; t++) s += X[i][t] * X[j][t];
+          rowI[j] = s + (i === j ? RIDGE : 0);
+        }
+        K.push(rowI);
+      }
+      const a = solve(K, y);
+      const w = new Array(p).fill(0);
+      for (let t = 0; t < p; t++) {
+        let s = 0;
+        for (let i = 0; i < n; i++) s += X[i][t] * a[i];
+        w[t] = s;
+      }
+      return w;
+    }
+  }
+
+  function evalPoly(w, x) {
+    const ph = feat(x, w.length - 1);
+    let s = 0;
+    for (let j = 0; j < w.length; j++) s += w[j] * ph[j];
+    return s;
+  }
+
+  function mse(w, xs, ys) {
+    let s = 0;
+    for (let i = 0; i < xs.length; i++) { const e = evalPoly(w, xs[i]) - ys[i]; s += e * e; }
+    return xs.length ? s / xs.length : 0;
+  }
+  function coefNorm(w) { let s = 0; for (let j = 0; j < w.length; j++) s += w[j] * w[j]; return Math.sqrt(s); }
+
+  // ---- кривые train/test по всем степеням d = 0..DMAX (пересчёт на изм.) --
+  let curves = null; // {trainE:[], testE:[]}
+  function computeCurves() {
+    const trE = [], teE = [];
+    for (let dd = 0; dd <= DMAX; dd++) {
+      const w = fitPoly(dd);
+      trE.push(mse(w, train.x, train.y));        // ошибка на шумных точках
+      teE.push(mse(w, test.x, test.y));          // ошибка против истинной функции
+    }
+    curves = { trE, teE };
+  }
+
+  function recompute() { genData(); computeCurves(); }
+
+  // -------------------------------------------------- геометрия (760×360)
+  const padL = 52, padR = 18, padT = 30, padB = 46;
+  const gap = 40, midX = 380;
+  const left = { x: padL, y: padT, w: midX - padL - gap / 2, h: 360 - padT - padB };
+  const right = { x: midX + gap / 2, y: padT, w: 760 - padR - (midX + gap / 2), h: 360 - padT - padB };
+
+  let xCap; // шкала ёмкости (левая панель), для кликов
+
+  function logE(v) { return Math.log10(Math.max(v, 1e-4)); }
+
+  function drawLeft() {
+    const n = train.x.length;
+    const b = left;
+    // диапазон ошибок (лог-шкала)
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i <= DMAX; i++) {
+      lo = Math.min(lo, curves.trE[i], curves.teE[i]);
+      hi = Math.max(hi, curves.teE[i]);
+    }
+    lo = Math.max(lo, 1e-4);
+    const yLo = logE(lo) - 0.15, yHi = logE(hi) + 0.15;
+    xCap = S.scale(0, DMAX, b.x, b.x + b.w);
+    const yS = S.scale(yLo, yHi, b.y + b.h, b.y);
+
+    // заголовок
+    ctx.fillStyle = P.ink; ctx.font = "13px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("Ошибка vs ёмкость модели", b.x + b.w / 2, b.y - 12);
+
+    // горизонтальная сетка по декадам
+    ctx.font = "10px Palatino, serif";
+    for (let p = Math.ceil(yLo); p <= Math.floor(yHi); p++) {
+      const Y = yS(p);
+      ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(b.x, Y); ctx.lineTo(b.x + b.w, Y); ctx.stroke();
+      ctx.fillStyle = P.mut; ctx.textAlign = "right";
+      ctx.fillText("1e" + p, b.x - 5, Y + 3);
+    }
+    S.axes(ctx, b, { xlabel: "степень d (число параметров)", ylabel: "MSE (лог)" });
+
+    // порог интерполяции d ≈ n
+    const thr = xCap(n);
+    if (thr <= b.x + b.w + 1) {
+      ctx.strokeStyle = P.mut; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(thr, b.y); ctx.lineTo(thr, b.y + b.h); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
+      ctx.fillText("d = n", thr, b.y + 10);
+    }
+
+    // линия test (красная)
+    const drawCurve = (arr, color, lw) => {
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath();
+      for (let i = 0; i <= DMAX; i++) {
+        const X = xCap(i), Y = yS(logE(arr[i]));
+        i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+      }
+      ctx.stroke();
+    };
+    drawCurve(curves.teE, P.red, 2.2);
+    drawCurve(curves.trE, P.blue, 1.6);
+
+    // легенда
+    ctx.font = "11px Palatino, serif"; ctx.textAlign = "left";
+    ctx.fillStyle = P.red; ctx.fillText("— test", b.x + 6, b.y + b.h - 20);
+    ctx.fillStyle = P.blue; ctx.fillText("— train", b.x + 6, b.y + b.h - 6);
+
+    // бегущий маркёр текущего d
+    const mx = xCap(d);
+    ctx.strokeStyle = P.gold; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(mx, b.y); ctx.lineTo(mx, b.y + b.h); ctx.stroke();
+    const myTe = yS(logE(curves.teE[d])), myTr = yS(logE(curves.trE[d]));
+    ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(mx, myTe, 4, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = P.blue; ctx.beginPath(); ctx.arc(mx, myTr, 3.5, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  function drawRight() {
+    const b = right;
+    const w = fitPoly(d);
+    const xS = S.scale(-1.05, 1.05, b.x, b.x + b.w);
+
+    // y-диапазон: по чистой функции + точкам + немного запаса
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < train.x.length; i++) { lo = Math.min(lo, train.y[i]); hi = Math.max(hi, train.y[i]); }
+    lo = Math.min(lo, -1.2); hi = Math.max(hi, 1.2);
+    const pad = (hi - lo) * 0.12;
+    const yS = S.scale(lo - pad, hi + pad, b.y + b.h, b.y);
+
+    ctx.fillStyle = P.ink; ctx.font = "13px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("Полиномиальная подгонка, d = " + d, b.x + b.w / 2, b.y - 12);
+
+    S.axes(ctx, b, { xlabel: "x", ylabel: "y" });
+
+    // нулевая линия
+    if (yS.dom[0] < 0 && yS.dom[1] > 0) {
+      ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(b.x, yS(0)); ctx.lineTo(b.x + b.w, yS(0)); ctx.stroke();
+    }
+
+    // clip, чтобы дикие осцилляции не вылезали за панель
+    ctx.save();
+    ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+
+    // истинная функция (пунктир, серая)
+    ctx.strokeStyle = P.mut; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.2; ctx.beginPath();
+    for (let i = 0; i < test.x.length; i++) {
+      const X = xS(test.x[i]), Y = yS(test.y[i]);
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // подогнанный полином (зелёный)
+    ctx.strokeStyle = P.green; ctx.lineWidth = 2.2; ctx.beginPath();
+    const STEP = 400;
+    for (let i = 0; i <= STEP; i++) {
+      const x = -1.05 + 2.1 * i / STEP;
+      const X = xS(x), Y = yS(evalPoly(w, x));
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // обучающие точки
+    for (let i = 0; i < train.x.length; i++) {
+      ctx.fillStyle = P.red;
+      ctx.beginPath(); ctx.arc(xS(train.x[i]), yS(train.y[i]), 3.2, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = "#fffff8"; ctx.lineWidth = 0.8; ctx.stroke();
+    }
+
+    // легенда
+    ctx.font = "11px Palatino, serif"; ctx.textAlign = "right";
+    ctx.fillStyle = P.green; ctx.fillText("— подгонка", b.x + b.w - 6, b.y + 14);
+    ctx.fillStyle = P.mut; ctx.fillText("- - истина", b.x + b.w - 6, b.y + 28);
+
+    return w;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, 760, 360);
+    drawLeft();
+    const w = drawRight();
+
+    const n = train.x.length, p = d + 1;
+    const regime = p < n ? "недо­параметризация" : (p === n ? "порог интерполяции" : "сверхпараметризация");
+    const regimeColor = p < n ? P.blue : (p === n ? P.red : P.green);
+    out.set([
+      { k: "d =", v: String(d) + " (p=" + p + ")", color: P.gold },
+      { k: "train MSE", v: curves.trE[d].toExponential(2), color: P.blue },
+      { k: "test MSE", v: curves.teE[d].toExponential(2), color: P.red },
+      { k: "‖θ‖", v: coefNorm(w).toExponential(2), color: P.purple },
+      { k: "режим", v: regime, color: regimeColor },
+    ]);
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  // клик/протяжка по левой панели → задать d
+  S.dragify(cv.canvas, { w: 760, h: 360 }, {
+    onDown: setDFromX, onMove: setDFromX,
+  });
+  function setDFromX(pt) {
+    if (!xCap) return;
+    if (pt.x < left.x - 12 || pt.x > left.x + left.w + 12 || pt.y < left.y - 12 || pt.y > left.y + left.h + 16) return;
+    let nd = Math.round(xCap.inv(pt.x));
+    nd = Math.max(0, Math.min(DMAX, nd));
+    if (nd !== d) { d = nd; sldD.set(d); redraw(); }
+  }
+
+  // -------------------------------------------------- контролы
+  recompute();
+
+  const sldD = S.slider(controls, {
+    label: "ёмкость d", min: 0, max: DMAX, step: 1, value: d, fmt: (v) => v,
+  }, (v) => { d = v | 0; redraw(); });
+
+  S.slider(controls, {
+    label: "уровень шума σ", min: 0, max: 0.5, step: 0.01, value: noise, fmt: (v) => v.toFixed(2),
+  }, (v) => { noise = v; recompute(); redraw(); });
+
+  S.slider(controls, {
+    label: "число точек n", min: 6, max: 30, step: 1, value: nPts, fmt: (v) => v,
+  }, (v) => { nPts = v | 0; recompute(); redraw(); });
+
+  draw();
+});
+
+
+// ===== widget: fft_spectrum.js =====
+// fft-spectrum — два тона x(t)=sin(2πf₁t)+sin(2πf₂t) и их амплитудный спектр |X_k|.
+// Двигаешь частоты — осциллограмма и спектр пересчитываются мгновенно. ДПФ прямой
+// суммой O(N²) на чистом JS. Каждая строка k матрицы F_N «настроена» на k·fs/N Гц;
+// два тона → два пика на строках round(f·N/fs). Это и есть то, что хеширует Shazam.
+SigmaInt.register("fft-spectrum", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тяни ползунки f₁ и f₂ — слева сумма двух синусоид, справа её спектр |X_k|. " +
+          "Два тона дают ровно два пика. Меняй N и fs, чтобы увидеть разрешение по частоте.",
+  }));
+
+  const stage = S.row(root);
+  const cv = S.makeCanvas(stage, 760, 320, { maxWidth: 760 });
+  const ctx = cv.ctx;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Слева — первые отсчёты сигнала во времени; справа — амплитуда |X_k| по нижней " +
+    "половине частот. Строка k матрицы Фурье F_N — это «камертон», настроенный на " +
+    "частоту k·fs/N; тон отзывается там, где камертон совпал с ним, давая пик.");
+
+  // состояние
+  let f1 = 440, f2 = 1200, N = 512, fs = 8000;
+
+  // геометрия (логические 760×320)
+  const top = 26, bot = 256, lx = 56;
+  const wavBox  = { x: lx,       y: top, w: 300, h: bot - top };
+  const specBox = { x: lx + 360, y: top, w: 320, h: bot - top };
+
+  // ---- ДПФ: амплитуды только нижней половины (k = 0..N/2) ----
+  function dft(sig) {
+    const n = sig.length, half = (n >> 1);
+    const amp = new Float32Array(half + 1);
+    // предрасчёт cos/sin по углу 2π/n чтобы не звать Math.* в горячем цикле
+    const baseCos = new Float64Array(n), baseSin = new Float64Array(n);
+    for (let t = 0; t < n; t++) {
+      const a = (2 * Math.PI * t) / n;
+      baseCos[t] = Math.cos(a); baseSin[t] = Math.sin(a);
+    }
+    for (let k = 0; k <= half; k++) {
+      let re = 0, im = 0;
+      for (let t = 0; t < n; t++) {
+        const idx = (k * t) % n;      // угол = 2π k t / n
+        re += sig[t] * baseCos[idx];
+        im -= sig[t] * baseSin[idx];
+      }
+      amp[k] = Math.sqrt(re * re + im * im) / n * 2; // нормировка к амплитуде тона
+    }
+    return amp;
+  }
+
+  function genSignal() {
+    const sig = new Float64Array(N);
+    for (let t = 0; t < N; t++) {
+      const tt = t / fs;
+      sig[t] = Math.sin(2 * Math.PI * f1 * tt) + Math.sin(2 * Math.PI * f2 * tt);
+    }
+    return sig;
+  }
+
+  // индекс строки матрицы, на который попадает частота f
+  function binOf(f) { return Math.round((f * N) / fs); }
+
+  function draw() {
+    ctx.clearRect(0, 0, 760, 320);
+    ctx.lineJoin = "round";
+
+    const sig = genSignal();
+    const amp = dft(sig);
+    const half = amp.length - 1;        // = N/2
+    const nyq = fs / 2;                  // Гц, верхняя граница спектра
+
+    // ===== Осциллограмма (первые ~128 отсчётов) =====
+    const SHOW = Math.min(128, N);
+    const xt = S.scale(0, SHOW - 1, wavBox.x, wavBox.x + wavBox.w);
+    const yt = S.scale(-2.2, 2.2, wavBox.y + wavBox.h, wavBox.y);
+
+    // рамка + ноль
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(wavBox.x, wavBox.y, wavBox.w, wavBox.h);
+    ctx.beginPath(); ctx.moveTo(wavBox.x, yt(0)); ctx.lineTo(wavBox.x + wavBox.w, yt(0)); ctx.stroke();
+
+    // две отдельные синусоиды бледно (педагогика: сумма складывается из них)
+    [[f1, P.red], [f2, P.green]].forEach(([f, col]) => {
+      ctx.strokeStyle = col; ctx.globalAlpha = 0.28; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let t = 0; t < SHOW; t++) {
+        const v = Math.sin(2 * Math.PI * f * (t / fs));
+        const X = xt(t), Y = yt(v);
+        t === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+      }
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    // сумма (жирно, синяя)
+    ctx.strokeStyle = P.blue; ctx.lineWidth = 1.8; ctx.beginPath();
+    for (let t = 0; t < SHOW; t++) {
+      const X = xt(t), Y = yt(sig[t]);
+      t === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = P.ink; ctx.font = "13px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("x(t) = sin 2π f₁t + sin 2π f₂t", wavBox.x + wavBox.w / 2, wavBox.y - 10);
+    ctx.fillStyle = P.mut; ctx.font = "11px Palatino, serif";
+    ctx.fillText("время →  (первые " + SHOW + " отсчётов)", wavBox.x + wavBox.w / 2, wavBox.y + wavBox.h + 18);
+
+    // ===== Спектр |X_k| =====
+    const xf = S.scale(0, half, specBox.x, specBox.x + specBox.w);
+    let amax = 1e-9;
+    for (let k = 0; k <= half; k++) if (amp[k] > amax) amax = amp[k];
+    const yf = S.scale(0, amax * 1.12, specBox.y + specBox.h, specBox.y);
+
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(specBox.x, specBox.y, specBox.w, specBox.h);
+
+    // линии стебля (stem plot)
+    ctx.strokeStyle = P.mut; ctx.lineWidth = 1;
+    const dx = specBox.w / half;
+    const thin = dx < 1.5;
+    for (let k = 0; k <= half; k++) {
+      const X = xf(k), Y = yf(amp[k]);
+      if (thin) {
+        // плотный спектр — заливка
+        ctx.beginPath(); ctx.moveTo(X, yf(0)); ctx.lineTo(X, Y); ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.moveTo(X, yf(0)); ctx.lineTo(X, Y); ctx.stroke();
+        ctx.fillStyle = P.mut; ctx.beginPath(); ctx.arc(X, Y, 1.6, 0, 2 * Math.PI); ctx.fill();
+      }
+    }
+
+    // подсветка двух целевых пиков
+    const peaks = [
+      { f: f1, k: Math.min(binOf(f1), half), col: P.red },
+      { f: f2, k: Math.min(binOf(f2), half), col: P.green },
+    ];
+    peaks.forEach((pk) => {
+      const X = xf(pk.k), Y = yf(amp[pk.k]);
+      ctx.strokeStyle = pk.col; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(X, yf(0)); ctx.lineTo(X, Y); ctx.stroke();
+      ctx.fillStyle = pk.col; ctx.beginPath(); ctx.arc(X, Y, 3.4, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = pk.col; ctx.font = "11px Palatino, serif"; ctx.textAlign = "center";
+      ctx.fillText("k=" + pk.k, X, Y - 7);
+    });
+
+    ctx.fillStyle = P.ink; ctx.font = "13px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("|X_k| — амплитудный спектр", specBox.x + specBox.w / 2, specBox.y - 10);
+
+    // ось частот: 0, nyq/2, nyq Гц
+    ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif";
+    [[0, "0"], [half / 2, Math.round(nyq / 2) + " Гц"], [half, Math.round(nyq) + " Гц"]]
+      .forEach(([k, lbl]) => {
+        ctx.fillText(lbl, xf(k), specBox.y + specBox.h + 16);
+      });
+    ctx.fillText("частота k·fs/N →", specBox.x + specBox.w / 2, specBox.y + specBox.h + 30);
+
+    // read-out
+    out.set([
+      { k: "Пик 1:", v: f1 + " Гц → строка №" + peaks[0].k + " матрицы F_N", color: P.red },
+      { k: "Пик 2:", v: f2 + " Гц → строка №" + peaks[1].k + " матрицы F_N", color: P.green },
+      { k: "разрешение Δf =", v: (fs / N).toFixed(1) + " Гц/бин", color: P.mut },
+      { k: "N×fs", v: N + " × " + fs, color: P.blue },
+    ]);
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  // ---- контролы ----
+  S.slider(controls, {
+    label: "Частота f₁", min: 100, max: 2000, step: 10, value: f1, unit: " Гц", fmt: (v) => v,
+  }, (v) => { f1 = v | 0; redraw(); });
+
+  S.slider(controls, {
+    label: "Частота f₂", min: 100, max: 2000, step: 10, value: f2, unit: " Гц", fmt: (v) => v,
+  }, (v) => { f2 = v | 0; redraw(); });
+
+  S.select(controls, {
+    label: "N", value: String(N),
+    options: [{ value: "256", label: "256" }, { value: "512", label: "512" }, { value: "1024", label: "1024" }],
+  }, (v) => { N = +v; redraw(); });
+
+  S.select(controls, {
+    label: "fs", value: String(fs),
+    options: [{ value: "8000", label: "8000 Гц" }, { value: "16000", label: "16000 Гц" }],
+  }, (v) => { fs = +v; redraw(); });
+
+  draw();
+});
+
+
+// ===== widget: ica_cocktail.js =====
+// ica-cocktail — геометрия ICA vs PCA в реальном времени.
+// Облако ≈1500 точек из равномерного квадрата [-1,1]² смешивается матрицей A,
+// столбцы которой = два ДРАГ-вектора-стрелки из начала координат. Тянешь стрелку —
+// квадрат мгновенно морфится в параллелограмм. Поверх: оси PCA (аналитическое
+// собств. разложение 2×2 ковариации) и оси ICA (стороны параллелограмма = столбцы A).
+// Никаких кнопок «Запустить»: всё пересчитывается при перетаскивании.
+SigmaInt.register("ica-cocktail", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тяни синюю и красную стрелки — это столбцы матрицы смешивания A. Квадрат источников превращается в параллелограмм. Сравни оси PCA (декорреляция) и ICA (восстановленные стороны).",
+  }));
+
+  const stage = S.row(root);
+  const W = 640, H = 460;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 640, pan: false });
+  const ctx = cv.ctx;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Слева невидимый квадрат [-1,1]² (два независимых равномерных источника). " +
+    "После смешивания x = A·s он становится параллелограммом. Оси PCA (зелёные) " +
+    "ортогональны и идут вдоль дисперсии эллипса — но не вдоль сторон. Оси ICA " +
+    "(золотые) ловят сами стороны параллелограмма, то есть исходные источники. " +
+    "Куртозис проекций показывает негауссовость: у источников он отрицателен, у смеси ближе к нулю.");
+
+  // ---- источники: равномерный квадрат [-1,1]² (фиксированы, детерминированы) ----
+  const Npts = 1500;
+  const S0 = new Float32Array(Npts * 2);
+  (function genSources() {
+    // детерминированный PRNG, чтобы облако не «дрожало» между перерисовками
+    let seed = 0x2545f491;
+    const rnd = () => {
+      seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; seed |= 0;
+      return ((seed >>> 0) / 4294967296);
+    };
+    for (let i = 0; i < Npts; i++) {
+      S0[2 * i] = rnd() * 2 - 1;
+      S0[2 * i + 1] = rnd() * 2 - 1;
+    }
+  })();
+
+  // ---- матрица смешивания A = [[a11,a12],[a21,a22]] ----
+  // Столбцы A — это куда отображаются базисные векторы источников e1,e2.
+  // Храним столбцы как векторы (мировые координаты, единицы источника).
+  let col1 = { x: 1.0, y: 0.3 };  // A[:,0]  (синяя стрелка)
+  let col2 = { x: 0.4, y: 1.0 };  // A[:,1]  (красная стрелка)
+
+  // ---- мировая система координат: world units → пиксели ----
+  // Диапазон мира ~[-3,3] чтобы вместить вытянутые параллелограммы
+  const WR = 2.6;
+  const cx = W / 2, cy = H / 2;
+  const px = S.scale(-WR, WR, cx - 200, cx + 200);  // x: world→px
+  const py = S.scale(-WR, WR, cy + 200, cy - 200);  // y: world→px (инверсия)
+
+  let mode = "ica"; // "mix" | "pca" | "ica"
+
+  // -------------------- математика 2×2 --------------------
+  // Смешивание точки источника s=(s1,s2): x = s1*col1 + s2*col2
+  function mix(s1, s2) {
+    return { x: s1 * col1.x + s2 * col2.x, y: s1 * col1.y + s2 * col2.y };
+  }
+
+  // Ковариация смешанного облака (аналитически из col1,col2).
+  // Источники s1,s2 ~ U[-1,1] независимы: Var=1/3, Cov=0.
+  // Cov(x) = (1/3) (col1 col1^T + col2 col2^T).
+  function covMix() {
+    const v = 1 / 3;
+    const c11 = v * (col1.x * col1.x + col2.x * col2.x);
+    const c22 = v * (col1.y * col1.y + col2.y * col2.y);
+    const c12 = v * (col1.x * col1.y + col2.x * col2.y);
+    return { c11, c12, c22 };
+  }
+
+  // Собственное разложение симметричной 2×2 → {l1,l2 (l1≥l2), v1,v2}
+  function eig2(c11, c12, c22) {
+    const tr = c11 + c22;
+    const det = c11 * c22 - c12 * c12;
+    const disc = Math.sqrt(Math.max(0, tr * tr / 4 - det));
+    const l1 = tr / 2 + disc;
+    const l2 = tr / 2 - disc;
+    let v1;
+    if (Math.abs(c12) > 1e-9) {
+      v1 = { x: l1 - c22, y: c12 };
+    } else {
+      v1 = c11 >= c22 ? { x: 1, y: 0 } : { x: 0, y: 1 };
+    }
+    const n1 = Math.hypot(v1.x, v1.y) || 1;
+    v1 = { x: v1.x / n1, y: v1.y / n1 };
+    const v2 = { x: -v1.y, y: v1.x }; // ортогональ
+    return { l1: Math.max(0, l1), l2: Math.max(0, l2), v1, v2 };
+  }
+
+  // Куртозис проекции облака на единичный вектор u (excess kurtosis)
+  function kurtosisOn(ux, uy) {
+    let m2 = 0, m4 = 0;
+    for (let i = 0; i < Npts; i++) {
+      const X = mix(S0[2 * i], S0[2 * i + 1]);
+      const p = X.x * ux + X.y * uy;
+      const p2 = p * p;
+      m2 += p2; m4 += p2 * p2;
+    }
+    m2 /= Npts; m4 /= Npts;
+    if (m2 < 1e-12) return 0;
+    return m4 / (m2 * m2) - 3;
+  }
+
+  // -------------------- рисование --------------------
+  function arrow(x0, y0, x1, y1, color, lw) {
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    const ang = Math.atan2(y1 - y0, x1 - x0), a = 9;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - a * Math.cos(ang - 0.45), y1 - a * Math.sin(ang - 0.45));
+    ctx.lineTo(x1 - a * Math.cos(ang + 0.45), y1 - a * Math.sin(ang + 0.45));
+    ctx.closePath(); ctx.fill();
+  }
+
+  function line2(ux, uy, len, color, lw, dash) {
+    const x0 = px(-ux * len), y0 = py(-uy * len);
+    const x1 = px(ux * len), y1 = py(uy * len);
+    ctx.save();
+    ctx.strokeStyle = color; ctx.lineWidth = lw;
+    if (dash) ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.restore();
+  }
+
+  // pixel-позиции концов драг-стрелок
+  function tip1() { return { x: px(col1.x), y: py(col1.y) }; }
+  function tip2() { return { x: px(col2.x), y: py(col2.y) }; }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // сетка
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    for (let g = -2; g <= 2; g++) {
+      if (g === 0) continue;
+      ctx.beginPath(); ctx.moveTo(px(g), py(-WR)); ctx.lineTo(px(g), py(WR)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px(-WR), py(g)); ctx.lineTo(px(WR), py(g)); ctx.stroke();
+    }
+    // оси координат
+    ctx.strokeStyle = P.axis; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(px(-WR), py(0)); ctx.lineTo(px(WR), py(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px(0), py(-WR)); ctx.lineTo(px(0), py(WR)); ctx.stroke();
+
+    // облако смешанных точек
+    ctx.fillStyle = "rgba(31,78,121,0.32)";
+    for (let i = 0; i < Npts; i++) {
+      const X = mix(S0[2 * i], S0[2 * i + 1]);
+      ctx.fillRect(px(X.x) - 0.9, py(X.y) - 0.9, 1.8, 1.8);
+    }
+
+    // контур параллелограмма (углы квадрата (±1,±1) → смесь)
+    const corners = [mix(-1, -1), mix(1, -1), mix(1, 1), mix(-1, 1)];
+    ctx.strokeStyle = "rgba(17,17,17,0.45)"; ctx.lineWidth = 1.4;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    corners.forEach((c, i) => {
+      const X = px(c.x), Y = py(c.y);
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    });
+    ctx.closePath(); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const cov = covMix();
+    const E = eig2(cov.c11, cov.c12, cov.c22);
+
+    // оси PCA (зелёные, ортогональные, длина ∝ √λ)
+    if (mode === "pca" || mode === "ica") {
+      const s1 = Math.sqrt(E.l1) * 1.8, s2 = Math.sqrt(E.l2) * 1.8;
+      const ghost = mode === "pca" ? 1 : 0.42;
+      ctx.globalAlpha = ghost;
+      arrow(px(0), py(0), px(E.v1.x * s1), py(E.v1.y * s1), P.green, mode === "pca" ? 2.6 : 1.8);
+      arrow(px(0), py(0), px(E.v2.x * s2), py(E.v2.y * s2), P.green, mode === "pca" ? 2.6 : 1.8);
+      // продолжение линий пунктиром
+      line2(E.v1.x, E.v1.y, WR, P.green, 1, [2, 4]);
+      line2(E.v2.x, E.v2.y, WR, P.green, 1, [2, 4]);
+      ctx.globalAlpha = 1;
+    }
+
+    // оси ICA (золотые) = направления столбцов A (стороны параллелограмма)
+    if (mode === "ica") {
+      const n1 = Math.hypot(col1.x, col1.y) || 1;
+      const n2 = Math.hypot(col2.x, col2.y) || 1;
+      line2(col1.x / n1, col1.y / n1, WR, P.gold, 1.4, [6, 4]);
+      line2(col2.x / n2, col2.y / n2, WR, P.gold, 1.4, [6, 4]);
+    }
+
+    // драг-стрелки = столбцы A (всегда видны и тянутся)
+    const t1 = tip1(), t2 = tip2();
+    arrow(px(0), py(0), t1.x, t1.y, P.blue, 3);
+    arrow(px(0), py(0), t2.x, t2.y, P.red, 3);
+    // ручки
+    [[t1, P.blue, "a₁"], [t2, P.red, "a₂"]].forEach(([t, col, lab]) => {
+      ctx.fillStyle = "#fffff8"; ctx.strokeStyle = col; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(t.x, t.y, 7, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = col; ctx.font = "bold 13px Palatino, Georgia, serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(lab, t.x, t.y - 16);
+    });
+    ctx.textBaseline = "alphabetic";
+
+    // легенда осей
+    ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    let ly = 22;
+    const leg = (color, txt) => {
+      ctx.strokeStyle = color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(14, ly - 4); ctx.lineTo(34, ly - 4); ctx.stroke();
+      ctx.fillStyle = P.ink; ctx.fillText(txt, 40, ly);
+      ly += 18;
+    };
+    leg(P.blue, "столбцы A (тяни)");
+    if (mode === "pca" || mode === "ica") leg(P.green, "оси PCA (декорреляция)");
+    if (mode === "ica") leg(P.gold, "оси ICA (источники)");
+
+    // -------- read-out --------
+    // негауссовость: куртозис проекции на ось ICA №1 (источник) vs на ось PCA №1
+    const ni1 = Math.hypot(col1.x, col1.y) || 1;
+    const kICA = kurtosisOn(col1.x / ni1, col1.y / ni1);
+    const kPCA = kurtosisOn(E.v1.x, E.v1.y);
+    // угол между сторонами параллелограмма (мера «коллапса» A)
+    const dotc = (col1.x * col2.x + col1.y * col2.y) / (ni1 * (Math.hypot(col2.x, col2.y) || 1));
+    const angle = Math.acos(Math.max(-1, Math.min(1, dotc))) * 180 / Math.PI;
+    const det = col1.x * col2.y - col1.y * col2.x;
+
+    const f2 = (x) => (Math.abs(x) < 1e-3 ? "0.00" : x.toFixed(2));
+    out.set([
+      { k: "A =", v: "[[" + f2(col1.x) + ", " + f2(col2.x) + "], [" + f2(col1.y) + ", " + f2(col2.y) + "]]", color: P.ink },
+      { k: "det A", v: f2(det) + (Math.abs(det) < 0.05 ? " ⚠ вырождена" : ""), color: Math.abs(det) < 0.05 ? P.red : P.mut },
+      { k: "угол сторон", v: angle.toFixed(0) + "°", color: P.gold },
+      { k: "куртозис вдоль ICA-оси", v: kICA.toFixed(2), color: P.gold },
+      { k: "куртозис вдоль PCA-оси", v: kPCA.toFixed(2), color: P.green },
+    ]);
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  // -------------------- перетаскивание стрелок --------------------
+  let dragging = null; // "c1" | "c2" | null
+  function pick(p) {
+    const t1 = tip1(), t2 = tip2();
+    const d1 = Math.hypot(p.x - t1.x, p.y - t1.y);
+    const d2 = Math.hypot(p.x - t2.x, p.y - t2.y);
+    if (d1 < 22 && d1 <= d2) return "c1";
+    if (d2 < 22) return "c2";
+    return null;
+  }
+  function setFrom(p) {
+    // p в логических координатах канваса (w×h) → мировые
+    let wx = px.inv(p.x), wy = py.inv(p.y);
+    wx = Math.max(-WR + 0.05, Math.min(WR - 0.05, wx));
+    wy = Math.max(-WR + 0.05, Math.min(WR - 0.05, wy));
+    if (dragging === "c1") col1 = { x: wx, y: wy };
+    else if (dragging === "c2") col2 = { x: wx, y: wy };
+    redraw();
+  }
+
+  S.dragify(cv.canvas, { w: W, h: H }, {
+    onDown: (p) => { dragging = pick(p); if (dragging) setFrom(p); },
+    onMove: (p) => { if (dragging) setFrom(p); },
+    onUp: () => { dragging = null; },
+    onHover: (p) => {
+      cv.canvas.style.cursor = pick(p) ? "grab" : "default";
+    },
+  });
+
+  // -------------------- контролы --------------------
+  S.segmented(controls, {
+    label: "Показать",
+    value: "ica",
+    options: [
+      { value: "mix", label: "смесь" },
+      { value: "pca", label: "PCA-оси" },
+      { value: "ica", label: "ICA-оси" },
+    ],
+  }, (v) => { mode = v; redraw(); });
+
+  S.button(controls, "Сбросить A", () => {
+    col1 = { x: 1.0, y: 0.3 };
+    col2 = { x: 0.4, y: 1.0 };
+    redraw();
+  });
+
+  draw();
+});
+
+
+// ===== widget: loss_landscape_3d.js =====
+// loss-landscape-3d — поворачиваемая мышью 3D-поверхность потерь L(x,y).
+// Перетаскивай = крути камеру (yaw/pitch). Ползунки меняют неровность и
+// разрешение сетки. Клик по поверхности роняет шарик градиентного спуска,
+// который катится в ближайший минимум. Чистый canvas-3D, без three.js.
+// Никаких кнопок «Запустить»: всё пересчитывается мгновенно в браузере.
+SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тяни по поверхности — крути камеру. Кликни по ней — уронишь шарик градиентного спуска, он скатится в ближайший минимум.",
+  }));
+
+  const stage = S.row(root);
+  const W = 760, H = 440;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 760, pan: false });
+  const ctx = cv.ctx;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Поверхность z = L(x, y) — двумерный срез ландшафта потерь. " +
+    "Это лишь одна проекция из бесконечного числа возможных: в реальной сети " +
+    "минимумы редки, а седловины (плоско вдоль одних направлений, круто вдоль других) " +
+    "встречаются на порядки чаще. Покрути камеру, чтобы увидеть рельеф со всех сторон.");
+
+  // ----------------------------------------------------------- состояние
+  let yaw = -0.7, pitch = 0.62;     // углы камеры (радианы)
+  let surface = "gaussians";        // тип ландшафта
+  let rough = 1.0;                  // масштаб неровности
+  let res = 40;                     // разрешение сетки (точек на сторону)
+  const DOM = 2.6;                  // полудиапазон по x,y
+
+  // случайные «ямы» для режима gaussians — детерминированы один раз
+  const wells = [
+    { x: -1.3, y: -0.9, d: 1.7, w: 0.9 },
+    { x:  1.1, y:  1.3, d: 1.3, w: 0.7 },
+    { x:  1.4, y: -1.2, d: 1.0, w: 0.55 },
+    { x: -1.0, y:  1.4, d: 0.9, w: 0.6 },
+    { x:  0.1, y:  0.0, d: 0.7, w: 0.5 },
+    { x: -1.8, y:  0.3, d: 0.8, w: 0.5 },
+  ];
+
+  // ----------------------------------------------------------- функции L
+  function L(x, y) {
+    let z;
+    if (surface === "gaussians") {
+      z = 1.2;
+      for (const g of wells) {
+        const dx = x - g.x, dy = y - g.y;
+        z -= g.d * Math.exp(-(dx * dx + dy * dy) / (2 * g.w * g.w));
+      }
+      // лёгкая чаша, чтобы края загибались вверх
+      z += 0.06 * (x * x + y * y);
+    } else if (surface === "saddle") {
+      z = 0.45 * (x * x - y * y);
+    } else { // rosenbrock (масштабированный, чтобы влезал)
+      const a = 1, b = 12;
+      z = ((a - x) * (a - x) + b * (y - x * x) * (y - x * x)) * 0.06;
+    }
+    // мелкая «рябь» оптимизационного шума, управляемая ползунком
+    z += rough * 0.16 * (Math.sin(2.7 * x + 0.5) * Math.cos(2.3 * y - 0.3)
+                       + 0.5 * Math.sin(4.1 * x - 1.0) * Math.cos(3.7 * y + 0.7));
+    return z;
+  }
+
+  // численный градиент (для шарика)
+  function grad(x, y) {
+    const h = 1e-3;
+    return [
+      (L(x + h, y) - L(x - h, y)) / (2 * h),
+      (L(x, y + h) - L(x, y - h)) / (2 * h),
+    ];
+  }
+
+  // ----------------------------------------------------------- 3D → 2D
+  // нормировка z в [0..1] вычисляется по выборке сетки на каждый кадр
+  let zMin = 0, zMax = 1;
+  const Z_VIS = 1.4; // вертикальный масштаб поверхности в мировых единицах
+
+  // проекция мировой точки (wx,wy,wz) с центрированием куба [-1,1]^3-ish
+  function project(wx, wy, wz) {
+    // вращение вокруг оси Z (yaw), затем наклон (pitch)
+    const cy = Math.cos(yaw), sy = Math.sin(yaw);
+    const cp = Math.cos(pitch), sp = Math.sin(pitch);
+    // yaw в плоскости xy
+    let X = wx * cy - wy * sy;
+    let Y = wx * sy + wy * cy;
+    let Zc = wz;
+    // pitch: наклоняем (y,z)
+    const Y2 = Y * cp - Zc * sp;
+    const Z2 = Y * sp + Zc * cp;
+    // ортографическая проекция с лёгкой перспективой по глубине
+    const persp = 1 / (1 + 0.12 * (Y2 + 2.2));
+    const scale = 132 * persp;
+    return {
+      sx: W * 0.5 + X * scale,
+      sy: H * 0.52 - Z2 * scale * 0.95 + Y2 * scale * 0.18,
+      depth: Y2, // больше = дальше (для сортировки)
+    };
+  }
+
+  // мир: x,y в [-1,1] (нормированные от DOM), z в [-1,1] (нормированный L)
+  function world(ix, iy, n) {
+    const x = (ix / (n - 1)) * 2 - 1;       // [-1,1]
+    const y = (iy / (n - 1)) * 2 - 1;
+    return { x, y };
+  }
+  function worldZ(zval) {
+    const t = (zval - zMin) / (zMax - zMin || 1); // 0..1
+    return (t * 2 - 1) * (Z_VIS * 0.5);
+  }
+
+  // цвет грани по высоте (coolwarm: синий низ → жёлтый/красный верх)
+  function heightColor(t, shade) {
+    // t в [0,1]; распределённая палитра в духе coolwarm/viridis
+    t = Math.max(0, Math.min(1, t));
+    let r, g, b;
+    if (t < 0.5) {
+      const u = t / 0.5;
+      r = 31 + (46 - 31) * u; g = 78 + (125 - 78) * u; b = 121 + (91 - 121) * u;
+    } else {
+      const u = (t - 0.5) / 0.5;
+      r = 46 + (192 - 46) * u; g = 125 + (57 - 125) * u; b = 91 + (43 - 91) * u;
+    }
+    const s = shade; // 0.55..1.1 затенение по нормали
+    r = Math.max(0, Math.min(255, r * s));
+    g = Math.max(0, Math.min(255, g * s));
+    b = Math.max(0, Math.min(255, b * s));
+    return "rgb(" + (r | 0) + "," + (g | 0) + "," + (b | 0) + ")";
+  }
+
+  // ----------------------------------------------------------- шарик
+  let ball = null; // {x,y,vx,vy} в координатах DOM
+  function dropBall(wx, wy) {
+    ball = { x: wx, y: wy, vx: 0, vy: 0, age: 0 };
+  }
+  function stepBall(dt) {
+    if (!ball) return;
+    const lr = 0.12, friction = 0.82;
+    const g = grad(ball.x, ball.y);
+    ball.vx = ball.vx * friction - lr * g[0];
+    ball.vy = ball.vy * friction - lr * g[1];
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+    // удерживаем в области
+    ball.x = Math.max(-DOM, Math.min(DOM, ball.x));
+    ball.y = Math.max(-DOM, Math.min(DOM, ball.y));
+    ball.age += dt;
+  }
+
+  // нормированные x,y (DOM) → world [-1,1]
+  const toWorld = (v) => v / DOM;
+
+  // ----------------------------------------------------------- отрисовка
+  function computeZRange(n) {
+    let mn = Infinity, mx = -Infinity;
+    for (let iy = 0; iy < n; iy++) {
+      for (let ix = 0; ix < n; ix++) {
+        const w = world(ix, iy, n);
+        const z = L(w.x * DOM, w.y * DOM);
+        if (z < mn) mn = z; if (z > mx) mx = z;
+      }
+    }
+    zMin = mn; zMax = mx;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const n = res;
+    computeZRange(n);
+
+    // предвычислить сетку проекций
+    const grid = new Array(n);
+    for (let iy = 0; iy < n; iy++) {
+      grid[iy] = new Array(n);
+      for (let ix = 0; ix < n; ix++) {
+        const w = world(ix, iy, n);
+        const zval = L(w.x * DOM, w.y * DOM);
+        const wz = worldZ(zval);
+        const p = project(w.x, w.y, wz);
+        grid[iy][ix] = { p, zval, wz, wx: w.x, wy: w.y };
+      }
+    }
+
+    // собрать грани (квады) и отсортировать по глубине (painter's algorithm)
+    const faces = [];
+    for (let iy = 0; iy < n - 1; iy++) {
+      for (let ix = 0; ix < n - 1; ix++) {
+        const a = grid[iy][ix], b = grid[iy][ix + 1],
+              c = grid[iy + 1][ix + 1], d = grid[iy + 1][ix];
+        const depth = (a.p.depth + b.p.depth + c.p.depth + d.p.depth) / 4;
+        const zAvg = (a.zval + b.zval + c.zval + d.zval) / 4;
+        // нормаль для затенения: через высоты соседей
+        const du = b.wz - a.wz, dv = d.wz - a.wz;
+        // псевдо-нормаль; больше наклон → темнее
+        const slope = Math.sqrt(du * du + dv * dv);
+        const shade = 1.05 - Math.min(0.5, slope * 1.6);
+        faces.push({ a, b, c, d, depth, zAvg, shade });
+      }
+    }
+    faces.sort((f1, f2) => f2.depth - f1.depth); // дальние сначала
+
+    // рисуем грани
+    for (const f of faces) {
+      const t = (f.zAvg - zMin) / (zMax - zMin || 1);
+      ctx.fillStyle = heightColor(t, f.shade);
+      ctx.strokeStyle = "rgba(40,40,30,0.18)";
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(f.a.p.sx, f.a.p.sy);
+      ctx.lineTo(f.b.p.sx, f.b.p.sy);
+      ctx.lineTo(f.c.p.sx, f.c.p.sy);
+      ctx.lineTo(f.d.p.sx, f.d.p.sy);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // оси-подписи (плавающие угловые метки)
+    drawAxisHints(n, grid);
+
+    // шарик + его след
+    if (ball) drawBall();
+
+    // read-out
+    out.set([
+      { k: "yaw", v: (yaw * 180 / Math.PI).toFixed(0) + "°", color: P.blue },
+      { k: "pitch", v: (pitch * 180 / Math.PI).toFixed(0) + "°", color: P.blue },
+      { k: "min L", v: zMin.toFixed(3), color: P.green },
+      { k: "max L", v: zMax.toFixed(3), color: P.red },
+      ball
+        ? { k: "шарик L", v: L(ball.x, ball.y).toFixed(3), color: P.gold }
+        : { k: "шарик", v: "клик по поверхности", color: P.mut },
+    ]);
+  }
+
+  function drawAxisHints(n, grid) {
+    ctx.font = "13px Palatino, Georgia, serif";
+    ctx.fillStyle = P.mut;
+    ctx.textAlign = "center";
+    // углы основания: (ix,iy) = (0,0),(n-1,0),(0,n-1)
+    const c00 = grid[0][0].p, cN0 = grid[0][n - 1].p, c0N = grid[n - 1][0].p;
+    // подпись α по ребру вдоль x, β вдоль y
+    ctx.fillText("α (направление 1)", (cN0.sx + c00.sx) / 2, (cN0.sy + c00.sy) / 2 + 18);
+    ctx.fillText("β (направление 2)", (c0N.sx + c00.sx) / 2 - 6, (c0N.sy + c00.sy) / 2 + 6);
+  }
+
+  function drawBall() {
+    const wz = worldZ(L(ball.x, ball.y)) + 0.06; // чуть над поверхностью
+    const p = project(toWorld(ball.x), toWorld(ball.y), wz);
+    // тень на «дне»
+    const sh = project(toWorld(ball.x), toWorld(ball.y), -Z_VIS * 0.5);
+    ctx.fillStyle = "rgba(0,0,0,0.18)";
+    ctx.beginPath(); ctx.ellipse(sh.sx, sh.sy, 5, 2.4, 0, 0, 2 * Math.PI); ctx.fill();
+    // шарик
+    const r = 7;
+    const grd = ctx.createRadialGradient(p.sx - 2, p.sy - 2, 1, p.sx, p.sy, r);
+    grd.addColorStop(0, "#fff");
+    grd.addColorStop(1, P.gold);
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = "rgba(80,60,0,0.6)"; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  // ----------------------------------------------------------- интеракция
+  // различаем поворот и клик: маленькое смещение = клик (роняем шарик)
+  let downPt = null, moved = 0;
+  S.dragify(cv.canvas, { w: 1, h: 1 }, {
+    onDown: (p) => { downPt = p; moved = 0; },
+    onMove: (p) => {
+      if (!downPt) return;
+      const dx = p.px - downPt.px, dy = p.py - downPt.py;
+      moved += Math.abs(dx) + Math.abs(dy);
+      yaw -= dx * 3.0;
+      pitch += dy * 2.4;
+      pitch = Math.max(0.08, Math.min(1.45, pitch));
+      downPt = p;
+      redraw();
+    },
+    onUp: () => {
+      // клик без заметного движения → попытаться уронить шарик
+      if (downPt && moved < 0.012) dropFromScreen(downPt);
+      downPt = null;
+    },
+  });
+
+  // экранная точка (нормированная px,py) → ближайшая (x,y) сетки в DOM-координатах
+  function dropFromScreen(p) {
+    const sx = p.px * W, sy = p.py * H;
+    const n = res;
+    let best = Infinity, bx = 0, by = 0;
+    for (let iy = 0; iy < n; iy += 1) {
+      for (let ix = 0; ix < n; ix += 1) {
+        const w = world(ix, iy, n);
+        const wz = worldZ(L(w.x * DOM, w.y * DOM));
+        const pr = project(w.x, w.y, wz);
+        const dd = (pr.sx - sx) * (pr.sx - sx) + (pr.sy - sy) * (pr.sy - sy);
+        if (dd < best) { best = dd; bx = w.x * DOM; by = w.y * DOM; }
+      }
+    }
+    if (best < 60 * 60) { dropBall(bx, by); }
+  }
+
+  // непрерывная анимация шарика (только когда он есть и ещё движется)
+  S.loop((t, ts, dt) => {
+    if (ball) {
+      stepBall(1);
+      const speed = Math.hypot(ball.vx, ball.vy);
+      redraw();
+      if (speed < 1e-4 && ball.age > 0.5) { /* успокоился — продолжаем рисовать статично */ }
+    }
+  }).start();
+
+  // ----------------------------------------------------------- контролы
+  S.segmented(controls, {
+    label: "Ландшафт",
+    value: "gaussians",
+    options: [
+      { value: "gaussians", label: "много ям" },
+      { value: "saddle", label: "седло" },
+      { value: "rosenbrock", label: "Розенброк" },
+    ],
+  }, (v) => { surface = v; ball = null; redraw(); });
+
+  S.slider(controls, {
+    label: "Неровность (шум)", min: 0, max: 2, step: 0.05, value: rough,
+    fmt: (v) => v.toFixed(2),
+  }, (v) => { rough = v; redraw(); });
+
+  S.slider(controls, {
+    label: "Разрешение сетки", min: 16, max: 64, step: 2, value: res,
+    fmt: (v) => v + "×" + v,
+  }, (v) => { res = v | 0; redraw(); });
+
+  // мгновенная первая отрисовка
+  draw();
+});
+
+
+// ===== widget: mds_relax.js =====
+// mds-relax — живой MDS: набор «истинных» точек задаёт целевую матрицу
+// попарных расстояний D. Случайный эмбеддинг НЕПРЕРЫВНО релаксирует к D,
+// минимизируя стресс σ=Σ(||yi-yj||-Dij)². Точки можно перетаскивать —
+// система выводится из равновесия и снова сходится. Сравниваются два метода:
+// градиентный (первый порядок) и безградиентный (случайные пробы). Никакой
+// кнопки «Запустить» — анимация и пересчёт идут постоянно.
+SigmaInt.register("mds-relax", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Точки релаксируют сами: эмбеддинг сходится к целевой геометрии. " +
+      "Перетащи любую точку — и смотри, как стресс снова падает. Переключи метод и сравни скорость.",
+  }));
+
+  const stage = S.row(root);
+  // левая панель — эмбеддинг (квадрат), правая — кривая стресса
+  const W = 760, H = 380;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 760, pan: false });
+  const ctx = cv.ctx;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Слева — текущий эмбеддинг (его двигаем), серым показана цель (с точностью до поворота/отражения). " +
+    "Справа — стресс σ во времени в лог-шкале. Градиентный метод срывается вниз за десятки шагов; " +
+    "безградиентный (случайные пробы) сходится заметно медленнее.");
+
+  // --- геометрия панелей (логические координаты 760×380) ---
+  const plot = { x: 30, y: 30, w: 330, h: 330 };          // эмбеддинг
+  const curve = { x: 430, y: 30, w: 300, h: 330 };        // кривая стресса
+
+  // ---------- модель ----------
+  let N = 8;            // число точек
+  let lr = 0.05;        // скорость / размер шага
+  let method = "grad";  // "grad" | "zero"
+
+  let truth = [];       // «истинные» координаты (для отрисовки цели и D)
+  let D = [];           // целевая матрица расстояний
+  let Y = [];           // текущий эмбеддинг [{x,y}]
+  let dragIdx = -1;     // индекс перетаскиваемой точки
+  let iter = 0;
+  let stressHist = [];  // история стресса (для кривой)
+  const HIST_MAX = 240;
+
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  // расстояние с защитой от деления на ноль
+  function dist(a, b) {
+    const dx = a.x - b.x, dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy) || 1e-9;
+  }
+
+  // целевая геометрия: точки по кругу + лёгкий шум — стабильная, узнаваемая форма
+  function buildTruth(n) {
+    truth = [];
+    for (let i = 0; i < n; i++) {
+      const a = (2 * Math.PI * i) / n;
+      truth.push({ x: Math.cos(a) + rnd(-0.12, 0.12), y: Math.sin(a) + rnd(-0.12, 0.12) });
+    }
+    // целевая матрица расстояний
+    D = [];
+    for (let i = 0; i < n; i++) {
+      D[i] = [];
+      for (let j = 0; j < n; j++) D[i][j] = i === j ? 0 : dist(truth[i], truth[j]);
+    }
+  }
+
+  function buildEmbedding(n) {
+    Y = [];
+    for (let i = 0; i < n; i++) Y.push({ x: rnd(-1.2, 1.2), y: rnd(-1.2, 1.2) });
+  }
+
+  function reset(n) {
+    N = n;
+    buildTruth(n);
+    buildEmbedding(n);
+    iter = 0;
+    stressHist = [];
+  }
+
+  // стресс σ = Σ_{i<j} (||yi-yj|| - Dij)²
+  function stressOf(pts) {
+    let s = 0;
+    for (let i = 0; i < N; i++)
+      for (let j = i + 1; j < N; j++) {
+        const e = dist(pts[i], pts[j]) - D[i][j];
+        s += e * e;
+      }
+    return s;
+  }
+
+  // один шаг градиентного спуска (первый порядок)
+  function stepGrad() {
+    const gx = new Array(N).fill(0), gy = new Array(N).fill(0);
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        if (i === j) continue;
+        const dx = Y[i].x - Y[j].x, dy = Y[i].y - Y[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1e-9;
+        // dσ/dyi от пары (i,j): 2(d - Dij) * (yi-yj)/d  (учитываем оба порядка → коэф 2)
+        const c = 2 * (d - D[i][j]) / d;
+        gx[i] += c * dx;
+        gy[i] += c * dy;
+      }
+    }
+    for (let i = 0; i < N; i++) {
+      if (i === dragIdx) continue;       // перетаскиваемую точку не двигаем
+      Y[i].x -= lr * gx[i];
+      Y[i].y -= lr * gy[i];
+    }
+  }
+
+  // один шаг безградиентного метода: двухточечная случайная проба (ZO-GD).
+  // Берём случайное направление u, оцениваем (f(Y+μu)-f(Y-μu))/(2μ) как градиент.
+  function stepZero() {
+    const mu = 0.08;
+    // случайное направление по всем координатам (2N-мерное)
+    const u = [];
+    let nrm = 0;
+    for (let i = 0; i < 2 * N; i++) { const r = rnd(-1, 1); u.push(r); nrm += r * r; }
+    nrm = Math.sqrt(nrm) || 1e-9;
+    for (let i = 0; i < 2 * N; i++) u[i] /= nrm;
+
+    const plus = Y.map((p, i) => ({ x: p.x + mu * u[2 * i], y: p.y + mu * u[2 * i + 1] }));
+    const minus = Y.map((p, i) => ({ x: p.x - mu * u[2 * i], y: p.y - mu * u[2 * i + 1] }));
+    const g = (stressOf(plus) - stressOf(minus)) / (2 * mu); // скалярная оценка вдоль u
+    // шаг масштабируем размерностью — честно отражает «проклятие размерности»
+    const step = lr * g * N;
+    for (let i = 0; i < N; i++) {
+      if (i === dragIdx) continue;
+      Y[i].x -= step * u[2 * i];
+      Y[i].y -= step * u[2 * i + 1];
+    }
+  }
+
+  // несколько микрошагов за кадр — чтобы движение было живым, но плавным
+  function advance() {
+    const sub = method === "grad" ? 1 : 3; // безградиентному даём больше проб
+    for (let s = 0; s < sub; s++) {
+      if (method === "grad") stepGrad(); else stepZero();
+      iter++;
+    }
+    const st = stressOf(Y);
+    stressHist.push(st);
+    if (stressHist.length > HIST_MAX) stressHist.shift();
+    return st;
+  }
+
+  // ---------- отрисовка ----------
+  // авто-масштаб эмбеддинга, чтобы всё помещалось в панель
+  function dataExtent() {
+    let mn = -1.5, mx = 1.5;
+    for (const p of Y.concat(truth)) {
+      mn = Math.min(mn, p.x, p.y);
+      mx = Math.max(mx, p.x, p.y);
+    }
+    const pad = 0.15 * (mx - mn || 1);
+    return [mn - pad, mx + pad];
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    const [d0, d1] = dataExtent();
+    const sx = S.scale(d0, d1, plot.x, plot.x + plot.w);
+    const sy = S.scale(d0, d1, plot.y + plot.h, plot.y); // y вверх
+
+    // рамка панели эмбеддинга
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(plot.x + 0.5, plot.y + 0.5, plot.w, plot.h);
+    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    ctx.fillText("Эмбеддинг (тяни точки)", plot.x, plot.y - 10);
+
+    // целевые точки (серый ореол) — для интуиции «куда сходимся»
+    ctx.fillStyle = "#cfc9b6";
+    for (const p of truth) {
+      ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, 2 * Math.PI); ctx.fill();
+    }
+
+    // рёбра эмбеддинга, окрашенные по знаку ошибки ||y||-D
+    for (let i = 0; i < N; i++)
+      for (let j = i + 1; j < N; j++) {
+        const e = dist(Y[i], Y[j]) - D[i][j];
+        const a = Math.min(0.5, Math.abs(e) * 0.6);
+        ctx.strokeStyle = (e > 0 ? "192,57,43" : "31,78,121"); // red / blue rgb
+        ctx.strokeStyle = "rgba(" + (e > 0 ? "192,57,43" : "31,78,121") + "," + a.toFixed(3) + ")";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(sx(Y[i].x), sy(Y[i].y)); ctx.lineTo(sx(Y[j].x), sy(Y[j].y)); ctx.stroke();
+      }
+
+    // точки эмбеддинга
+    for (let i = 0; i < N; i++) {
+      const X = sx(Y[i].x), Yp = sy(Y[i].y);
+      ctx.fillStyle = i === dragIdx ? P.gold : P.blue;
+      ctx.beginPath(); ctx.arc(X, Yp, i === dragIdx ? 8 : 6, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = P.bg;
+      ctx.font = "10px Palatino, serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(String(i + 1), X, Yp);
+      ctx.textBaseline = "alphabetic";
+    }
+
+    // ---------- кривая стресса ----------
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.strokeRect(curve.x + 0.5, curve.y + 0.5, curve.w, curve.h);
+    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    ctx.fillText("Стресс σ(t), лог-шкала", curve.x, curve.y - 10);
+
+    if (stressHist.length > 1) {
+      // лог-шкала по y
+      let lo = Infinity, hi = -Infinity;
+      for (const v of stressHist) {
+        const lv = Math.log10(Math.max(v, 1e-6));
+        if (lv < lo) lo = lv; if (lv > hi) hi = lv;
+      }
+      if (hi - lo < 0.5) { hi += 0.25; lo -= 0.25; }
+      const tx = S.scale(0, stressHist.length - 1, curve.x, curve.x + curve.w);
+      const ty = S.scale(lo, hi, curve.y + curve.h, curve.y);
+
+      // горизонтальные грид-линии по степеням 10
+      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "right";
+      const loE = Math.floor(lo), hiE = Math.ceil(hi);
+      for (let e = loE; e <= hiE; e++) {
+        const y = ty(e);
+        if (y < curve.y || y > curve.y + curve.h) continue;
+        ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(curve.x, y); ctx.lineTo(curve.x + curve.w, y); ctx.stroke();
+        ctx.fillStyle = P.mut;
+        ctx.fillText("10" + (e >= 0 ? "" : "⁻") + Math.abs(e), curve.x - 4, y + 3);
+      }
+
+      // линия стресса
+      const col = method === "grad" ? P.green : P.purple;
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i < stressHist.length; i++) {
+        const X = tx(i), Yp = ty(Math.log10(Math.max(stressHist[i], 1e-6)));
+        i === 0 ? ctx.moveTo(X, Yp) : ctx.lineTo(X, Yp);
+      }
+      ctx.stroke();
+
+      // текущая точка
+      const lastY = ty(Math.log10(Math.max(stressHist[stressHist.length - 1], 1e-6)));
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(curve.x + curve.w, lastY, 3.5, 0, 2 * Math.PI); ctx.fill();
+    }
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  function updateReadout(st) {
+    out.set([
+      { k: "метод", v: method === "grad" ? "градиентный" : "безградиентный",
+        color: method === "grad" ? P.green : P.purple },
+      { k: "точек N =", v: String(N), color: P.blue },
+      { k: "итерация", v: String(iter), color: P.mut },
+      { k: "стресс σ =", v: st.toFixed(3), color: P.red },
+    ]);
+  }
+
+  // ---------- перетаскивание точек ----------
+  function nearestIdx(p) {
+    const [d0, d1] = dataExtent();
+    const sx = S.scale(d0, d1, plot.x, plot.x + plot.w);
+    const sy = S.scale(d0, d1, plot.y + plot.h, plot.y);
+    let best = -1, bestD = 1e9;
+    for (let i = 0; i < N; i++) {
+      const dx = sx(Y[i].x) - p.x, dy = sy(Y[i].y) - p.y;
+      const d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return bestD < 22 * 22 ? best : -1;
+  }
+  function setFromPointer(p) {
+    if (dragIdx < 0) return;
+    const [d0, d1] = dataExtent();
+    const sx = S.scale(d0, d1, plot.x, plot.x + plot.w);
+    const sy = S.scale(d0, d1, plot.y + plot.h, plot.y);
+    Y[dragIdx].x = sx.inv(Math.max(plot.x, Math.min(plot.x + plot.w, p.x)));
+    Y[dragIdx].y = sy.inv(Math.max(plot.y, Math.min(plot.y + plot.h, p.y)));
+  }
+
+  S.dragify(cv.canvas, { w: W, h: H }, {
+    onDown: (p) => { dragIdx = nearestIdx(p); setFromPointer(p); },
+    onMove: (p) => { setFromPointer(p); },
+    onUp: () => { dragIdx = -1; },
+  });
+
+  // ---------- контролы ----------
+  S.segmented(controls, {
+    label: "Метод",
+    value: "grad",
+    options: [
+      { value: "grad", label: "градиентный" },
+      { value: "zero", label: "безградиентный" },
+    ],
+  }, (v) => { method = v; stressHist = []; iter = 0; });
+
+  S.slider(controls, {
+    label: "Число точек N", min: 4, max: 16, step: 1, value: N, fmt: (v) => v | 0,
+  }, (v) => { reset(v | 0); });
+
+  S.slider(controls, {
+    label: "Скорость / размер шага", min: 0.005, max: 0.15, step: 0.005, value: lr,
+    fmt: (v) => v.toFixed(3),
+  }, (v) => { lr = v; });
+
+  // ---------- старт: немедленная инициализация + непрерывная анимация ----------
+  reset(N);
+  draw();
+
+  S.loop(() => {
+    const st = advance();
+    updateReadout(st);
+    redraw();
+  }).start();
+});
+
+
 // ===== widget: pca_eigenfaces.js =====
 // pca_eigenfaces — живая реконструкция РЕАЛЬНОГО лица (Olivetti) из k
 // собственных лиц. Двигаешь k — лицо пересобирается мгновенно. Никакой кнопки.
@@ -560,5 +2486,577 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
   }).catch((e) => {
     root.appendChild(S.el("div", "sigma-int-err", { text: "Не загрузились данные eigenfaces: " + e.message }));
   });
+});
+
+
+// ===== widget: resonance_bridge.js =====
+// resonance-bridge — живой резонанс моста как цепочки масс на пружинах.
+// Собственные частоты = корни собств. значений трёхдиаг. матрицы жёсткости K.
+// Сверху — пролёт моста, колеблющийся по ближайшей моде; снизу — АЧХ с пиками
+// на собственных частотах и бегущим маркером частоты ветра. Всё на чистом JS,
+// непрерывная анимация через S.loop. Никаких кнопок.
+SigmaInt.register("resonance-bridge", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тяни ползунок частоты ветра к красному пунктиру — мост влетает в резонанс и раскачивается всё сильнее. Меняй число масс и демпфирование.",
+  }));
+
+  const stage = S.row(root);
+  const cv = S.makeCanvas(stage, 760, 440, { maxWidth: 760 });
+  const ctx = cv.ctx;
+  const W = 760, H = 440;
+
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Сверху — пролёт моста: цепочка масс на пружинах (концы закреплены), дека колеблется " +
+    "по форме моды, ближайшей к частоте ветра. Снизу — амплитудно-частотная характеристика: " +
+    "установившаяся амплитуда A(ω)=F/√((ω₀²−ω²)²+(2ζω₀ω)²) растёт в пики на собственных частотах. " +
+    "Совпала частота ветра с собственной — резонанс, как у Такомского моста в 1940-м.");
+
+  // --------- параметры ----------
+  let n = 8;        // число масс
+  let zeta = 0.05;  // демпфирование ζ
+  let fWind = 0.12; // частота ветра, Гц
+  const F = 1;      // амплитуда силы (нормированная)
+
+  // Геометрия физической модели: длины пружин/масс безразмерны, единичные.
+  // λ_m = 2 - 2cos(mπ/(n+1)). Собственная угловая частота ω_m = sqrt(λ_m).
+  // Переводим в "Гц" для оси, нормируя по максимально возможной ω (при λ=4 → ω=2):
+  // f = ω / (2π) * fScale; подбираем fScale так, чтобы частоты лежали в 0..~0.5 Гц.
+  const F_SCALE = 0.5 / (2 / (2 * Math.PI)); // макс ω=2 → 0.5 Гц
+
+  function eigenfreqs(nn) {
+    // возвращает массив {lambda, omega, f, mode:m} для m=1..nn
+    const arr = [];
+    for (let m = 1; m <= nn; m++) {
+      const lam = 2 - 2 * Math.cos((m * Math.PI) / (nn + 1));
+      const omega = Math.sqrt(lam);
+      const f = (omega / (2 * Math.PI)) * F_SCALE;
+      arr.push({ m, lambda: lam, omega, f });
+    }
+    return arr;
+  }
+
+  function modeShape(nn, m, i) {
+    // φ_m[i] = sin(i m π / (n+1)), i=0..nn+1 (концы 0 и nn+1 закреплены → 0)
+    return Math.sin((i * m * Math.PI) / (nn + 1));
+  }
+
+  // Установившаяся амплитуда отклика моды на вынуждающую силу частоты ω (рад/с,
+  // в той же шкале, что ω_m). A(ω) = F / sqrt((ω0²-ω²)² + (2 ζ ω0 ω)²)
+  function modeAmp(omega0, omega, z) {
+    const a = omega0 * omega0 - omega * omega;
+    const b = 2 * z * omega0 * omega;
+    const d = Math.sqrt(a * a + b * b);
+    return d < 1e-9 ? F / 1e-9 : F / d;
+  }
+
+  // Суммарная (по всем модам) АЧХ амплитуды при частоте ветра f (Гц).
+  // Каждая мода возбуждается с весом проекции равномерной силы на форму моды.
+  function totalAmp(modes, fHz, z) {
+    const omega = (fHz / F_SCALE) * 2 * Math.PI; // обратно в рад/с
+    let s = 0;
+    for (const md of modes) s += modeWeight(md.m, n) * modeAmp(md.omega, omega, z);
+    return { amp: s, omega };
+  }
+
+  function modeWeight(m, nn) {
+    // проекция равномерной нагрузки на форму моды: |Σ sin(iπm/(n+1))| / норма.
+    // Нечётные моды откликаются сильно, чётные почти не возбуждаются равномерной силой.
+    let acc = 0;
+    for (let i = 1; i <= nn; i++) acc += Math.sin((i * m * Math.PI) / (nn + 1));
+    const norm = Math.sqrt(nn / 2);
+    return Math.abs(acc) / (norm || 1);
+  }
+
+  // ближайшая по частоте мода к ветру
+  function nearestMode(modes, fHz) {
+    let best = modes[0], bd = Infinity;
+    for (const md of modes) {
+      const d = Math.abs(md.f - fHz);
+      if (d < bd) { bd = d; best = md; }
+    }
+    const detune = best.f > 1e-9 ? Math.abs(fHz - best.f) / best.f : 1;
+    return { mode: best, detune };
+  }
+
+  // --------- геометрия рисунка ----------
+  const bridge = { x: 50, y: 40, w: W - 100, h: 150 }; // верхний пролёт
+  const deckY = bridge.y + bridge.h * 0.5;
+  const ampBox = { x: 60, y: 270, w: W - 120, h: 130 }; // АЧХ
+
+  // динамическое состояние колебаний
+  let phase = 0;          // фаза колебаний
+  let envelope = 0;       // огибающая амплитуды (растёт при резонансе)
+
+  function fmtHz(v) { return v.toFixed(3); }
+
+  // --------- отрисовка ----------
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const modes = eigenfreqs(n);
+    const fMaxAxis = 0.5;
+
+    const { mode: near, detune } = nearestMode(modes, fWind);
+    const resonance = detune < 0.08;
+
+    // мгновенная амплитуда деки: огибающая × форма моды × cos(phase)
+    // визуальный масштаб амплитуды
+    const visAmp = Math.min(envelope, 1) * (bridge.h * 0.42);
+    const deckColor = resonance
+      ? mixColor(P.blue, P.red, Math.min(1, envelope))
+      : P.blue;
+
+    // ---- пролёт моста ----
+    // пилоны/опоры по краям
+    ctx.strokeStyle = P.mut; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(bridge.x, deckY - 30); ctx.lineTo(bridge.x, deckY + 60);
+    ctx.moveTo(bridge.x + bridge.w, deckY - 30); ctx.lineTo(bridge.x + bridge.w, deckY + 60);
+    ctx.stroke();
+
+    // узлы цепочки: i=0..n+1, концы закреплены
+    const xs = [], ys = [];
+    for (let i = 0; i <= n + 1; i++) {
+      const x = bridge.x + (bridge.w * i) / (n + 1);
+      const shape = modeShape(n, near.m, i);
+      const y = deckY - visAmp * shape * Math.cos(phase);
+      xs.push(x); ys.push(y);
+    }
+
+    // тросы-подвесы (тонкие вертикали от верхней линии к деке) — даёт ощущение моста
+    ctx.strokeStyle = "#cfc9b6"; ctx.lineWidth = 1;
+    for (let i = 1; i <= n; i++) {
+      ctx.beginPath();
+      ctx.moveTo(xs[i], bridge.y);
+      ctx.lineTo(xs[i], ys[i]);
+      ctx.stroke();
+    }
+    // верхняя несущая
+    ctx.strokeStyle = "#cfc9b6"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(bridge.x, bridge.y); ctx.lineTo(bridge.x + bridge.w, bridge.y); ctx.stroke();
+
+    // дека (полотно) — гладкая кривая через узлы
+    ctx.strokeStyle = deckColor; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(xs[0], ys[0]);
+    for (let i = 1; i <= n + 1; i++) ctx.lineTo(xs[i], ys[i]);
+    ctx.stroke();
+
+    // массы
+    for (let i = 1; i <= n; i++) {
+      ctx.fillStyle = deckColor;
+      ctx.beginPath(); ctx.arc(xs[i], ys[i], 5, 0, 2 * Math.PI); ctx.fill();
+    }
+    // закреплённые концы
+    for (const i of [0, n + 1]) {
+      ctx.fillStyle = P.ink;
+      ctx.beginPath(); ctx.arc(xs[i], ys[i], 4, 0, 2 * Math.PI); ctx.fill();
+    }
+
+    // стрелки ветра слева
+    ctx.strokeStyle = resonance ? P.red : P.mut;
+    ctx.fillStyle = resonance ? P.red : P.mut;
+    ctx.lineWidth = 1.5;
+    for (let r = 0; r < 3; r++) {
+      const ay = bridge.y - 8 + r * 12;
+      const len = 22 + (resonance ? 8 * Math.abs(Math.cos(phase)) : 0);
+      ctx.beginPath();
+      ctx.moveTo(bridge.x - 38, ay); ctx.lineTo(bridge.x - 38 + len, ay); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(bridge.x - 38 + len, ay);
+      ctx.lineTo(bridge.x - 38 + len - 5, ay - 3);
+      ctx.lineTo(bridge.x - 38 + len - 5, ay + 3);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = resonance ? P.red : P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    ctx.fillText("ветер", bridge.x - 42, bridge.y - 16);
+
+    // надпись резонанса
+    if (resonance) {
+      ctx.fillStyle = P.red; ctx.font = "bold 18px Palatino, Georgia, serif"; ctx.textAlign = "center";
+      ctx.fillText("РЕЗОНАНС", W / 2, bridge.y - 14);
+    }
+    // подпись моды
+    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "right";
+    ctx.fillText("мода №" + near.m + " (форма колебаний деки)", bridge.x + bridge.w, bridge.y - 16);
+
+    // ---- АЧХ ----
+    const xF = S.scale(0, fMaxAxis, ampBox.x, ampBox.x + ampBox.w);
+    // вычислим кривую и её максимум для нормировки
+    const NPTS = 360;
+    const curve = new Float64Array(NPTS + 1);
+    let amax = 1e-9;
+    for (let i = 0; i <= NPTS; i++) {
+      const f = (fMaxAxis * i) / NPTS;
+      const a = totalAmp(modes, f, zeta).amp;
+      curve[i] = a;
+      if (a > amax) amax = a;
+    }
+    const yA = S.scale(0, amax, ampBox.y + ampBox.h, ampBox.y);
+
+    // рамка/ось АЧХ
+    S.axes(ctx, ampBox, { xlabel: "частота вынуждающей силы, Гц" });
+    ctx.fillStyle = P.ink; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("амплитуда установившихся колебаний", ampBox.x + ampBox.w / 2, ampBox.y - 12);
+
+    // пунктиры собственных частот
+    ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+    for (const md of modes) {
+      if (md.f > fMaxAxis) continue;
+      ctx.strokeStyle = P.red;
+      const X = xF(md.f);
+      ctx.beginPath(); ctx.moveTo(X, ampBox.y); ctx.lineTo(X, ampBox.y + ampBox.h); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // деления оси X
+    ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
+    for (let t = 0; t <= 5; t++) {
+      const f = (fMaxAxis * t) / 5;
+      ctx.fillText(f.toFixed(2), xF(f), ampBox.y + ampBox.h + 14);
+    }
+
+    // кривая АЧХ
+    ctx.strokeStyle = P.green; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= NPTS; i++) {
+      const f = (fMaxAxis * i) / NPTS;
+      const X = xF(f), Y = yA(curve[i]);
+      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+
+    // бегущий маркер частоты ветра
+    const xw = xF(Math.min(fWind, fMaxAxis));
+    const aWind = totalAmp(modes, fWind, zeta).amp;
+    const yw = yA(Math.min(aWind, amax));
+    ctx.strokeStyle = resonance ? P.red : P.blue; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xw, ampBox.y + ampBox.h); ctx.lineTo(xw, ampBox.y); ctx.stroke();
+    ctx.fillStyle = resonance ? P.red : P.blue;
+    ctx.beginPath(); ctx.arc(xw, yw, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.font = "11px Palatino, serif"; ctx.textAlign = "center";
+    ctx.fillText("ветер", xw, ampBox.y + ampBox.h + 26);
+
+    // read-out
+    out.set([
+      { k: "ближайшая мода", v: "№" + near.m, color: P.blue },
+      { k: "её частота", v: fmtHz(near.f) + " Гц", color: P.red },
+      { k: "частота ветра", v: fmtHz(fWind) + " Гц", color: resonance ? P.red : P.blue },
+      { k: "расстройка", v: (detune * 100).toFixed(1) + "%", color: resonance ? P.red : P.mut },
+      { k: "режим", v: resonance ? "РЕЗОНАНС" : "вне резонанса", color: resonance ? P.red : P.green },
+    ]);
+
+    return { near, detune, resonance, modes };
+  }
+
+  function mixColor(c1, c2, t) {
+    const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const a = p(c1), b = p(c2);
+    const m = a.map((x, i) => Math.round(x + (b[i] - x) * t));
+    return "rgb(" + m[0] + "," + m[1] + "," + m[2] + ")";
+  }
+
+  // --------- анимация ----------
+  // Огибающая стремится к установившейся амплитуде; при резонансе быстро растёт,
+  // вне резонанса спадает. Скорость колебаний пропорциональна частоте ветра.
+  const anim = S.loop((t, ts) => {
+    const modes = eigenfreqs(n);
+    const { detune } = nearestMode(modes, fWind);
+    // Целевая огибающая: видимая базовая раскачка формы моды ВСЕГДА (мост «живой»,
+    // дека не лежит плашмя), с резким ростом к резонансу. Knob detune+0.5ζ задаёт
+    // остроту резонансного пика.
+    const target = Math.min(1, 0.13 + 0.10 / Math.max(0.05, detune + 0.5 * zeta));
+    // dt ~ 1/60 c; сглаживание к target
+    envelope += (target - envelope) * 0.04;
+    // фаза колебаний — медленная, видимая глазом
+    phase += (0.6 + fWind * 6) * (1 / 60) * 2 * Math.PI;
+    if (phase > 1e6) phase = phase % (2 * Math.PI);
+    draw();
+  });
+
+  // --------- контролы ----------
+  S.slider(controls, {
+    label: "Число масс n", min: 3, max: 20, step: 1, value: n, fmt: (v) => v | 0,
+  }, (v) => { n = v | 0; });
+  S.slider(controls, {
+    label: "Демпфирование ζ", min: 0.01, max: 0.3, step: 0.01, value: zeta,
+    fmt: (v) => v.toFixed(2),
+  }, (v) => { zeta = v; });
+  S.slider(controls, {
+    label: "Частота ветра", min: 0.01, max: 0.5, step: 0.005, value: fWind, unit: " Гц",
+    fmt: (v) => v.toFixed(3),
+  }, (v) => { fWind = v; });
+
+  draw();
+  anim.start();
+});
+
+
+// ===== widget: word2vec_analogy.js =====
+// word2vec-analogy — игрушечный 2D-словарь, где семантика закодирована
+// направлениями. Тащи любое слово-точку мышью — вектор t = a − b + c,
+// параллелограмм аналогии и ближайшее слово пересчитываются мгновенно.
+// Никакой кнопки, вся арифметика на чистом JS.
+SigmaInt.register("word2vec-analogy", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тащи любую точку-слово мышью — t = a − b + c и параллелограмм аналогии " +
+          "пересчитываются мгновенно, ближайшее слово подсвечивается красным.",
+  }));
+
+  // ---- игрушечный 2D-эмбеддинг ----------------------------------------
+  // Ось X ≈ «королевский статус → столичность/страна»,
+  // ось Y ≈ «пол / роль». Координаты подобраны так, чтобы работали
+  // параллелограммы: король−мужчина+женщина≈королева,
+  // Париж−Франция+Германия≈Берлин и т.д.
+  // Два смысловых кластера разнесены, чтобы аналогии оставались
+  // параллельными внутри каждого.
+  const VOCAB = [
+    // королевская семья: gender по Y, статус по X
+    { w: "мужчина",   x: -2.6, y:  1.4 },
+    { w: "женщина",   x: -2.6, y: -1.4 },
+    { w: "король",    x: -1.2, y:  1.4 },
+    { w: "королева",  x: -1.2, y: -1.4 },
+    { w: "принц",     x: -0.4, y:  1.4 },
+    { w: "принцесса", x: -0.4, y: -1.4 },
+    // страны (нижний ряд) и столицы (верхний ряд): «столичность» по Y
+    { w: "Франция",   x:  1.6, y: -2.0 },
+    { w: "Париж",     x:  1.6, y:  0.2 },
+    { w: "Германия",  x:  2.6, y: -2.0 },
+    { w: "Берлин",    x:  2.6, y:  0.2 },
+    { w: "Италия",    x:  3.6, y: -2.0 },
+    { w: "Рим",       x:  3.6, y:  0.2 },
+    { w: "Япония",    x:  4.6, y: -2.0 },
+    { w: "Токио",     x:  4.6, y:  0.2 },
+  ];
+  // позиции мутируем при перетаскивании
+  const pos = VOCAB.map((d) => ({ x: d.x, y: d.y }));
+  const idxOf = (w) => VOCAB.findIndex((d) => d.w === w);
+
+  // ---- состояние выбора -----------------------------------------------
+  let ia = idxOf("король"), ib = idxOf("мужчина"), ic = idxOf("женщина");
+
+  // ---- холст ----------------------------------------------------------
+  const stage = S.row(root);
+  const W = 720, H = 460;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 720, pan: false, onResize: () => redraw() });
+  const ctx = cv.ctx;
+
+  // ---- контролы -------------------------------------------------------
+  const controls = S.row(root, "controls");
+  const wordOpts = VOCAB.map((d) => ({ value: d.w, label: d.w }));
+  const selA = S.select(controls, { label: "a", options: wordOpts, value: VOCAB[ia].w }, (v) => { ia = idxOf(v); redraw(); });
+  const selB = S.select(controls, { label: "− b", options: wordOpts, value: VOCAB[ib].w }, (v) => { ib = idxOf(v); redraw(); });
+  const selC = S.select(controls, { label: "+ c", options: wordOpts, value: VOCAB[ic].w }, (v) => { ic = idxOf(v); redraw(); });
+  S.button(controls, "Сбросить позиции", () => {
+    VOCAB.forEach((d, i) => { pos[i].x = d.x; pos[i].y = d.y; });
+    redraw();
+  });
+
+  const out = S.readout(root);
+
+  S.caption(root,
+    "Каждое слово — точка в игрушечном 2D-пространстве, где направления " +
+    "несут смысл (пол, статус, «город↔страна»). Аналогия a − b + c строит " +
+    "параллелограмм; красным помечено ближайшее реальное слово к результату t. " +
+    "Перетащи точку — и геометрия аналогии перестроится у тебя на глазах.");
+
+  // ---- геометрия / шкалы ---------------------------------------------
+  const box = { x: 56, y: 28, w: W - 56 - 16, h: H - 28 - 40 };
+  // фиксированные домены с запасом
+  const DX = [-3.6, 5.6], DY = [-3.0, 2.6];
+  const sx = S.scale(DX[0], DX[1], box.x, box.x + box.w);
+  const sy = S.scale(DY[0], DY[1], box.y + box.h, box.y); // y вверх
+
+  function toPx(p) { return { px: sx(p.x), py: sy(p.y) }; }
+  function dataFromPx(px, py) { return { x: sx.inv(px), y: sy.inv(py) }; }
+
+  // ---- ближайшие к t слова -------------------------------------------
+  function nearest(t, excludeSet) {
+    const cand = [];
+    for (let i = 0; i < pos.length; i++) {
+      if (excludeSet && excludeSet.has(i)) continue;
+      const dx = pos[i].x - t.x, dy = pos[i].y - t.y;
+      cand.push({ i, d: Math.sqrt(dx * dx + dy * dy) });
+    }
+    cand.sort((p, q) => p.d - q.d);
+    return cand;
+  }
+
+  // ---- рисование точки-слова -----------------------------------------
+  function dot(p, color, label, opts2) {
+    opts2 = opts2 || {};
+    const q = toPx(p);
+    const r = opts2.r || 5;
+    ctx.beginPath();
+    ctx.arc(q.px, q.py, r, 0, 2 * Math.PI);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = opts2.alpha == null ? 1 : opts2.alpha;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if (opts2.ring) {
+      ctx.strokeStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(q.px, q.py, r + 4, 0, 2 * Math.PI); ctx.stroke();
+    }
+    if (label != null) {
+      ctx.font = (opts2.bold ? "bold " : "") + (opts2.fs || 12) + "px Palatino, Georgia, serif";
+      ctx.fillStyle = opts2.labelColor || P.ink;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      // подпись справа, чтобы не залезать на точку
+      ctx.fillText(label, q.px + r + 5, q.py - (opts2.up ? 8 : 0));
+    }
+    return q;
+  }
+
+  function arrow(p0, p1, color, dash) {
+    const a = toPx(p0), b = toPx(p1);
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(b.px, b.py); ctx.stroke();
+    ctx.setLineDash([]);
+    // наконечник
+    const ang = Math.atan2(b.py - a.py, b.px - a.px);
+    const hl = 9;
+    ctx.beginPath();
+    ctx.moveTo(b.px, b.py);
+    ctx.lineTo(b.px - hl * Math.cos(ang - 0.4), b.py - hl * Math.sin(ang - 0.4));
+    ctx.lineTo(b.px - hl * Math.cos(ang + 0.4), b.py - hl * Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fillStyle = color; ctx.fill();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.textBaseline = "alphabetic";
+
+    // фон-сетка
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    for (let gx = Math.ceil(DX[0]); gx <= DX[1]; gx++) {
+      ctx.beginPath(); ctx.moveTo(sx(gx), box.y); ctx.lineTo(sx(gx), box.y + box.h); ctx.stroke();
+    }
+    for (let gy = Math.ceil(DY[0]); gy <= DY[1]; gy++) {
+      ctx.beginPath(); ctx.moveTo(box.x, sy(gy)); ctx.lineTo(box.x + box.w, sy(gy)); ctx.stroke();
+    }
+    // подписи осей
+    ctx.fillStyle = P.mut; ctx.font = "italic 12px Palatino, Georgia, serif";
+    ctx.textAlign = "center"; ctx.fillText("статус  ·  страна → столица  (ось X)", box.x + box.w / 2, box.y + box.h + 30);
+    ctx.save();
+    ctx.translate(box.x - 40, box.y + box.h / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center"; ctx.fillText("пол / роль  (ось Y)", 0, 0);
+    ctx.restore();
+
+    // вычисляем t = a − b + c
+    const A = pos[ia], B = pos[ib], C = pos[ic];
+    const t = { x: A.x - B.x + C.x, y: A.y - B.y + C.y };
+
+    // параллелограмм: A, A−B (как смещение), ... визуализируем как
+    // A → (A−B) → t и стрелку аналогии B→A параллельную C→t.
+    // Удобнее показать: стрелка B→A (направление отношения) и
+    // та же стрелка отложенная от C → даёт t.
+    // Параллелограмм с вершинами B, A, t, C.
+    const pb = toPx(B), pa = toPx(A), pt = toPx(t), pc = toPx(C);
+    ctx.beginPath();
+    ctx.moveTo(pb.px, pb.py); ctx.lineTo(pa.px, pa.py);
+    ctx.lineTo(pt.px, pt.py); ctx.lineTo(pc.px, pc.py); ctx.closePath();
+    ctx.fillStyle = "rgba(106,76,147,0.08)"; // purple wash
+    ctx.fill();
+
+    // рёбра-стрелки: отношение b→a и c→t (параллельны = аналогия)
+    arrow(B, A, P.purple);          // направление "отношения"
+    arrow(C, t, P.purple);          // то же отношение, приложенное к c
+    // соединительные пунктиры b→c и a→t
+    ctx.strokeStyle = P.purple; ctx.globalAlpha = 0.4; ctx.lineWidth = 1.4;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pb.px, pb.py); ctx.lineTo(pc.px, pc.py); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pa.px, pa.py); ctx.lineTo(pt.px, pt.py); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+    // ближайшее слово к t (исключаем сами a,b,c из топа, но покажем всё)
+    const ranked = nearest(t, null);
+    const best = ranked[0];
+
+    // все точки-слова
+    for (let i = 0; i < pos.length; i++) {
+      let color = P.blue, alpha = 0.9, bold = false, ring = false, lc = P.ink;
+      if (i === ia) { color = P.green; bold = true; ring = true; }
+      else if (i === ib) { color = P.gold; bold = true; ring = true; }
+      else if (i === ic) { color = P.green; bold = true; ring = true; }
+      if (i === best.i) { color = P.red; bold = true; ring = true; lc = P.red; }
+      dot(pos[i], color, VOCAB[i].w, { bold, ring, labelColor: lc, alpha });
+    }
+
+    // целевая точка t (полая, ink) — результат арифметики
+    const qt = toPx(t);
+    ctx.beginPath(); ctx.arc(qt.px, qt.py, 6, 0, 2 * Math.PI);
+    ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.setLineDash([2, 2]); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = "italic 12px Palatino, Georgia, serif"; ctx.fillStyle = P.ink;
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillText("t", qt.px + 9, qt.py + 9);
+    ctx.textBaseline = "alphabetic";
+
+    // легенда вверху
+    ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+    const aw = VOCAB[ia].w, bw = VOCAB[ib].w, cw = VOCAB[ic].w;
+    const eq = aw + " − " + bw + " + " + cw + " ≈ " + VOCAB[best.i].w;
+    ctx.fillStyle = P.ink;
+    ctx.fillText(eq, box.x + 4, box.y - 10);
+
+    // read-out
+    const top3 = ranked.slice(0, 3)
+      .map((c, j) => VOCAB[c.i].w + " (" + c.d.toFixed(2) + ")")
+      .join(", ");
+    out.set([
+      { k: "t =", v: aw + " − " + bw + " + " + cw, color: P.purple },
+      { k: "≈", v: VOCAB[best.i].w, color: P.red },
+      { k: "dist =", v: best.d.toFixed(3), color: P.mut },
+      { k: "топ-3:", v: top3, color: P.blue },
+    ]);
+  }
+
+  const redraw = S.rafThrottle(draw);
+
+  // ---- перетаскивание точек ------------------------------------------
+  let dragIdx = -1;
+  function hitTest(p) {
+    // p.x, p.y — логические координаты холста (W×H)
+    let best = -1, bestD = 16; // радиус захвата в px
+    for (let i = 0; i < pos.length; i++) {
+      const q = toPx(pos[i]);
+      const d = Math.hypot(q.px - p.x, q.py - p.y);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return best;
+  }
+
+  S.dragify(cv.canvas, { w: W, h: H }, {
+    onDown: (p) => {
+      dragIdx = hitTest(p);
+      if (dragIdx >= 0) {
+        cv.canvas.style.cursor = "grabbing";
+        moveTo(p);
+      }
+    },
+    onMove: (p) => { if (dragIdx >= 0) moveTo(p); },
+    onUp: () => { dragIdx = -1; cv.canvas.style.cursor = "grab"; },
+    onHover: (p) => {
+      cv.canvas.style.cursor = hitTest(p) >= 0 ? "grab" : "default";
+    },
+  });
+
+  function moveTo(p) {
+    if (dragIdx < 0) return;
+    const d = dataFromPx(p.x, p.y);
+    // держим в пределах домена с небольшим запасом
+    pos[dragIdx].x = Math.max(DX[0] + 0.1, Math.min(DX[1] - 0.1, d.x));
+    pos[dragIdx].y = Math.max(DY[0] + 0.1, Math.min(DY[1] - 0.1, d.y));
+    redraw();
+  }
+
+  draw();
 });
 

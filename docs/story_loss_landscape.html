@@ -538,7 +538,7 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 </div>
 </div>
 </section>
-<section id="проекция-на-плоскость" class="level3">
+<section id="проекция-на-плоскость" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="проекция-на-плоскость">Проекция на плоскость</h3>
 <p>Два случайных направления <span class="math inline">\delta_1, \delta_2</span> задают двумерное сечение. Для ResNet-56 без skip-connections ландшафт оказывается хаотичным с множеством глубоких впадин. Добавление residual connections <strong>драматически</strong> сглаживает его — это одно из самых наглядных объяснений того, <em>зачем</em> нужны skip-connections.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -586,21 +586,9 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># A, B = np.meshgrid(alphas, betas)</span></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.plot_surface(A, B, Z, cmap="coolwarm", alpha=0.9)</span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_xlabel("α"); ax.set_ylabel("β"); ax.set_zlabel("Loss")</span></span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: срезы ландшафта потерь">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Поиграть: срезы ландшафта потерь
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>Возьмём функцию потерь в пространстве из десятков измерений и нарисуем её вдоль нескольких <em>случайных</em> направлений через одну и ту же точку. Профили получаются совершенно разными: где-то гладкая чаша, где-то частокол бугров. Вывод — любая красивая 2D-картинка «ландшафта» это лишь один из бесконечного числа срезов. Покрутите размерность.</p>
-</div>
-</div>
+<p>Возьмите поверхность потерь в руки: тяните, чтобы крутить камеру, и кликните по ней, чтобы уронить шарик градиентного спуска — он сам скатится в ближайший минимум.</p>
+<div class="column-page">
+<div data-sigma-widget="loss-landscape-3d"></div>
 </div>
 </section>
 </section>

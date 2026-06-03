@@ -665,26 +665,14 @@ K v = \omega^2 M v.
 </figure>
 </div>
 </section>
-<section id="численная-модель-мост-как-система-масс-на-пружинах" class="level3">
+<section id="численная-модель-мост-как-система-масс-на-пружинах" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="численная-модель-мост-как-система-масс-на-пружинах">Численная модель: мост как система масс на пружинах</h3>
-<div class="callout callout-style-default callout-important callout-titled" title="Поиграть: резонанс моста">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Поиграть: резонанс моста
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>Представим мост цепочкой масс на пружинах. Её собственные частоты — это корни из собственных значений матрицы жёсткости. Теперь «раскачаем» мост внешней силой и плавно меняем её частоту: амплитуда взлетает к небесам ровно тогда, когда частота силы совпадает с собственной (красные пунктиры). Это и есть резонанс, разрушивший Такомский мост в 1940-м. Меняйте число масс — частот станет больше.</p>
-</div>
-</div>
+<p>Представьте мост цепочкой масс на пружинах и плавно меняйте частоту ветра — амплитуда взлетает к небесам ровно тогда, когда частота силы совпадает с собственной частотой моста. Покрутите ползунки и поймайте резонанс сами.</p>
+<div class="column-page">
+<div data-sigma-widget="resonance-bridge"></div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: собственные частоты моста как цепочки масс">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -693,7 +681,7 @@ K v = \omega^2 M v.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -747,7 +735,7 @@ K v = \omega^2 M v.
 <section id="формы-колебаний" class="level3">
 <h3 class="anchored" data-anchor-id="формы-колебаний">Формы колебаний</h3>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: построение форм колебаний">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -756,7 +744,7 @@ K v = \omega^2 M v.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -860,7 +848,7 @@ K v = \omega^2 M v.
 <section id="численный-эксперимент-резонанс" class="level2">
 <h2 class="anchored" data-anchor-id="численный-эксперимент-резонанс">Численный эксперимент: резонанс</h2>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: резонансная кривая гармонического осциллятора">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -869,7 +857,7 @@ K v = \omega^2 M v.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>

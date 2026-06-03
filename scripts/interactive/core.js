@@ -61,19 +61,28 @@
       const cssW = canvas.clientWidth || w;
       const ratio = h / w;
       const cssH = cssW * ratio;
-      canvas.style.height = cssH + "px";
       const r = dpr();
-      canvas.width = Math.round(cssW * r);
-      canvas.height = Math.round(cssH * r);
+      const pw = Math.round(cssW * r), ph = Math.round(cssH * r);
+      // ВАЖНО: присваивание canvas.width/height ОЧИЩАЕТ канвас даже при том же
+      // значении. ResizeObserver выстреливает initial-колбэк с неизменным
+      // размером → стёр бы синхронную build-time отрисовку (баг пустого канваса
+      // у drag-only виджетов без loop/слайдера). Поэтому трогаем bitmap только
+      // при реальном изменении размера.
+      if (pw === canvas.width && ph === canvas.height) return false;
+      canvas.style.height = cssH + "px";
+      canvas.width = pw;
+      canvas.height = ph;
       ctx.setTransform(r * cssW / w, 0, 0, r * cssH / h, 0, 0); // logical coords = w×h
       state.cssW = cssW; state.cssH = cssH;
+      return true;
     }
     resize();
+    const onChange = () => { if (resize() && opts.onResize) opts.onResize(); };
     if (typeof ResizeObserver !== "undefined") {
-      const ro = new ResizeObserver(() => { resize(); if (opts.onResize) opts.onResize(); });
+      const ro = new ResizeObserver(onChange);
       ro.observe(canvas);
     } else {
-      window.addEventListener("resize", () => { resize(); if (opts.onResize) opts.onResize(); });
+      window.addEventListener("resize", onChange);
     }
     return state;
   }
