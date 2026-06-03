@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Как методы спускаются с горы: GD, momentum, Adam – Σ Сигма</title>
+<title>k-средних: как машина находит кластеры сама – Σ Сигма</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch02_newton.html" rel="next">
-<link href="./story_loss_landscape.html" rel="prev">
+<link href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" rel="next">
+<link href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" rel="prev">
 <link href="./../favicon.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -130,7 +130,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_optimizers.html">▶ Как методы спускаются с горы: GD, momentum, Adam</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch03_0_intro.html">Часть IV. Анализ данных и ИИ</a></li><li class="breadcrumb-item"><a href="./story_kmeans.html">▶ k-средних: как машина находит кластеры сама</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -201,7 +201,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link active">
+  <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">▶ Как методы спускаются с горы: GD, momentum, Adam</span></a>
   </div>
 </li>
@@ -391,7 +391,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./story_kmeans.html" class="sidebar-item-text sidebar-link">
+  <a href="./story_kmeans.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">▶ k-средних: как машина находит кластеры сама</span></a>
   </div>
 </li>
@@ -472,9 +472,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_optimizers.html">▶ Как методы спускаются с горы: GD, momentum, Adam</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch03_0_intro.html">Часть IV. Анализ данных и ИИ</a></li><li class="breadcrumb-item"><a href="./story_kmeans.html">▶ k-средних: как машина находит кластеры сама</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Как методы спускаются с горы: GD, momentum, Adam</h1>
+<h1 class="title">k-средних: как машина находит кластеры сама</h1>
 </div>
 
 
@@ -491,41 +491,41 @@ window.Quarto = {
 </header>
 
 
-<p><em>Обучить нейросеть — значит спуститься в минимум функции потерь, у которой миллионы измерений. Но геометрия спуска видна уже в двух. Простой градиентный спуск вязнет в оврагах; импульс разгоняется вдоль дна; Adam подстраивает шаг под каждую координату. Возьмите точку старта и отпустите — посмотрите, кто доберётся до дна первым.</em></p>
-<section id="один-шаг-вниз" class="level2">
-<h2 class="anchored" data-anchor-id="один-шаг-вниз">Один шаг вниз</h2>
-<p>Все три метода читают в текущей точке <span class="math inline">w</span> один и тот же градиент <span class="math inline">\nabla L(w)</span> — направление наискорейшего роста. Спуск идёт против него. Разница лишь в том, <strong>как</strong> превратить градиент в шаг.</p>
-<p><strong>Градиентный спуск (GD).</strong> Самое прямое правило: шагнуть против градиента на величину, заданную скоростью обучения <span class="math inline">\eta</span>. <span class="math display">
-w_{t+1} = w_t - \eta\, \nabla L(w_t).
-</span> Просто — но в вытянутом «овраге» (когда вдоль одной оси кривизна большая, а вдоль другой малая) шаг приходится делать крошечным, иначе по крутой оси начинаются осцилляции. Спуск ползёт зигзагом и почти не движется вдоль дна.</p>
-<p><strong>Импульс (momentum).</strong> Накопим скорость, как у скатывающегося шарика: каждый шаг чуть «помнит» предыдущие. <span class="math display">
-v_{t+1} = \beta\, v_t - \eta\, \nabla L(w_t), \qquad w_{t+1} = w_t + v_{t+1}.
-</span> Колебания поперёк оврага гасятся (градиенты разнонаправлены и взаимно сокращаются), а вдоль дна скорость накапливается. Коэффициент <span class="math inline">\beta</span> — это «память» о прошлых шагах; при <span class="math inline">\beta=0</span> это снова обычный GD.</p>
-<p><strong>Adam.</strong> Хранит две скользящие средние: первого момента градиента (как momentum) и второго (квадрата градиента). Делит шаг на корень из второго — получается <strong>свой масштаб для каждой координаты</strong>. <span class="math display">
-m_t = \beta_1 m_{t-1} + (1-\beta_1)\,g_t, \quad
-v_t = \beta_2 v_{t-1} + (1-\beta_2)\,g_t^2, \quad
-w_{t+1} = w_t - \eta\,\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
-</span> По крутым осям шаг автоматически уменьшается, по пологим — растёт. Поэтому Adam устойчив даже там, где для GD пришлось бы подбирать <span class="math inline">\eta</span> вручную.</p>
+<p><em>Дайте алгоритму облако точек без единой подсказки — и он сам разобьёт его на группы. Метод k-средних (k-means) — самый наглядный пример обучения без учителя: ни меток, ни ответов, только геометрия близости. И при этом он лежит в основе сжатия изображений, сегментации и предобработки данных повсюду.</em></p>
+<section id="идея-минимизировать-разброс-внутри-групп" class="level2">
+<h2 class="anchored" data-anchor-id="идея-минимизировать-разброс-внутри-групп">Идея: минимизировать разброс внутри групп</h2>
+<p>Дано <span class="math inline">n</span> точек и число кластеров <span class="math inline">k</span>. Нужно расставить <span class="math inline">k</span> центров (центроидов) <span class="math inline">\mu_1, \ldots, \mu_k</span> и приписать каждую точку <span class="math inline">x_i</span> одному из них так, чтобы суммарный разброс точек вокруг своих центров — <strong>инерция</strong> — был минимален: <span class="math display">
+J = \sum_{i=1}^{n} \big\lVert x_i - \mu_{c(i)} \big\rVert^2,
+\qquad c(i) = \arg\min_j \lVert x_i - \mu_j \rVert.
+</span> Перебрать все разбиения невозможно (их экспоненциально много). Но есть простой итеративный спуск — <strong>алгоритм Ллойда</strong>.</p>
 </section>
-<section id="потрогайте-спуск" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="потрогайте-спуск">Потрогайте спуск</h2>
-<p>Перетащите <strong>точку старта</strong> по карте высот — тёмное это дно. Три метода побегут вниз из неё одновременно. Покрутите скорость обучения и импульс <span class="math inline">\beta</span>, переключите ландшафт — и увидите, где GD застрянет в зигзаге, как momentum проскакивает овраг по инерции, а Adam ровно идёт к минимуму.</p>
+<section id="алгоритм-ллойда-два-шага-по-кругу" class="level2">
+<h2 class="anchored" data-anchor-id="алгоритм-ллойда-два-шага-по-кругу">Алгоритм Ллойда: два шага по кругу</h2>
+<ol type="1">
+<li><strong>Приписывание.</strong> Каждую точку относим к ближайшему центроиду. Пространство разбивается на <strong>ячейки Вороного</strong>.</li>
+<li><strong>Обновление.</strong> Каждый центроид сдвигаем в среднее своих точек.</li>
+</ol>
+<p>Повторяем, пока приписывания не перестанут меняться. Каждый шаг <strong>не увеличивает</strong> инерцию <span class="math inline">J</span>, поэтому процесс сходится — но к <em>локальному</em> минимуму, зависящему от стартовых позиций центров.</p>
+</section>
+<section id="потрогайте-кластеризацию" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="потрогайте-кластеризацию">Потрогайте кластеризацию</h2>
+<p>Точки внизу перекрашиваются по ближайшему центроиду, а звёзды-центроиды ползут к среднему своих точек — сходимость видна вживую. <strong>Кликните</strong> по полю, чтобы добавить точку. <strong>Перетащите</strong> центроид — алгоритм выбьется из равновесия и сойдётся заново, возможно, к другому разбиению. Поменяйте <span class="math inline">k</span> — число групп.</p>
 <div class="column-page">
-<div data-sigma-widget="optimizers-descent"></div>
+<div data-sigma-widget="kmeans-cluster"></div>
 </div>
 
 <div class="no-row-height column-margin column-container"><div class="">
-<div class="callout callout-style-default callout-note callout-titled" title="Почему овраг — это плохо">
+<div class="callout callout-style-default callout-note callout-titled" title="Проблема старта">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Уведомление</span>Почему овраг — это плохо
+<span class="screen-reader-only">Уведомление</span>Проблема старта
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Вытянутость оврага измеряется <strong>числом обусловленности</strong> <span class="math inline">\kappa</span> — отношением наибольшей кривизны к наименьшей. Скорость сходимости GD падает как <span class="math inline">\frac{\kappa-1}{\kappa+1}</span>: при <span class="math inline">\kappa=100</span> каждый шаг сокращает ошибку лишь на <span class="math inline">\sim 2\%</span>. Momentum улучшает зависимость до <span class="math inline">\sqrt{\kappa}</span> — отсюда его разгон вдоль дна.</p>
+<p>k-means гарантирует только <em>локальный</em> минимум. Неудачная инициализация даёт плохое разбиение — поэтому на практике алгоритм запускают много раз и берут лучший по инерции, а центры выбирают умно (<strong>k-means++</strong>: каждый следующий центр тем вероятнее, чем дальше он от уже выбранных). Перетащите центроид в скоплении — и увидите, как два центра «делят» один настоящий кластер, а где-то рядом группа остаётся без центра.</p>
 </div>
 </div>
 </div></div><div class="callout callout-style-default callout-tip callout-titled" title="Главный инсайт">
@@ -538,20 +538,24 @@ w_{t+1} = w_t - \eta\,\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Все три метода видят один и тот же градиент — отличается лишь <em>обработка истории шагов</em>. GD живёт настоящим; momentum помнит, куда катился; Adam ещё и помнит, насколько резко менялась каждая координата. В миллионах измерений эта память и есть разница между «обучилось за час» и «не сошлось никогда».</p>
+<p>k-means не «понимает» данные — он лишь минимизирует разброс при фиксированном <span class="math inline">k</span>. Отсюда его сила и слабость: он мгновенно находит компактные сферические сгустки, но бессилен против вытянутых, вложенных или разноплотных кластеров (там нужны DBSCAN, спектральная кластеризация, GMM). Выбор <span class="math inline">k</span> — отдельное искусство: инерция падает с ростом <span class="math inline">k</span> всегда, поэтому ищут «локоть» на её кривой или используют силуэт.</p>
 </div>
 </div>
 </section>
-<section id="за-пределами-картинки" class="level2">
-<h2 class="anchored" data-anchor-id="за-пределами-картинки">За пределами картинки</h2>
-<p>В реальном обучении <span class="math inline">L</span> считается не по всему датасету, а по случайному мини-батчу — отсюда «стохастический» в SGD. Градиент становится шумным, и импульс/адаптивность помогают ещё сильнее: усреднение гасит шум, а покоординатный масштаб не даёт редким, но крупным градиентам сбить шаг. Almost весь современный deep learning обучается вариантами Adam (AdamW) ровно по причинам, которые видны на этой карте: устойчивость к плохой обусловленности без ручного подбора скорости обучения.</p>
+<section id="где-это-работает" class="level2">
+<h2 class="anchored" data-anchor-id="где-это-работает">Где это работает</h2>
+<ul>
+<li><strong>Сжатие изображений:</strong> кластеризуем цвета пикселей в <span class="math inline">k</span> оттенков — палитра из <span class="math inline">k</span> цветов вместо миллионов (векторное квантование).</li>
+<li><strong>Сегментация и предобработка:</strong> грубое разбиение данных перед более тонкой моделью; инициализация компонент в GMM.</li>
+<li><strong>Поиск похожего:</strong> центроиды как «прототипы» для быстрой приближённой кластеризации миллионов объектов.</li>
+</ul>
 </section>
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>
-<li><strong>Ландшафт потерь</strong> (§ Ландшафт потерь): почему в высокой размерности оврагов и седловин больше, чем локальных минимумов.</li>
-<li><strong>Глобальная оптимизация</strong> (§ Коммивояжёр и отжиг): когда градиента нет или минимумов много — эвристики вроде отжига.</li>
-<li><strong>Двойной спуск</strong> (§ Двойной спуск): что происходит с ошибкой, когда модель доходит до точного интерполяционного минимума.</li>
+<li><strong>PCA</strong> (§ PCA и Eigenfaces): часто кластеризуют уже в сжатом PCA-пространстве.</li>
+<li><strong>MDS</strong> (§ Многомерное шкалирование): другой взгляд на геометрию данных — по расстояниям, а не по координатам.</li>
+<li><strong>Оптимизаторы</strong> (§ Как методы спускаются с горы): Ллойд — это покоординатный спуск по инерции, родственник методов из главы об оптимизации.</li>
 </ul>
 
 
@@ -973,13 +977,13 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./story_loss_landscape.html" class="pagination-link" aria-label="▶ Ландшафт функции потерь и парадоксы высокой размерности">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">▶ Ландшафт функции потерь и парадоксы высокой размерности</span>
+      <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="pagination-link" aria-label="Задачи обучения без учителя">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Задачи обучения без учителя</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch02_newton.html" class="pagination-link" aria-label="Метод Ньютона">
-        <span class="nav-page-text">Метод Ньютона</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="pagination-link" aria-label="Как искусственный интеллект меняет мир">
+        <span class="nav-page-text">Как искусственный интеллект меняет мир</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
