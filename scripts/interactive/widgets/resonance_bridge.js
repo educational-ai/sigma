@@ -219,10 +219,13 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     ctx.fillStyle = P.ink; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "center";
     ctx.fillText("амплитуда установившихся колебаний", ampBox.x + ampBox.w / 2, ampBox.y - 12);
 
-    // пунктиры собственных частот
+    // пунктиры собственных частот — только у реально возбуждаемых мод,
+    // чтобы число красных линий совпадало с числом пиков зелёной кривой
+    const wMax = Math.max(...modes.map((md) => modeWeight(md.m, n)));
     ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
     for (const md of modes) {
       if (md.f > fMaxAxis) continue;
+      if (modeWeight(md.m, n) < 0.05 * wMax) continue;
       ctx.strokeStyle = P.red;
       const X = xF(md.f);
       ctx.beginPath(); ctx.moveTo(X, ampBox.y); ctx.lineTo(X, ampBox.y + ampBox.h); ctx.stroke();

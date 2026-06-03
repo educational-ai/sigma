@@ -50,7 +50,7 @@ SigmaInt.register("attention-softmax", function (root, opts, S) {
     const q = tokens[query];
     // self-внимание маскируем: запрос распределяет внимание по ДРУГИМ токенам
     // (иначе q·q максимально и токен всегда «смотрит на себя» — педагогически мутно).
-    const sc = tokens.map((t, i) => i === query ? -Infinity : dot(q, t) / Math.SQRT2 / Math.max(0.05, tau));
+    const sc = tokens.map((t, i) => i === query ? -Infinity : dot(q, t) / Math.SQRT2 / Math.max(0.01, tau));
     const mx = Math.max.apply(null, sc.filter((s) => isFinite(s)));
     const ex = sc.map((s) => isFinite(s) ? Math.exp(s - mx) : 0);
     const Z = ex.reduce((a, b) => a + b, 0) || 1;
@@ -166,7 +166,7 @@ SigmaInt.register("attention-softmax", function (root, opts, S) {
     options: tokens.map((t, i) => ({ value: i, label: t.w })),
   }, (v) => { query = +v; redraw(); });
   S.slider(controls, {
-    label: "Температура τ", min: 0.08, max: 2.5, step: 0.02, value: tau, fmt: (v) => v.toFixed(2),
+    label: "Температура τ", min: 0.02, max: 2.5, step: 0.02, value: tau, fmt: (v) => v.toFixed(2),
   }, (v) => { tau = v; redraw(); });
 
   draw();

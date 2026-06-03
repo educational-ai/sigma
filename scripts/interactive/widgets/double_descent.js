@@ -229,8 +229,8 @@ SigmaInt.register("double-descent", function (root, opts, S) {
       ctx.strokeStyle = P.mut; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(thr, b.y); ctx.lineTo(thr, b.y + b.h); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
-      ctx.fillText("d = n", thr, b.y + 10);
+      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "right";
+      ctx.fillText("d = n", thr - 4, b.y + b.h - 5);
     }
 
     // линия test (красная)

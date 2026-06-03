@@ -19,7 +19,8 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
   S.caption(root,
     "Слева — первые отсчёты сигнала во времени; справа — амплитуда |X_k| по нижней " +
     "половине частот. Строка k матрицы Фурье F_N — это «камертон», настроенный на " +
-    "частоту k·fs/N; тон отзывается там, где камертон совпал с ним, давая пик.");
+    "частоту k·fs/N; тон отзывается там, где камертон совпал с ним, давая пик. " +
+    "Частоты притягиваются к ближайшей строке (шаг Δf = fs/N), поэтому пики всегда чистые.");
 
   // состояние
   let f1 = 440, f2 = 1200, N = 512, fs = 8000;
@@ -64,6 +65,12 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
 
   // индекс строки матрицы, на который попадает частота f
   function binOf(f) { return Math.round((f * N) / fs); }
+  // частота центра бина, ближайшего к f, в пределах потолка слайдеров [100..2000]
+  function snapFreq(f) {
+    const fb = binOf(f) * fs / N;          // центр ближайшей строки матрицы
+    const fc = Math.min(2000, Math.max(100, fb));
+    return Math.round(fc * 10) / 10;       // 0.1 Гц для отображения
+  }
 
   function draw() {
     ctx.clearRect(0, 0, 760, 320);
@@ -177,22 +184,22 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
 
   // ---- контролы ----
   const sl1 = S.slider(controls, {
-    label: "Частота f₁", min: 100, max: 2000, step: 10, value: f1, unit: " Гц", fmt: (v) => v,
-  }, (v) => { f1 = v | 0; redraw(); });
+    label: "Частота f₁", min: 100, max: 2000, step: "any", value: f1, unit: " Гц", fmt: (v) => v,
+  }, (v) => { f1 = snapFreq(v); sl1.set(f1); redraw(); });
 
   const sl2 = S.slider(controls, {
-    label: "Частота f₂", min: 100, max: 2000, step: 10, value: f2, unit: " Гц", fmt: (v) => v,
-  }, (v) => { f2 = v | 0; redraw(); });
+    label: "Частота f₂", min: 100, max: 2000, step: "any", value: f2, unit: " Гц", fmt: (v) => v,
+  }, (v) => { f2 = snapFreq(v); sl2.set(f2); redraw(); });
 
   S.select(controls, {
     label: "N", value: String(N),
     options: [{ value: "256", label: "256" }, { value: "512", label: "512" }, { value: "1024", label: "1024" }],
-  }, (v) => { N = +v; redraw(); });
+  }, (v) => { N = +v; f1 = snapFreq(f1); sl1.set(f1); f2 = snapFreq(f2); sl2.set(f2); redraw(); });
 
   S.select(controls, {
     label: "fs", value: String(fs),
     options: [{ value: "8000", label: "8000 Гц" }, { value: "16000", label: "16000 Гц" }],
-  }, (v) => { fs = +v; redraw(); });
+  }, (v) => { fs = +v; f1 = snapFreq(f1); sl1.set(f1); f2 = snapFreq(f2); sl2.set(f2); redraw(); });
 
   // ---- перетаскивание пиков прямо на спектре (tactile) ----
   const canvas = cv.canvas;
@@ -201,11 +208,11 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
     const r = canvas.getBoundingClientRect();
     return ((ev.clientX - r.left) / (r.width || 1)) * 760;
   }
-  // логический X на спектре → частота, привязанная к сетке 10 Гц и потолку слайдеров
+  // логический X на спектре → частота, привязанная к центру ближайшего бина
   function freqAtX(X) {
     const kf = ((X - specBox.x) / specBox.w) * hit.kMax; // дробный бин
     const f = (kf * fs) / N;
-    return Math.min(2000, Math.max(100, Math.round(f / 10) * 10));
+    return snapFreq(f);
   }
   function nearestPeak(X) {
     let best = -1, bestD = 12; // порог 12px (логических)
@@ -238,6 +245,10 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
   function endDrag() { dragIdx = -1; }
   canvas.addEventListener("pointerup", endDrag);
   canvas.addEventListener("pointercancel", endDrag);
+
+  // привязать стартовые частоты к центрам бинов — чистые два пика сразу
+  f1 = snapFreq(f1); sl1.set(f1);
+  f2 = snapFreq(f2); sl2.set(f2);
 
   draw();
 });

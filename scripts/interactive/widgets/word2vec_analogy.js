@@ -195,6 +195,12 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
 
     // целевая точка t (полая, ink) — результат арифметики
     const qt = toPx(t);
+    // соединитель t → ближайшее слово: «ближайшее» = эта линия, dist = её длина
+    const pbest = toPx(pos[best.i]);
+    ctx.strokeStyle = P.red; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.4;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(qt.px, qt.py); ctx.lineTo(pbest.px, pbest.py); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
     ctx.beginPath(); ctx.arc(qt.px, qt.py, 6, 0, 2 * Math.PI);
     ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.setLineDash([2, 2]); ctx.stroke();
     ctx.setLineDash([]);
@@ -212,7 +218,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
 
     // read-out
     const top3 = ranked.slice(0, 3)
-      .map((c, j) => VOCAB[c.i].w + " (" + c.d.toFixed(2) + ")")
+      .map((c, j) => VOCAB[c.i].w + " (" + c.d.toFixed(3) + ")")
       .join(", ");
     out.set([
       { k: "t =", v: aw + " − " + bw + " + " + cw, color: P.purple },

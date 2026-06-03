@@ -220,7 +220,8 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
         if (lv < lo) lo = lv; if (lv > hi) hi = lv;
       }
       if (hi - lo < 1.0) { hi += 0.5; lo -= 0.5; }
-      const tx = S.scale(0, HIST_MAX - 1, curve.x, curve.x + curve.w);
+      const span = Math.max(20, histGrad.length, histZero.length) - 1;
+      const tx = S.scale(0, span, curve.x, curve.x + curve.w);
       const ty = S.scale(lo, hi, curve.y + curve.h, curve.y);
 
       // горизонтальные грид-линии по степеням 10
@@ -234,6 +235,17 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
         ctx.fillStyle = P.mut;
         ctx.fillText("10" + (e >= 0 ? "" : "⁻") + Math.abs(e), curve.x - 4, y + 3);
       }
+
+      // числовые тики по оси x (0 … текущий span) — читаемый «стресс vs шаги».
+      // края диапазона выровнены к панели (left/right), чтобы не наезжать
+      // на центральную подпись «итерация t».
+      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, Georgia, serif";
+      const tickY = curve.y + curve.h + 18;
+      ctx.textAlign = "left";
+      ctx.fillText("0", curve.x, tickY);
+      ctx.textAlign = "right";
+      ctx.fillText(String(span), curve.x + curve.w, tickY);
+      ctx.textAlign = "center";
 
       // две кривые: grad (зелёная) и zero (фиолетовая); неактивная — с alpha 0.35
       const drawCurve = (hist, color, active) => {

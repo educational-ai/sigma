@@ -96,11 +96,12 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
     for (let p = 0; p < GW * GH; p++) {
       let t = (vals[p] - lo) / (hi - lo + 1e-9);
       t = Math.pow(t, 0.55);                  // подчёркиваем дно
-      const band = (Math.sin(t * Math.PI * 9) * 0.5 + 0.5) * 0.10; // контурные полосы
-      // террейн: дно тёмно-синее → верх тёплый песочный
-      const r = 32 + t * 210 + band * 30;
-      const g = 60 + t * 180 + band * 30;
-      const b = 90 + (1 - t) * 110 - band * 20;
+      const band = (Math.sin(t * Math.PI * 9) * 0.5 + 0.5) * 0.08; // мягкие контурные полосы
+      // приглушённый террейн в тонах Сигмы: дно — глубокий сине-стальной,
+      // гребни — тёплый песочно-хаки (без кричащего жёлтого).
+      const r = 40 + t * 178 + band * 22;
+      const g = 58 + t * 150 + band * 22;
+      const b = 96 + (1 - t) * 72 - band * 14;
       img.data[p * 4] = r; img.data[p * 4 + 1] = g; img.data[p * 4 + 2] = b; img.data[p * 4 + 3] = 255;
     }
     octx.putImageData(img, 0, 0);
@@ -111,9 +112,9 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
   function makeRunners() {
     const s = { x: start.x, y: start.y };
     return {
-      gd: { x: s.x, y: s.y, path: [[s.x, s.y]], color: P.blue, label: "GD" },
-      mom: { x: s.x, y: s.y, vx: 0, vy: 0, path: [[s.x, s.y]], color: P.gold, label: "momentum" },
-      adam: { x: s.x, y: s.y, mx: 0, my: 0, vx: 0, vy: 0, t: 0, path: [[s.x, s.y]], color: P.green, label: "Adam" },
+      gd: { x: s.x, y: s.y, path: [[s.x, s.y]], color: P.blue, label: "GD", style: "solid", lw: 2 },
+      mom: { x: s.x, y: s.y, vx: 0, vy: 0, path: [[s.x, s.y]], color: P.gold, label: "momentum", style: "dash", lw: 2 },
+      adam: { x: s.x, y: s.y, mx: 0, my: 0, vx: 0, vy: 0, t: 0, path: [[s.x, s.y]], color: P.green, label: "Adam", style: "solid", lw: 2.5 },
     };
   }
   let R = makeRunners();
@@ -154,12 +155,14 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
   }
 
   function drawPath(o) {
-    ctx.strokeStyle = o.color; ctx.lineWidth = 2; ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = o.color; ctx.lineWidth = o.lw || 2; ctx.globalAlpha = 0.9;
+    if (o.style === "dash") ctx.setLineDash([6, 4]); else ctx.setLineDash([]);
     ctx.beginPath();
     o.path.forEach((p, i) => { const X = wx(p[0]), Y = wy(p[1]); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
-    ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
     const X = wx(o.x), Y = wy(o.y);
-    ctx.fillStyle = o.color; ctx.beginPath(); ctx.arc(X, Y, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = o.color; ctx.beginPath(); ctx.arc(X, Y, 6, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = P.ink; ctx.lineWidth = 2.5; ctx.stroke();   // тёмный контур ПОД белым — виден при перекрытии голов
     ctx.strokeStyle = "#fffff8"; ctx.lineWidth = 1.5; ctx.stroke();
   }
 
@@ -184,21 +187,33 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
     ctx.fillStyle = P.ink; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "center";
     ctx.fillText("старт", sX, sY - 14);
 
-    // легенда
+    // легенда — единая полупрозрачная плашка-панель
     ctx.textAlign = "left"; ctx.font = "12px Palatino, Georgia, serif";
+    const px = 10, py = 5, pw = 122, ph = 57, pr = 6;
+    ctx.beginPath();
+    ctx.moveTo(px + pr, py);
+    ctx.arcTo(px + pw, py, px + pw, py + ph, pr);
+    ctx.arcTo(px + pw, py + ph, px, py + ph, pr);
+    ctx.arcTo(px, py + ph, px, py, pr);
+    ctx.arcTo(px, py, px + pw, py, pr);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(255,255,248,0.82)"; ctx.fill();
+    ctx.strokeStyle = P.mut; ctx.lineWidth = 0.5; ctx.stroke();
     let ly = 20;
     [R.gd, R.mom, R.adam].forEach((o) => {
       ctx.fillStyle = o.color; ctx.beginPath(); ctx.arc(20, ly - 4, 5, 0, 2 * Math.PI); ctx.fill();
-      ctx.fillStyle = "#fffff8"; ctx.fillRect(30, ly - 11, 96, 15);
       ctx.fillStyle = P.ink; ctx.fillText(o.label, 32, ly);
       ly += 19;
     });
 
+    const fGD = surf.f(R.gd.x, R.gd.y), fMom = surf.f(R.mom.x, R.mom.y), fAdam = surf.f(R.adam.x, R.adam.y);
+    const fmin = Math.min(fGD, fMom, fAdam);
+    const lead = (f) => (f === fmin ? "▾ " : "");  // лидер гонки — у кого L минимально
     out.set([
       { k: "ландшафт", v: surf.label, color: P.mut },
-      { k: "L(GD)", v: surf.f(R.gd.x, R.gd.y).toFixed(3), color: P.blue },
-      { k: "L(momentum)", v: surf.f(R.mom.x, R.mom.y).toFixed(3), color: P.gold },
-      { k: "L(Adam)", v: surf.f(R.adam.x, R.adam.y).toFixed(3), color: P.green },
+      { k: lead(fGD) + "L(GD)", v: fGD.toFixed(3), color: P.blue },
+      { k: lead(fMom) + "L(momentum)", v: fMom.toFixed(3), color: P.gold },
+      { k: lead(fAdam) + "L(Adam)", v: fAdam.toFixed(3), color: P.green },
       { k: "шагов", v: String(R.gd.path.length - 1), color: P.mut },
     ]);
   }

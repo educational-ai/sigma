@@ -7,7 +7,7 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Тяни по поверхности — крути камеру. Кликни по ней — уронишь шарик градиентного спуска, он скатится в ближайший минимум.",
+    text: "Тяни по поверхности — крути камеру. Кликни по ней — уронишь шарик градиентного спуска, он скатится в ближайший минимум. Переключи на «седло» — шарик не застрянет, а соскользнёт вдоль направления отрицательной кривизны: именно так ведёт себя оптимизация в высоких размерностях.",
   }));
 
   const stage = S.row(root);
@@ -249,6 +249,9 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     const by = c00.sy + (c0N.sy - c00.sy) * 1.12;
     label("α", ax, ay);
     label("β", bx, by);
+    // вертикальная ось L: метка у верхней точки видимого z-диапазона
+    const tp = project(0, 0, Z_VIS * 0.5 + 0.1);
+    label("L", tp.sx, tp.sy - 4);
 
     function label(s, x, y) {
       ctx.lineWidth = 3;

@@ -95,6 +95,8 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     histMaxEver = curLen;
     Tmax = Math.max(1e-6, avgEdge() * 1.0);
     if (!manualT) T = Tmax * tFromSlider();   // позиция ползунка задаёт долю Tmax
+    // подпись T зависит от Tmax — обновить, чтобы отражала новый масштаб
+    if (tSlider) tSlider.set(tFromSlider());
   }
 
   function scatterCities(n) {
@@ -274,7 +276,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     out.set([
       { k: "длина", v: curLen.toFixed(0), color: P.blue },
       { k: "лучшая", v: (bestLen === Infinity ? "—" : bestLen.toFixed(0)), color: P.green },
-      { k: "T", v: T.toFixed(2), color: phaseColor },
+      { k: "T", v: (Tmax > 0 ? (T / Tmax).toFixed(2) : "0"), color: phaseColor },
       { k: "режим", v: phase, color: phaseColor },
       { k: "итер.", v: String(iter), color: P.mut },
       { k: "принято", v: accRate.toFixed(0) + "%", color: P.mut },
@@ -341,7 +343,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
 
   tSlider = S.slider(controls, {
     label: "Температура T", min: 0, max: 1, step: 0.01, value: 0.35,
-    fmt: (v) => (v * (Tmax || 1)).toFixed(2),
+    fmt: (v) => v.toFixed(2) + "·Tmax",
   }, (v) => { manualT = true; T = v * Tmax; redraw(); });
 
   S.segmented(controls, {
@@ -370,6 +372,9 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   // ---- непрерывный отжиг -------------------------------------------------
   // стартовая раскладка
   scatterCities(18);
+  // Tmax теперь установлен от данных — пересчитать подпись ползунка T,
+  // чтобы она совпадала с read-out (set() лишь перерисовывает подпись, onInput не зовётся)
+  tSlider.set(tSlider.get());
 
   const STEPS_PER_FRAME = 140;
   let histClock = 0;

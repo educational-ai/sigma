@@ -16,7 +16,9 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
   S.caption(root,
     "Слева — настоящая фотография из датасета Olivetti. В центре — её приближение " +
     "первыми k главными компонентами (eigenfaces). Справа — среднее лицо, точка отсчёта. " +
-    "Внизу — сами собственные лица; подсвечены те, что уже вошли в сумму.");
+    "Внизу — сами собственные лица; подсвечены те, что уже вошли в сумму. " +
+    "Виджет показывает первые 60 компонент (≈89% дисперсии); чтобы добраться до 95%, " +
+    "нужно ~123 компоненты — но и 60 уже сжимают 4096 чисел почти на порядок.");
 
   let D = null, N = 0, faceIdx = 0, k = 10, basis = null;
 
@@ -93,7 +95,7 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
     ctx.fillText("k = " + k, panels.rec.x + panels.rec.w / 2, panels.rec.y + panels.rec.h + 18);
 
     // --- кривая накопленной дисперсии ---
-    const cv2 = D.cumvar, M = Math.min(cv2.length, 120);
+    const cv2 = D.cumvar, M = D.K;
     xK = S.scale(1, M, curveBox.x, curveBox.x + curveBox.w);
     const yV = S.scale(0, 1, curveBox.y + curveBox.h, curveBox.y);
     // сетка
