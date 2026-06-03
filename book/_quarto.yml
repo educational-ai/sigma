@@ -56,6 +56,8 @@ website:
             href: story_ica.qmd
           - text: "▶ Word2Vec: слова как векторы"
             href: story_word2vec.qmd
+          - text: "▶ Внимание: как трансформер решает, на что смотреть"
+            href: story_attention.qmd
           - text: "▶ БПФ как умножение на матрицу: от спектра звука до Shazam"
             href: story_fft_matrix.qmd
           - ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.qmd
