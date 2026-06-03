@@ -33,14 +33,14 @@ function post(type, payload) {
 async function init() {
   if (initPromise) return initPromise;
   initPromise = (async () => {
-    post("progress", { stage: "loader", message: "Загружаю Pyodide…" });
+    post("progress", { stage: "loader", message: "Загружаю Python в браузере (Pyodide), ~15 c" });
     importScripts(PYODIDE_INDEX + "pyodide.js");
     pyodide = await self.loadPyodide({
       indexURL: PYODIDE_INDEX,
       stdout: (s) => { activeStdout += s + "\n"; },
       stderr: (s) => { activeStderr += s + "\n"; },
     });
-    post("progress", { stage: "packages", message: "Подгружаю numpy, matplotlib, sympy…" });
+    post("progress", { stage: "packages", message: "Почти готово: подгружаю numpy, matplotlib, sympy" });
     await pyodide.loadPackage(["numpy", "matplotlib", "sympy", "pillow"]);
     // Bootstrap the namespace: switch matplotlib to Agg, give code a place
     // to save figures, and define a tiny helper that the agent can call.

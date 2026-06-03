@@ -122,14 +122,17 @@ $$
 
 ### Таблица аналогий
 
+Каждая строка читается как $a - b + c \approx d$ — та же арифметика,
+что в форме виджета выше.
+
 | Отношение | $a$ | $b$ | $c$ | $d$ (найдено) |
 |:--|:--|:--|:--|:--|
-| Род | king | queen | man | woman |
+| Пол | king | man | woman | queen |
 | Столица | Paris | France | Germany | Berlin |
-| Род (рус.) | король | королева | мужчина | женщина |
+| Пол (рус.) | король | мужчина | женщина | королева |
 | Время глагола | walking | walked | swimming | swam |
-| Сравнение | big | biggest | small | smallest |
-| Валюта | Japan | yen | Russia | ruble |
+| Сравнительная степень | bigger | big | small | smaller |
+| Валюта | yen | Japan | Russia | ruble |
 
 ```{.python}
 import gensim.downloader as api

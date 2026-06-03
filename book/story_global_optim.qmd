@@ -36,6 +36,7 @@ Holland (1975)^[Holland, J.H. *Adaptation in Natural and Artificial Systems*. Un
 
 **6. Следующее поколение.** Лучшие потомки заменяют худших.
 
+::: {.callout-note collapse="true" title="Код: генетический алгоритм для TSP"}
 ```{.python}
 import numpy as np
 
@@ -99,6 +100,7 @@ D = np.sqrt(((coords[:, None] - coords[None, :]) ** 2).sum(axis=2))
 best_tour, best_length, history = solve_tsp_ga(D)
 print(f"GA: лучший тур = {best_length:.2f}")
 ```
+:::
 
 ## Particle Swarm Optimization (PSO)
 
@@ -143,6 +145,7 @@ $r_1, r_2 \sim U(0,1)$ — случайные числа.
 слетаются к локальному минимуму.
 :::
 
+::: {.callout-note collapse="true" title="Код: роевой алгоритм PSO"}
 ```{.python}
 import numpy as np
 import matplotlib.pyplot as plt
@@ -194,6 +197,7 @@ best, best_val, hist = pso(rastrigin, [(-5.12, 5.12)] * 10,
 print(f"PSO на Rastrigin (d=10): f* = {best_val:.6f}")
 # Глобальный минимум = 0 при x = 0
 ```
+:::
 
 ### Визуализация роя
 
@@ -271,6 +275,7 @@ $$
 
 ## Сравнение на TSP
 
+::: {.callout-note collapse="true" title="Код: имитация отжига для TSP"}
 ```{.python}
 # SA для TSP
 def solve_tsp_sa(D, T0=100, alpha=0.9995, max_iter=100000):
@@ -307,6 +312,7 @@ def solve_tsp_sa(D, T0=100, alpha=0.9995, max_iter=100000):
 best_sa, len_sa = solve_tsp_sa(D)
 print(f"SA: лучший тур = {len_sa:.2f}")
 ```
+:::
 
 ## Резюме
 

@@ -27,19 +27,28 @@ website:
           - ch01_intro.qmd
       - section: "Часть II. Оптимизация"
         contents:
+          - text: "▶ Ландшафт функции потерь и парадоксы высокой размерности"
+            href: story_loss_landscape.qmd
           - ch02_newton.qmd
-          - story_global_optim.qmd
-          - story_mds.qmd
-          - story_loss_landscape.qmd
-          - story_double_descent.qmd
+          - text: "▶ Глобальная оптимизация: от муравьёв до температуры в LLM"
+            href: story_global_optim.qmd
+          - text: "▶ Многомерное шкалирование и проклятие размерности для безградиентных методов"
+            href: story_mds.qmd
+          - text: "▶ Феномен двойного спуска"
+            href: story_double_descent.qmd
       - section: "Часть III. Линейная алгебра и данные"
         contents:
           - ch_linalg.qmd
-          - story_pca.qmd
-          - story_eigenvalues.qmd
-          - story_ica.qmd
-          - story_word2vec.qmd
-          - story_fft_matrix.qmd
+          - text: "▶ PCA и Eigenfaces"
+            href: story_pca.qmd
+          - text: "▶ Собственные значения: от PageRank до шатающихся мостов"
+            href: story_eigenvalues.qmd
+          - text: "▶ ICA и задача коктейльной вечеринки"
+            href: story_ica.qmd
+          - text: "▶ Word2Vec: слова как векторы"
+            href: story_word2vec.qmd
+          - text: "▶ БПФ как умножение на матрицу: от спектра звука до Shazam"
+            href: story_fft_matrix.qmd
       - section: "Часть IV. Анализ данных и ИИ"
         contents:
           - ch03_0_intro.qmd

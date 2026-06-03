@@ -28,12 +28,18 @@
     return CATALOG;
   }
 
+  let prewarmStarted = false;
+
   function ensureWorker() {
     if (worker) return worker;
     worker = new Worker("/assistant/pyodide-worker.js");
     worker.onmessage = (e) => {
       const { type, id } = e.data;
       const ctx = id != null ? pending.get(id) : null;
+      if (type === "ack") {
+        // прогрев завершён фоном — ничего не показываем
+        return;
+      }
       if (type === "progress") {
         // forward to ALL runs that are still waiting on Pyodide cold-start
         for (const c of pending.values()) {
@@ -61,6 +67,15 @@
       }
     };
     return worker;
+  }
+
+  // Прогреваем Pyodide в фоне, как только первый виджет показался на экране:
+  // к моменту клика «Запустить» рантайм уже загружен, и пользователь не ждёт
+  // 15 секунд холодного старта, глядя на спиннер.
+  function prewarm() {
+    if (prewarmStarted || workerReady) return;
+    prewarmStarted = true;
+    ensureWorker().postMessage({ type: "init" });
   }
 
   function runInWorker(code, hooks) {
@@ -155,18 +170,42 @@
 
     const out = el("div", { class: "sigma-algo-out", style: "display:none" });
     const outStatus = el("div", { class: "sigma-algo-status" });
+    const spinner = el("span", { class: "sigma-algo-spinner", style: "display:none" });
+    const statusText = el("span", { class: "sigma-algo-status-text" });
+    outStatus.appendChild(spinner);
+    outStatus.appendChild(statusText);
+    const skeleton = el("div", { class: "sigma-algo-skeleton", style: "display:none" });
     const outBody = el("pre", { class: "sigma-algo-stdout" });
     const outImages = el("div", { class: "sigma-algo-images" });
     out.appendChild(outStatus);
+    out.appendChild(skeleton);
     out.appendChild(outBody);
     out.appendChild(outImages);
+
+    // Показать статус как «крутится»: спиннер + текст.
+    const busy = (text) => {
+      spinner.style.display = "";
+      statusText.textContent = text;
+    };
+    const done = (text) => {
+      spinner.style.display = "none";
+      statusText.textContent = text;
+    };
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       runBtn.disabled = true;
       out.style.display = "";
-      outStatus.textContent = workerReady ? "Запускаю…" : "Загружаю Python (Pyodide)…";
+      const cold = !workerReady;
+      if (cold) {
+        busy("Загружаю Python в браузере… ~15 c (только первый раз)");
+        skeleton.style.display = "";
+      } else {
+        busy("Считаю…");
+        skeleton.style.display = "none";
+      }
       outBody.textContent = "";
+      delete outBody.dataset.hasErr;
       outImages.innerHTML = "";
       const values = {};
       for (const p of entry.params || []) values[p.name] = inputs[p.name].value;
@@ -174,19 +213,31 @@
       try {
         const r = await runInWorker(code, {
           onProgress: (m) => {
-            outStatus.textContent = m;
+            // Во время холодного старта показываем шаги загрузки Pyodide,
+            // но не теряем подсказку про «только первый раз».
+            if (!workerReady) busy(m + " (только первый раз)");
+            else busy(m);
           },
           onStream: (text, kind) => {
+            // Первый стрим пользовательского кода — Python уже прогрет,
+            // прячем скелетон и переключаемся на «считаю».
+            skeleton.style.display = "none";
+            busy("Считаю…");
             outBody.textContent += text;
             if (kind === "stderr") outBody.dataset.hasErr = "1";
           },
         });
+        skeleton.style.display = "none";
         if (r.error) {
-          outStatus.textContent = "Ошибка";
+          done("Ошибка");
           outBody.textContent += "\n" + r.error;
           outBody.dataset.hasErr = "1";
+        } else if (cold) {
+          // После первого инициализации Pyodide прогрет на всю вкладку —
+          // последующие запуски почти мгновенные. Подсветим это.
+          done("Готово · Python прогрет, дальше запуски мгновенные");
         } else {
-          outStatus.textContent = "Готово";
+          done("Готово");
         }
         for (const b64 of r.images || []) {
           const img = el("img", { src: `data:image/png;base64,${b64}`, alt: "" });
@@ -206,7 +257,8 @@
           }
         }
       } catch (err) {
-        outStatus.textContent = "Ошибка";
+        skeleton.style.display = "none";
+        done("Ошибка");
         outBody.textContent += "\n" + String(err.message || err);
         outBody.dataset.hasErr = "1";
       } finally {
@@ -225,6 +277,7 @@
     if (!chapterMap) return;
 
     const callouts = document.querySelectorAll(".callout.callout-important[title]");
+    const runners = [];
     for (const c of callouts) {
       const title = c.getAttribute("title") || "";
       const entry = chapterMap[title];
@@ -232,7 +285,27 @@
       if (c.nextElementSibling && c.nextElementSibling.classList.contains("sigma-algo-runner")) {
         continue; // idempotent
       }
-      c.insertAdjacentElement("afterend", renderRunner(c, entry));
+      const r = renderRunner(c, entry);
+      c.insertAdjacentElement("afterend", r);
+      runners.push(r);
+    }
+
+    // Когда любой виджет приближается к вьюпорту — начинаем грузить Pyodide
+    // заранее. Один прогрев на всю вкладку, дальше worker уже горячий.
+    if (runners.length && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const en of entries) {
+            if (en.isIntersecting) {
+              prewarm();
+              io.disconnect();
+              break;
+            }
+          }
+        },
+        { rootMargin: "300px 0px" },
+      );
+      for (const r of runners) io.observe(r);
     }
   }
 
