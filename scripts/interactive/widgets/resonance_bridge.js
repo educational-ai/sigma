@@ -134,6 +134,15 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
       xs.push(x); ys.push(y);
     }
 
+    // огибающая размаха моды: светлая полоса между крайними положениями деки
+    // (deckY ∓ visAmp·φ). Видна всегда, даже когда дека проходит через ноль
+    // (cos(phase)=0) — форма колебаний читается на любом кадре.
+    ctx.fillStyle = resonance ? "rgba(192,57,43,0.12)" : "rgba(31,78,121,0.10)";
+    ctx.beginPath();
+    for (let i = 0; i <= n + 1; i++) ctx.lineTo(xs[i], deckY - visAmp * modeShape(n, near.m, i));
+    for (let i = n + 1; i >= 0; i--) ctx.lineTo(xs[i], deckY + visAmp * modeShape(n, near.m, i));
+    ctx.closePath(); ctx.fill();
+
     // тросы-подвесы (тонкие вертикали от верхней линии к деке) — даёт ощущение моста
     ctx.strokeStyle = "#cfc9b6"; ctx.lineWidth = 1;
     for (let i = 1; i <= n; i++) {
