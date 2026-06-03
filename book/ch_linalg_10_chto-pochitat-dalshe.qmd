@@ -1,0 +1,27 @@
+---
+title: "Что почитать дальше"
+---
+
+-   *Е. Е. Тыртышников.* Методы численного анализа. М.: Академия, 2007. —
+    классический российский учебник по вычислительной линейной
+    алгебре университетского уровня.
+
+-   *G. Strang.* Linear Algebra and Learning from Data. Wellesley-Cambridge Press, 2019. —
+    свежая книга от автора знаменитого MIT-курса 18.06, написанная
+    с прицелом на data science.
+
+-   *L. N. Trefethen, D. Bau.* Numerical Linear Algebra. SIAM, 1997. —
+    классика, с очень понятным изложением SVD и итерационных методов.
+
+-   *Видеокурс «Numerical Linear Algebra»*, И. В. Оселедец, Сколтех
+    ([github.com/MerkulovDaniil/nla360](https://github.com/MerkulovDaniil/nla360)).
+    Лекции, семинары, ноутбуки — из которых, в частности,
+    и взяты eigencats для этой главы.
+
+-   *S. Brin, L. Page.* The Anatomy of a Large-Scale
+    Hypertextual Web Search Engine. WWW Conference, 1998. —
+    оригинальная статья про PageRank, читается легко.
+
+-   *I. Goodfellow et al.* Explaining and Harnessing
+    Adversarial Examples. ICLR, 2015. —
+    статья про панду-гиббона, из которой взят рис. 0.10.

@@ -38,9 +38,16 @@ website:
             href: story_double_descent.qmd
       - section: "Часть III. Линейная алгебра и данные"
         contents:
-          - ch_linalg.qmd
+          - ch_linalg_0_intro.qmd
+          - ch_linalg_1_zachem-lineynoy-algebre-otdelnay.qmd
+          - ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.qmd
+          - ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.qmd
+          - ch_linalg_4_luchshee-malorangovoe-priblizhen.qmd
+          - ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.qmd
           - text: "▶ PCA и Eigenfaces"
             href: story_pca.qmd
+          - ch_linalg_6_eigencats-to-zhe-samoe-dlya-koti.qmd
+          - ch_linalg_7_pagerank-kak-google-nashel-porya.qmd
           - text: "▶ Собственные значения: от PageRank до шатающихся мостов"
             href: story_eigenvalues.qmd
           - text: "▶ ICA и задача коктейльной вечеринки"
@@ -49,6 +56,10 @@ website:
             href: story_word2vec.qmd
           - text: "▶ БПФ как умножение на матрицу: от спектра звука до Shazam"
             href: story_fft_matrix.qmd
+          - ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.qmd
+          - ch_linalg_9_podvedenie-itogov-glavy.qmd
+          - ch_linalg_10_chto-pochitat-dalshe.qmd
+          - ch_linalg_11_bolshoy-itogovyy-proekt.qmd
       - section: "Часть IV. Анализ данных и ИИ"
         contents:
           - ch03_0_intro.qmd

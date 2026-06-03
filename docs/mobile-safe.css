@@ -327,6 +327,107 @@ a.hm-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0
 .quarto-dark .hm-5 { background: #15803d; color: #d3ffd9; }
 
 /* ================================================================== */
+/*  Landing — hero                                                    */
+/* ================================================================== */
+
+.sigma-hero {
+  margin: 0.5rem 0 2.6rem;
+  padding: 2.4rem 0 0.4rem;
+  text-align: center;
+}
+.sigma-hero-sigma {
+  font-family: "Palatino Linotype", Palatino, Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(5rem, 17vw, 9rem);
+  line-height: 0.9;
+  color: #1a1a1a;
+  background: linear-gradient(135deg, #7253ED 0%, #a00000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+  display: block;
+}
+.quarto-dark .sigma-hero-sigma { filter: brightness(1.25); }
+.sigma-hero-title {
+  font-family: "et-book", Palatino, Georgia, serif;
+  font-size: clamp(1.6rem, 4.5vw, 2.5rem);
+  font-weight: 600;
+  margin: 0.2rem 0 0.4rem;
+  color: #1a1a1a;
+}
+.quarto-dark .sigma-hero-title { color: #f4f6f9; }
+.sigma-hero-sub {
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  line-height: 1.5;
+  color: #5a5648;
+  max-width: 46ch;
+  margin: 0 auto;
+}
+.quarto-dark .sigma-hero-sub { color: #c5cbd4; }
+
+/* Карточки-превью интерактивных сюжетов */
+.sigma-hero-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 2.2rem 0 0.5rem;
+  text-align: left;
+}
+.sigma-story-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  text-decoration: none !important;
+  color: inherit;
+  transition: transform 0.1s ease, box-shadow 0.14s ease, border-color 0.14s;
+}
+.sigma-story-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(114,83,237,0.5);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+}
+.quarto-dark .sigma-story-card { background: #2a2f37; border-color: #404754; }
+.quarto-dark .sigma-story-card:hover { border-color: #8b74f0; }
+.sigma-story-card-img {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  background: #f5f3e8;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.quarto-dark .sigma-story-card-img { background: #1d2128; }
+.sigma-story-card-body { padding: 0.7rem 0.85rem 0.85rem; }
+.sigma-story-card-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #7253ED;
+  margin-bottom: 0.25rem;
+}
+.quarto-dark .sigma-story-card-badge { color: #b8a8f0; }
+.sigma-story-card-title {
+  font-family: "et-book", Palatino, Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #1a1a1a;
+  margin-bottom: 0.2rem;
+}
+.quarto-dark .sigma-story-card-title { color: #f4f6f9; }
+.sigma-story-card-desc {
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #5a5648;
+}
+.quarto-dark .sigma-story-card-desc { color: #aab2bf; }
+
+/* ================================================================== */
 /*  Landing — PDF + assistant chips                                   */
 /* ================================================================== */
 

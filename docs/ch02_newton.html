@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Численные методы оптимизации – Σ Сигма</title>
+<title>Метод Ньютона – Σ Сигма</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch_linalg.html" rel="next">
-<link href="./ch01_intro.html" rel="prev">
+<link href="./story_global_optim.html" rel="next">
+<link href="./story_loss_landscape.html" rel="prev">
 <link href="./../favicon.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -165,7 +165,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Математические основы</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Численные методы оптимизации</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Метод Ньютона</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -222,7 +222,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть II. Математические основы</span></a>
+ <span class="menu-text">Часть II. Оптимизация</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -230,14 +230,32 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Численные методы оптимизации</span></a>
+  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Ландшафт функции потерь и парадоксы высокой размерности</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Метод Ньютона</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Феномен двойного спуска</span></a>
   </div>
 </li>
       </ul>
@@ -245,7 +263,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+ <span class="menu-text">Часть III. Линейная алгебра и данные</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -253,38 +271,104 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Глава 3. Введение в анализ данных и ИИ</span></a>
+  <a href="./ch_linalg_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  <a href="./ch_linalg_1_zachem-lineynoy-algebre-otdelnay.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Зачем линейной алгебре отдельная глава</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.2 Линейная регрессия и метод наименьших квадратов</span></a>
+  <a href="./ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Когда арифметика лжёт: числа с плавающей точкой</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.3 Задача классификации и нейронные сети</span></a>
+  <a href="./ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Сингулярное разложение SVD: главный фокус линейной алгебры</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.4 Задачи обучения без учителя</span></a>
+  <a href="./ch_linalg_4_luchshee-malorangovoe-priblizhen.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Лучшее малоранговое приближение: теорема Эккарта–Янга</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.5 Как искусственный интеллект меняет мир</span></a>
+  <a href="./ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Eigenfaces: как алгоритм узнаёт лицо</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ PCA и Eigenfaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_6_eigencats-to-zhe-samoe-dlya-koti.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Eigencats: то же самое для котиков</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_7_pagerank-kak-google-nashel-porya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">PageRank: как Google нашёл порядок в Интернете</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Собственные значения: от PageRank до шатающихся мостов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_ica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ ICA и задача коктейльной вечеринки</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Word2Vec: слова как векторы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Когда нейросеть устойчива: оценки Липшицевости</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_9_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Подведение итогов главы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что почитать дальше</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Большой итоговый проект</span></a>
   </div>
 </li>
       </ul>
@@ -292,7 +376,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
+ <span class="menu-text">Часть IV. Анализ данных и ИИ</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -300,50 +384,97 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Введение в анализ данных и искусственный интеллект</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Линейная регрессия и метод наименьших квадратов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задача классификации и нейронные сети</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задачи обучения без учителя</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Как искусственный интеллект меняет мир</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть V. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Глава 4. Элементы теории чисел и шифрование</span></a>
+ <span class="menu-text">Элементы теории чисел и шифрование</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_1_elementy-teorii-chisel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.1 Элементы теории чисел</span></a>
+ <span class="menu-text">Элементы теории чисел</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_2_shifrovanie-ot-taynopisi-k-matem.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.2 Шифрование: от тайнописи к математической задаче</span></a>
+ <span class="menu-text">Шифрование: от тайнописи к математической задаче</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_3_kriptosistemy-rsa-i-diffi-hellma.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.3 Криптосистемы RSA и Диффи–Хеллмана</span></a>
+ <span class="menu-text">Криптосистемы RSA и Диффи–Хеллмана</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_4_primeneniya-rsa-autentifikaciya.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.4 Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
+ <span class="menu-text">Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_5_heshirovanie-teoriya-chisel-vstr.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.5 Хеширование: теория чисел встречается с рандомизацией</span></a>
+ <span class="menu-text">Хеширование: теория чисел встречается с рандомизацией</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.6 Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
+ <span class="menu-text">Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_7_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.7 Подведение итогов главы</span></a>
+ <span class="menu-text">Подведение итогов главы</span></a>
   </div>
 </li>
       </ul>
@@ -358,9 +489,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Математические основы</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Численные методы оптимизации</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Метод Ньютона</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Численные методы оптимизации</h1>
+<h1 class="title">Метод Ньютона</h1>
 </div>
 
 
@@ -378,9 +509,7 @@ window.Quarto = {
 
 
 <section id="sec:newton" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="sec:newton">Метод касательных Ньютона и его приложения</h2>
-<section id="от-ньютона-до-канторовича" class="level3 page-columns page-full">
-<h3 class="anchored" data-anchor-id="от-ньютона-до-канторовича">От Ньютона до Канторовича</h3>
+<h2 class="anchored" data-anchor-id="sec:newton">Касательная вместо уравнения</h2>
 <p>Задачи отыскания корня уравнения <span class="math inline">f(x)=0</span> и поиска минимума функции <span class="math inline">g(x)</span> относятся к разным «жанрам» школьной математики, однако численно они решаются почти одним и тем же приёмом — итерационной схемой, придуманной Исааком Ньютоном.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
@@ -411,8 +540,8 @@ window.Quarto = {
 \;x_{k+1}=x_k-\dfrac{f(x_k)}{f'(x_k)}\;\qquad k=0,1,2,\dots</span></p>
 <p>Это и есть <em>итерационная формула Ньютона</em>. Точка <span class="math inline">x_0</span> выбирается исследователем; от её выбора может зависеть, сойдётся ли метод вообще.</p>
 </section>
-<section id="метод-ньютона-для-задач-оптимизации" class="level3 page-columns page-full">
-<h3 class="anchored" data-anchor-id="метод-ньютона-для-задач-оптимизации">Метод Ньютона для задач оптимизации</h3>
+<section id="ньютон-для-оптимизации" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ньютон-для-оптимизации">Ньютон для оптимизации</h2>
 <p>Пусть теперь нужно найти минимум функции <span class="math inline">g</span>. В любой точке минимума <span class="math inline">x^{\star}</span> выполнено <span class="math inline">g'(x^{\star})=0</span>. Значит, минимизация дифференцируемой функции — это решение уравнения</p>
 <p><span class="math display">g'(x)=0.</span></p>
 <p>Применим к нему формулу&nbsp;(2.1) с <span class="math inline">f=g'</span> (и тогда <span class="math inline">f'=g''</span>):</p>
@@ -433,8 +562,8 @@ g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
 </figure>
 </div>
 </section>
-<section id="ssec:heron" class="level3 page-columns page-full">
-<h3 class="anchored" data-anchor-id="ssec:heron">Пример 1. Извлечение квадратного корня</h3>
+<section id="ssec:heron" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="ssec:heron">Квадратный корень за пять шагов</h2>
 <p>Пусть <span class="math inline">a&gt;0</span>. Вычислим <span class="math inline">\sqrt{a}</span>, применяя метод Ньютона к уравнению</p>
 <p><span class="math display">f(x)=x^{2}-a=0.</span></p>
 <p>Тогда <span class="math inline">f'(x)=2x</span>, и формула&nbsp;(2.1) принимает вид</p>
@@ -542,8 +671,8 @@ k &amp; x_k \\\hline
 </div>
 </div></div></section>
 </section>
-<section id="пример-2.-вычисление-обратного-числа" class="level3">
-<h3 class="anchored" data-anchor-id="пример-2.-вычисление-обратного-числа">Пример 2. Вычисление обратного числа</h3>
+<section id="деление-без-деления" class="level2">
+<h2 class="anchored" data-anchor-id="деление-без-деления">Деление без деления</h2>
 <p>Что, если на нашем процессоре нет аппаратного деления, и нужно вычислить <span class="math inline">1/a</span> при <span class="math inline">a&gt;0</span> (только сложениями и умножениями)? Применим метод Ньютона к уравнению</p>
 <p><span class="math display">f(x)=\dfrac{1}{x}-a=0.</span></p>
 <p>Тогда <span class="math inline">f'(x)=-1/x^{2}</span>, и подстановка в&nbsp;(2.1) даёт</p>
@@ -558,10 +687,10 @@ k &amp; x_k \\\hline
 <h4 class="unnumbered anchored" data-anchor-id="анализ-сходимости">Анализ сходимости</h4>
 <p>Введём «относительную невязку» <span class="math inline">u_k=1-a x_k</span>. Тогда</p>
 <p><span class="math display">u_{k+1}=1-a x_{k+1}=1-a x_k(2-ax_k)=1-2 a x_k+(a x_k)^{2}=(1-a x_k)^{2}=u_k^{2}.</span></p>
-<p>Таким образом</p>
+<p>и отсюда</p>
 <p><span class="math display">\tag{2.7}
 u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1.</span></p>
-<p>Условие <span class="math inline">|1-a x_0|&lt;1</span> эквивалентно <span class="math inline">0&lt;x_0&lt;2/a</span>. <em>Радиусом сходимости</em> метода является интервал <span class="math inline">\bigl(0,\,2/a\bigr)</span>, и он <strong>конечен</strong>: вне этого интервала (<span class="math inline">x_0&gt;2/a</span> или <span class="math inline">x_0&lt;0</span>) итерации расходятся. Это принципиальное отличие от метода Герона, который сходится для любого <span class="math inline">x_0&gt;0</span>.</p>
+<p>Условие <span class="math inline">|1-a x_0|&lt;1</span> эквивалентно <span class="math inline">0&lt;x_0&lt;2/a</span>. <em>Радиус сходимости</em> метода — интервал <span class="math inline">\bigl(0,\,2/a\bigr)</span>, и он <strong>конечен</strong>: вне этого интервала (<span class="math inline">x_0&gt;2/a</span> или <span class="math inline">x_0&lt;0</span>) итерации расходятся. Это принципиальное отличие от метода Герона, который сходится для любого <span class="math inline">x_0&gt;0</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Метод Ньютона–Шульца и оптимизатор Muon">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -581,57 +710,55 @@ u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1
 </div>
 </section>
 </section>
-<section id="реализация-на-python-и-численный-эксперимент" class="level3 page-columns page-full">
-<h3 class="anchored" data-anchor-id="реализация-на-python-и-численный-эксперимент">Реализация на Python и численный эксперимент</h3>
+<section id="численный-эксперимент-на-python" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="численный-эксперимент-на-python">Численный эксперимент на Python</h2>
 <p>Запишем универсальную функцию, реализующую метод Ньютона по формуле&nbsp;(2.1), и применим её к двум разобранным примерам. Комментарии в коде даны по-английски (как принято в большинстве библиотек): <code>f</code>, <code>df</code> — сама функция и её производная; <code>x0</code> — начальное приближение; <code>n_iter</code> — максимальное число итераций; <code>tol</code> — точность остановки; функция возвращает массив <code>xs</code> с историей итераций.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:newton" data-label="lst:newton"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:newton-1"><a href="#lst:newton-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="lst:newton-2"><a href="#lst:newton-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="lst:newton-3"><a href="#lst:newton-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-4"><a href="#lst:newton-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-5"><a href="#lst:newton-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> newton(f, df, x0, n_iter<span class="op">=</span><span class="dv">20</span>, tol<span class="op">=</span><span class="fl">1e-15</span>):</span>
-<span id="lst:newton-6"><a href="#lst:newton-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Newton's tangent method.</span></span>
-<span id="lst:newton-7"><a href="#lst:newton-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-8"><a href="#lst:newton-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
-<span id="lst:newton-9"><a href="#lst:newton-9" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
-<span id="lst:newton-10"><a href="#lst:newton-10" aria-hidden="true" tabindex="-1"></a><span class="co">    f, df  : callables f(x) and f'(x).</span></span>
-<span id="lst:newton-11"><a href="#lst:newton-11" aria-hidden="true" tabindex="-1"></a><span class="co">    x0     : initial guess.</span></span>
-<span id="lst:newton-12"><a href="#lst:newton-12" aria-hidden="true" tabindex="-1"></a><span class="co">    n_iter : maximum number of iterations.</span></span>
-<span id="lst:newton-13"><a href="#lst:newton-13" aria-hidden="true" tabindex="-1"></a><span class="co">    tol    : stopping tolerance on |f(x)|.</span></span>
-<span id="lst:newton-14"><a href="#lst:newton-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-15"><a href="#lst:newton-15" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
-<span id="lst:newton-16"><a href="#lst:newton-16" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
-<span id="lst:newton-17"><a href="#lst:newton-17" aria-hidden="true" tabindex="-1"></a><span class="co">    Array of iterates, including x0.</span></span>
-<span id="lst:newton-18"><a href="#lst:newton-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="lst:newton-19"><a href="#lst:newton-19" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> [x0]</span>
-<span id="lst:newton-20"><a href="#lst:newton-20" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x0</span>
-<span id="lst:newton-21"><a href="#lst:newton-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_iter):</span>
-<span id="lst:newton-22"><a href="#lst:newton-22" aria-hidden="true" tabindex="-1"></a>        fx <span class="op">=</span> f(x)</span>
-<span id="lst:newton-23"><a href="#lst:newton-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(fx) <span class="op">&lt;</span> tol:</span>
-<span id="lst:newton-24"><a href="#lst:newton-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="lst:newton-25"><a href="#lst:newton-25" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">-</span> fx <span class="op">/</span> df(x)</span>
-<span id="lst:newton-26"><a href="#lst:newton-26" aria-hidden="true" tabindex="-1"></a>        xs.append(x)</span>
-<span id="lst:newton-27"><a href="#lst:newton-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(xs)</span>
-<span id="lst:newton-28"><a href="#lst:newton-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-29"><a href="#lst:newton-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-30"><a href="#lst:newton-30" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Example 1. Square root of a ---------------------------------</span></span>
-<span id="lst:newton-31"><a href="#lst:newton-31" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="lst:newton-32"><a href="#lst:newton-32" aria-hidden="true" tabindex="-1"></a>xs_sqrt <span class="op">=</span> newton(<span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> a,</span>
-<span id="lst:newton-33"><a href="#lst:newton-33" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> x,</span>
-<span id="lst:newton-34"><a href="#lst:newton-34" aria-hidden="true" tabindex="-1"></a>                 x0<span class="op">=</span><span class="fl">50.0</span>)          <span class="co"># very poor initial guess</span></span>
-<span id="lst:newton-35"><a href="#lst:newton-35" aria-hidden="true" tabindex="-1"></a>err_sqrt <span class="op">=</span> np.<span class="bu">abs</span>(xs_sqrt <span class="op">-</span> np.sqrt(a))</span>
-<span id="lst:newton-36"><a href="#lst:newton-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-37"><a href="#lst:newton-37" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Example 2. Reciprocal 1/a -----------------------------------</span></span>
-<span id="lst:newton-38"><a href="#lst:newton-38" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">3.0</span></span>
-<span id="lst:newton-39"><a href="#lst:newton-39" aria-hidden="true" tabindex="-1"></a>xs_inv  <span class="op">=</span> newton(<span class="kw">lambda</span> x: <span class="fl">1.0</span> <span class="op">/</span> x <span class="op">-</span> a,</span>
-<span id="lst:newton-40"><a href="#lst:newton-40" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">lambda</span> x: <span class="op">-</span><span class="fl">1.0</span> <span class="op">/</span> x<span class="op">**</span><span class="dv">2</span>,</span>
-<span id="lst:newton-41"><a href="#lst:newton-41" aria-hidden="true" tabindex="-1"></a>                 x0<span class="op">=</span><span class="fl">0.20</span>)          <span class="co"># inside the convergence radius (0, 2/a)</span></span>
-<span id="lst:newton-42"><a href="#lst:newton-42" aria-hidden="true" tabindex="-1"></a>err_inv <span class="op">=</span> np.<span class="bu">abs</span>(xs_inv <span class="op">-</span> <span class="fl">1.0</span> <span class="op">/</span> a)</span>
-<span id="lst:newton-43"><a href="#lst:newton-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="lst:newton-44"><a href="#lst:newton-44" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Convergence plot in log scale -------------------------------</span></span>
-<span id="lst:newton-45"><a href="#lst:newton-45" aria-hidden="true" tabindex="-1"></a>plt.semilogy(err_sqrt, <span class="st">'o-'</span>, label<span class="op">=</span><span class="vs">r'sqrt: </span><span class="dv">$</span><span class="cf">|</span><span class="vs">x_k-</span><span class="dv">\s</span><span class="vs">qrt</span><span class="op">{2}</span><span class="cf">|</span><span class="dv">$</span><span class="vs">'</span>)</span>
-<span id="lst:newton-46"><a href="#lst:newton-46" aria-hidden="true" tabindex="-1"></a>plt.semilogy(err_inv,  <span class="st">'s-'</span>, label<span class="op">=</span><span class="vs">r'1/a:  </span><span class="dv">$</span><span class="cf">|</span><span class="vs">x_k-1/3</span><span class="cf">|</span><span class="dv">$</span><span class="vs">'</span>)</span>
-<span id="lst:newton-47"><a href="#lst:newton-47" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'iteration $k$'</span>)<span class="op">;</span> plt.ylabel(<span class="st">'error'</span>)</span>
-<span id="lst:newton-48"><a href="#lst:newton-48" aria-hidden="true" tabindex="-1"></a>plt.legend()<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="lst:newton-4"><a href="#lst:newton-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> newton(f, df, x0, n_iter<span class="op">=</span><span class="dv">20</span>, tol<span class="op">=</span><span class="fl">1e-15</span>):</span>
+<span id="lst:newton-5"><a href="#lst:newton-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Newton's tangent method.</span></span>
+<span id="lst:newton-6"><a href="#lst:newton-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:newton-7"><a href="#lst:newton-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="lst:newton-8"><a href="#lst:newton-8" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="lst:newton-9"><a href="#lst:newton-9" aria-hidden="true" tabindex="-1"></a><span class="co">    f, df  : callables f(x) and f'(x).</span></span>
+<span id="lst:newton-10"><a href="#lst:newton-10" aria-hidden="true" tabindex="-1"></a><span class="co">    x0     : initial guess.</span></span>
+<span id="lst:newton-11"><a href="#lst:newton-11" aria-hidden="true" tabindex="-1"></a><span class="co">    n_iter : maximum number of iterations.</span></span>
+<span id="lst:newton-12"><a href="#lst:newton-12" aria-hidden="true" tabindex="-1"></a><span class="co">    tol    : stopping tolerance on |f(x)|.</span></span>
+<span id="lst:newton-13"><a href="#lst:newton-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:newton-14"><a href="#lst:newton-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="lst:newton-15"><a href="#lst:newton-15" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="lst:newton-16"><a href="#lst:newton-16" aria-hidden="true" tabindex="-1"></a><span class="co">    Array of iterates, including x0.</span></span>
+<span id="lst:newton-17"><a href="#lst:newton-17" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="lst:newton-18"><a href="#lst:newton-18" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> [x0]</span>
+<span id="lst:newton-19"><a href="#lst:newton-19" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x0</span>
+<span id="lst:newton-20"><a href="#lst:newton-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_iter):</span>
+<span id="lst:newton-21"><a href="#lst:newton-21" aria-hidden="true" tabindex="-1"></a>        fx <span class="op">=</span> f(x)</span>
+<span id="lst:newton-22"><a href="#lst:newton-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(fx) <span class="op">&lt;</span> tol:</span>
+<span id="lst:newton-23"><a href="#lst:newton-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="lst:newton-24"><a href="#lst:newton-24" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">-</span> fx <span class="op">/</span> df(x)</span>
+<span id="lst:newton-25"><a href="#lst:newton-25" aria-hidden="true" tabindex="-1"></a>        xs.append(x)</span>
+<span id="lst:newton-26"><a href="#lst:newton-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(xs)</span>
+<span id="lst:newton-27"><a href="#lst:newton-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:newton-28"><a href="#lst:newton-28" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Example 1. Square root of a ---------------------------------</span></span>
+<span id="lst:newton-29"><a href="#lst:newton-29" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="lst:newton-30"><a href="#lst:newton-30" aria-hidden="true" tabindex="-1"></a>xs_sqrt <span class="op">=</span> newton(<span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> a,</span>
+<span id="lst:newton-31"><a href="#lst:newton-31" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">lambda</span> x: <span class="dv">2</span> <span class="op">*</span> x,</span>
+<span id="lst:newton-32"><a href="#lst:newton-32" aria-hidden="true" tabindex="-1"></a>                 x0<span class="op">=</span><span class="fl">50.0</span>)          <span class="co"># very poor initial guess</span></span>
+<span id="lst:newton-33"><a href="#lst:newton-33" aria-hidden="true" tabindex="-1"></a>err_sqrt <span class="op">=</span> np.<span class="bu">abs</span>(xs_sqrt <span class="op">-</span> np.sqrt(a))</span>
+<span id="lst:newton-34"><a href="#lst:newton-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:newton-35"><a href="#lst:newton-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Example 2. Reciprocal 1/a -----------------------------------</span></span>
+<span id="lst:newton-36"><a href="#lst:newton-36" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">3.0</span></span>
+<span id="lst:newton-37"><a href="#lst:newton-37" aria-hidden="true" tabindex="-1"></a>xs_inv  <span class="op">=</span> newton(<span class="kw">lambda</span> x: <span class="fl">1.0</span> <span class="op">/</span> x <span class="op">-</span> a,</span>
+<span id="lst:newton-38"><a href="#lst:newton-38" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">lambda</span> x: <span class="op">-</span><span class="fl">1.0</span> <span class="op">/</span> x<span class="op">**</span><span class="dv">2</span>,</span>
+<span id="lst:newton-39"><a href="#lst:newton-39" aria-hidden="true" tabindex="-1"></a>                 x0<span class="op">=</span><span class="fl">0.20</span>)          <span class="co"># inside the convergence radius (0, 2/a)</span></span>
+<span id="lst:newton-40"><a href="#lst:newton-40" aria-hidden="true" tabindex="-1"></a>err_inv <span class="op">=</span> np.<span class="bu">abs</span>(xs_inv <span class="op">-</span> <span class="fl">1.0</span> <span class="op">/</span> a)</span>
+<span id="lst:newton-41"><a href="#lst:newton-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:newton-42"><a href="#lst:newton-42" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Convergence plot in log scale -------------------------------</span></span>
+<span id="lst:newton-43"><a href="#lst:newton-43" aria-hidden="true" tabindex="-1"></a>plt.semilogy(err_sqrt, <span class="st">'o-'</span>, label<span class="op">=</span><span class="vs">r'sqrt: </span><span class="dv">$</span><span class="cf">|</span><span class="vs">x_k-</span><span class="dv">\s</span><span class="vs">qrt</span><span class="op">{2}</span><span class="cf">|</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="lst:newton-44"><a href="#lst:newton-44" aria-hidden="true" tabindex="-1"></a>plt.semilogy(err_inv,  <span class="st">'s-'</span>, label<span class="op">=</span><span class="vs">r'1/a:  </span><span class="dv">$</span><span class="cf">|</span><span class="vs">x_k-1/3</span><span class="cf">|</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="lst:newton-45"><a href="#lst:newton-45" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'iteration $k$'</span>)<span class="op">;</span> plt.ylabel(<span class="st">'error'</span>)</span>
+<span id="lst:newton-46"><a href="#lst:newton-46" aria-hidden="true" tabindex="-1"></a>plt.legend()<span class="op">;</span> plt.grid(<span class="va">True</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Листинг&nbsp;2.1. Универсальный метод касательных Ньютона и его применение.</em></p>
 <p><strong>Что показывает эксперимент.</strong></p>
 <p>На рис.&nbsp;2.4 приведены кривые сходимости метода Герона для <span class="math inline">\sqrt{2}</span> при разных стартах <span class="math inline">x_0\in\{0{,}1;\,1;\,5;\,50\}</span>. Все четыре кривые сходятся к нулю, причём поведение типичное для квадратичной сходимости: после нескольких «согласующих» шагов число верных знаков удваивается за итерацию. Это иллюстрирует <strong>глобальную сходимость</strong> метода Герона: годится <em>любое</em> начальное приближение из <span class="math inline">(0,\infty)</span>.</p>
@@ -641,7 +768,7 @@ u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1
 <figcaption class="margin-caption">Рис. 2.4. Глобальная сходимость метода Герона для <span class="math inline">\sqrt{2}</span> из четырёх очень разных стартовых точек. Шкала ошибки логарифмическая.</figcaption>
 </figure>
 </div>
-<p>Совсем другое поведение демонстрирует метод Ньютона–Шульца для <span class="math inline">1/a</span> при <span class="math inline">a=3</span> (рис.&nbsp;2.5): радиус сходимости равен интервалу <span class="math inline">(0,\,2/3)\approx(0,\,0{,}667)</span>. Стартуя <em>внутри</em> этого интервала, метод сходится квадратично (нижние три кривые); на самой границе (<span class="math inline">x_0=0{,}66</span>) — сходится, но «впритык»; а уже при <span class="math inline">x_0=0{,}70</span> ошибка взрывообразно растёт: <span class="math inline">|u_k|=|u_0|^{2^{k}}\to\infty</span> в полном согласии с (2.7). Это <strong>локальная сходимость</strong>.</p>
+<p>Совсем иначе ведёт себя метод Ньютона–Шульца для <span class="math inline">1/a</span> при <span class="math inline">a=3</span> (рис.&nbsp;2.5): радиус сходимости равен интервалу <span class="math inline">(0,\,2/3)\approx(0,\,0{,}667)</span>. Стартуя <em>внутри</em> этого интервала, метод сходится квадратично (нижние три кривые); на самой границе (<span class="math inline">x_0=0{,}66</span>) — сходится, но «впритык»; а уже при <span class="math inline">x_0=0{,}70</span> ошибка взрывообразно растёт: <span class="math inline">|u_k|=|u_0|^{2^{k}}\to\infty</span> в полном согласии с (2.7). Это <strong>локальная сходимость</strong>.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="./figures/reciprocal_convergence.svg" class="img-fluid figure-img"></p>
@@ -649,8 +776,8 @@ u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1
 </figure>
 </div>
 </section>
-<section id="ssec:thm-superlinear" class="level3">
-<h3 class="anchored" data-anchor-id="ssec:thm-superlinear">Достаточные условия сверхлинейной сходимости<span class="math inline">^\star</span></h3>
+<section id="ssec:thm-superlinear" class="level2">
+<h2 class="anchored" data-anchor-id="ssec:thm-superlinear">Когда сходимость сверхлинейна<span class="math inline">^\star</span></h2>
 <p>Сравнение двух примеров наводит на вопрос: <em>когда именно</em> метод Ньютона сходится так быстро, как мы наблюдаем? Ответ даёт следующая теорема, восходящая к Канторовичу.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Определение 2.3. Сверхлинейная и квадратичная сходимости">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
@@ -728,7 +855,7 @@ x_{k+1}-x^{\star}\;=\;\dfrac{f''(\xi_k)}{2 f'(x_k)}\,(x_k-x^{\star})^{2}.</span>
 <p><strong>Где условия выполняются для наших примеров?</strong></p>
 <p><strong>Метод Герона.</strong> Здесь <span class="math inline">f(x)=x^{2}-a</span>, <span class="math inline">f'(x)=2x</span>, <span class="math inline">f''(x)=2</span>. В точке <span class="math inline">x^{\star}=\sqrt{a}&gt;0</span> выполнено <span class="math inline">f'(x^{\star})=2\sqrt{a}\neq 0</span>. <em>Условия теоремы выполняются на всём луче <span class="math inline">(0,\infty)</span>, не содержащем ноль</em>, и константа в&nbsp;(2.8) принимает вид <span class="math inline">M=\frac{1}{2\sqrt{a}}</span> — в полном согласии с явным выражением&nbsp;(2.5), полученным элементарно.</p>
 <p><strong>Метод Ньютона–Шульца.</strong> Здесь <span class="math inline">f(x)=1/x-a</span>, <span class="math inline">f'(x)=-1/x^{2}</span>, <span class="math inline">f''(x)=2/x^{3}</span>. В точке <span class="math inline">x^{\star}=1/a</span> имеем <span class="math inline">f'(x^{\star})=-a^{2}\neq 0</span>, и теорема применима в малой окрестности этой точки. Однако, в отличие от метода Герона, оценка снизу <span class="math inline">|f'(x)|\geq m&gt;0</span> <em>ломается</em> при <span class="math inline">x\to\infty</span>: производная стремится к нулю. Именно поэтому радиус сходимости в этом примере конечен и равен <span class="math inline">1/a</span> слева и справа от <span class="math inline">x^{\star}</span>, что в сумме даёт интервал <span class="math inline">(0,\,2/a)</span>, найденный нами ранее аналитически.</p>
-<p>Таким образом, два простейших примера полностью укладываются в доказанную теорему: метод Ньютона сходится сверхлинейно <em>там, где</em> производная регулярна и отделена от нуля. Глобальную же сходимость, как у Герона, приходится доказывать дополнительно — например, ссылаясь на структуру функции (выпуклость) и теорему Банаха о сжимающем отображении, как мы и сделали в разделе&nbsp;2.1.</p>
+<p>Итого, два простейших примера полностью укладываются в доказанную теорему: метод Ньютона сходится сверхлинейно <em>там, где</em> производная регулярна и отделена от нуля. Глобальную же сходимость, как у Герона, приходится доказывать дополнительно — например, ссылаясь на структуру функции (выпуклость) и теорему Банаха о сжимающем отображении, как мы и сделали в разделе&nbsp;2.1.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Задачи для самостоятельной работы">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -751,9 +878,10 @@ x_{k+1}-x^{\star}\;=\;\dfrac{f''(\xi_k)}{2 f'(x_k)}\,(x_k-x^{\star})^{2}.</span>
 </div>
 </div>
 </div>
+<hr>
+<p>Мы шли по одномерному графику и сводили минимизацию к решению уравнения <span class="math inline">g'(x)=0</span>. Но функция потерь нейросети живёт не на прямой, а в пространстве миллионов параметров. Там вторую производную уже не поделить в уме: матрица Гессе огромна, а интуиция «парабола касается графика» отказывает. Что вообще видит оптимизатор в таком пространстве — узкий овраг, гладкую чашу или поле сёдел? С этого вопроса начинается следующий сюжет — <a href="./story_loss_landscape.html">ландшафт функции потерь и парадоксы высокой размерности</a>.</p>
 
 
-</section>
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
@@ -1172,13 +1300,13 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./ch01_intro.html" class="pagination-link" aria-label="Что такое искусственный интеллект">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Что такое искусственный интеллект</span>
+      <a href="./story_loss_landscape.html" class="pagination-link" aria-label="▶ Ландшафт функции потерь и парадоксы высокой размерности">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">▶ Ландшафт функции потерь и парадоксы высокой размерности</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch_linalg.html" class="pagination-link" aria-label="Вычислительная линейная алгебра">
-        <span class="nav-page-text">Вычислительная линейная алгебра</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./story_global_optim.html" class="pagination-link" aria-label="▶ Глобальная оптимизация: от муравьёв до температуры в LLM">
+        <span class="nav-page-text">▶ Глобальная оптимизация: от муравьёв до температуры в LLM</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -165,7 +165,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_global_optim.html">Глобальная оптимизация: от муравьёв до температуры в LLM</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_global_optim.html">▶ Глобальная оптимизация: от муравьёв до температуры в LLM</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -230,32 +230,32 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Ландшафт функции потерь и парадоксы высокой размерности</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Численные методы оптимизации</span></a>
+ <span class="menu-text">Метод Ньютона</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
+ <span class="menu-text">▶ Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Ландшафт функции потерь и парадоксы высокой размерности</span></a>
+ <span class="menu-text">▶ Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Феномен двойного спуска</span></a>
+ <span class="menu-text">▶ Феномен двойного спуска</span></a>
   </div>
 </li>
       </ul>
@@ -271,38 +271,104 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
+  <a href="./ch_linalg_0_intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Вычислительная линейная алгебра</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_1_zachem-lineynoy-algebre-otdelnay.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Зачем линейной алгебре отдельная глава</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Когда арифметика лжёт: числа с плавающей точкой</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Сингулярное разложение SVD: главный фокус линейной алгебры</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_4_luchshee-malorangovoe-priblizhen.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Лучшее малоранговое приближение: теорема Эккарта–Янга</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Eigenfaces: как алгоритм узнаёт лицо</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">PCA и Eigenfaces</span></a>
+ <span class="menu-text">▶ PCA и Eigenfaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_6_eigencats-to-zhe-samoe-dlya-koti.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Eigencats: то же самое для котиков</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_7_pagerank-kak-google-nashel-porya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">PageRank: как Google нашёл порядок в Интернете</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Собственные значения: от PageRank до шатающихся мостов</span></a>
+ <span class="menu-text">▶ Собственные значения: от PageRank до шатающихся мостов</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_ica.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">ICA и задача коктейльной вечеринки</span></a>
+ <span class="menu-text">▶ ICA и задача коктейльной вечеринки</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Word2Vec: слова как векторы</span></a>
+ <span class="menu-text">▶ Word2Vec: слова как векторы</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+ <span class="menu-text">▶ БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Когда нейросеть устойчива: оценки Липшицевости</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_9_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Подведение итогов главы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что почитать дальше</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Большой итоговый проект</span></a>
   </div>
 </li>
       </ul>
@@ -423,7 +489,7 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_global_optim.html">Глобальная оптимизация: от муравьёв до температуры в LLM</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_global_optim.html">▶ Глобальная оптимизация: от муравьёв до температуры в LLM</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Глобальная оптимизация: от муравьёв до температуры в LLM</h1>
 </div>
@@ -460,6 +526,18 @@ L(\pi) = \sum_{i=1}^{n-1} D_{\pi(i), \pi(i+1)} + D_{\pi(n), \pi(1)}.
 <p><strong>4. Кроссовер</strong> (Order Crossover, OX). Берём подстроку из родителя A, оставшиеся позиции заполняем из родителя B в порядке появления.</p>
 <p><strong>5. Мутация.</strong> С малой вероятностью <span class="math inline">p_m \approx 0.01</span> меняем местами два случайных города.</p>
 <p><strong>6. Следующее поколение.</strong> Лучшие потомки заменяют худших.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Код: генетический алгоритм для TSP">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Код: генетический алгоритм для TSP
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_tsp_ga(D, pop_size<span class="op">=</span><span class="dv">200</span>, generations<span class="op">=</span><span class="dv">500</span>, mutation_rate<span class="op">=</span><span class="fl">0.02</span>):</span>
@@ -521,6 +599,9 @@ L(\pi) = \sum_{i=1}^{n-1} D_{\pi(i), \pi(i+1)} + D_{\pi(n), \pi(1)}.
 <span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>best_tour, best_length, history <span class="op">=</span> solve_tsp_ga(D)</span>
 <span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"GA: лучший тур = </span><span class="sc">{</span>best_length<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
 </section>
 <section id="particle-swarm-optimization-pso" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="particle-swarm-optimization-pso">Particle Swarm Optimization (PSO)</h2>
@@ -558,6 +639,18 @@ x_i \leftarrow x_i + v_i,
 <p>Баланс между exploration (инерция) и exploitation (социальная) определяет эффективность PSO. Слишком большая инерция — стая разлетается. Слишком сильная социальная сила — все слетаются к локальному минимуму.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Код: роевой алгоритм PSO">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Код: роевой алгоритм PSO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -607,6 +700,9 @@ x_i \leftarrow x_i + v_i,
 <span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>                            n_particles<span class="op">=</span><span class="dv">50</span>, max_iter<span class="op">=</span><span class="dv">300</span>)</span>
 <span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"PSO на Rastrigin (d=10): f* = </span><span class="sc">{</span>best_val<span class="sc">:.6f}</span><span class="ss">"</span>)</span>
 <span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Глобальный минимум = 0 при x = 0</span></span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
 </section>
 <section id="визуализация-роя" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="визуализация-роя">Визуализация роя</h3>
@@ -702,7 +798,7 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled" title="Поиграть: коммивояжёр и отжиг">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -711,7 +807,7 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Разбросайте города случайно и запустите имитацию отжига вживую: алгоритм 2-opt переставляет рёбра, с убывающей температурой иногда соглашаясь на ухудшение — и выходит из локальных ловушек. Слева — найденный маршрут, справа — как падала его длина. Меняйте число городов и зерно.</p>
 </div>
@@ -720,6 +816,18 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 </section>
 <section id="сравнение-на-tsp" class="level2">
 <h2 class="anchored" data-anchor-id="сравнение-на-tsp">Сравнение на TSP</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="Код: имитация отжига для TSP">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Код: имитация отжига для TSP
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SA для TSP</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_tsp_sa(D, T0<span class="op">=</span><span class="dv">100</span>, alpha<span class="op">=</span><span class="fl">0.9995</span>, max_iter<span class="op">=</span><span class="dv">100000</span>):</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> D.shape[<span class="dv">0</span>]</span>
@@ -754,6 +862,9 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>best_sa, len_sa <span class="op">=</span> solve_tsp_sa(D)</span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SA: лучший тур = </span><span class="sc">{</span>len_sa<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
 </section>
 <section id="резюме" class="level2">
 <h2 class="anchored" data-anchor-id="резюме">Резюме</h2>
@@ -1221,13 +1332,13 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./ch02_newton.html" class="pagination-link" aria-label="Численные методы оптимизации">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Численные методы оптимизации</span>
+      <a href="./ch02_newton.html" class="pagination-link" aria-label="Метод Ньютона">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Метод Ньютона</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./story_mds.html" class="pagination-link" aria-label="Многомерное шкалирование и проклятие размерности для безградиентных методов">
-        <span class="nav-page-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./story_mds.html" class="pagination-link" aria-label="▶ Многомерное шкалирование и проклятие размерности для безградиентных методов">
+        <span class="nav-page-text">▶ Многомерное шкалирование и проклятие размерности для безградиентных методов</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

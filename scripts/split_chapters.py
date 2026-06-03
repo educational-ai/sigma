@@ -22,11 +22,25 @@ DOP = Path(__file__).resolve().parent.parent / "book"
 SPLIT_CHAPTERS = [
     ("ch03_ds", "ch03", 3),
     ("ch04_numtheory", "ch04", 4),
+    ("ch_linalg", "ch_linalg", 0),
 ]
 
 FRONTMATTER_RE = re.compile(r'^---\n(.*?)\n---\n(.*)', re.DOTALL)
 SECTION_SPLIT_RE = re.compile(r'\n(?=## )')
 HEADING_RE = re.compile(r'## (?P<title>[^\n{]+?)(?:\s*\{[^}]*\})?\s*\n')
+
+
+def clean_title(text: str) -> str:
+    """Make a section heading safe + clean for a YAML double-quoted title.
+
+    Drops the LaTeX optional-section star marker ($^\\star$ / $^{\\star}$ /
+    ${}^\\star$) which is meaningless in a page title and breaks YAML
+    (backslash-escape), and escapes embedded double quotes.
+    """
+    t = re.sub(r"\$\s*\{?\}?\s*\^?\s*\{?\\star\}?\s*\$", "", text)
+    t = re.sub(r"\s+", " ", t).strip()
+    # Escape for a YAML double-quoted scalar (keeps any remaining LaTeX intact).
+    return t.replace("\\", "\\\\").replace('"', '\\"')
 
 
 def slugify(text: str, max_len: int = 32) -> str:
@@ -70,27 +84,20 @@ def split_one(src_basename: str, prefix: str, chapter_num: int) -> list[Path]:
 
     out_files: list[Path] = []
 
-    # Intro page — preserve previous title if file already exists
+    # Intro page — title from \chapter{...} via tex_to_qmd, без номера главы
     if intro_text:
         intro_path = DOP / f"{prefix}_0_intro.qmd"
-        existing_title = None
-        if intro_path.exists():
-            mm = FRONTMATTER_RE.match(intro_path.read_text(encoding="utf-8"))
-            if mm:
-                tm = re.search(r'title:\s*"([^"]+)"', mm.group(1))
-                if tm:
-                    existing_title = tm.group(1)
-        title = existing_title or src_title or f"Глава {chapter_num}. Введение"
+        title = src_title or "Введение"
         intro_path.write_text(
             f"---\ntitle: \"{title}\"\n---\n\n{intro_text}\n",
             encoding="utf-8",
         )
         out_files.append(intro_path)
 
-    # Section pages
+    # Section pages — title из \section{...} без префикса N.i
     for i, sec in enumerate(sections, 1):
         h = HEADING_RE.match(sec)
-        title = h.group("title").strip() if h else f"Раздел {i}"
+        title = clean_title(h.group("title").strip() if h else f"Раздел {i}")
         # Drop the heading line from body
         sec_body = HEADING_RE.sub("", sec, count=1).lstrip()
         # Promote H3→H2, H4→H3, etc.
@@ -101,7 +108,7 @@ def split_one(src_basename: str, prefix: str, chapter_num: int) -> list[Path]:
         slug = slugify(title)
         out_path = DOP / f"{prefix}_{i}_{slug}.qmd"
         out_path.write_text(
-            f"---\ntitle: \"{chapter_num}.{i} {title}\"\n---\n\n{sec_body}\n",
+            f"---\ntitle: \"{title}\"\n---\n\n{sec_body}\n",
             encoding="utf-8",
         )
         out_files.append(out_path)

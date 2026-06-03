@@ -71,6 +71,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Поиск"
   }
 }</script>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="sigma-tufte.css">
@@ -143,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть II. Математические основы</span></a>
+ <span class="menu-text">Часть II. Оптимизация</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -151,14 +154,32 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Численные методы оптимизации</span></a>
+  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Ландшафт функции потерь и парадоксы высокой размерности</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Метод Ньютона</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Феномен двойного спуска</span></a>
   </div>
 </li>
       </ul>
@@ -166,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+ <span class="menu-text">Часть III. Линейная алгебра и данные</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -174,38 +195,104 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Глава 3. Введение в анализ данных и ИИ</span></a>
+  <a href="./ch_linalg_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.1 Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  <a href="./ch_linalg_1_zachem-lineynoy-algebre-otdelnay.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Зачем линейной алгебре отдельная глава</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.2 Линейная регрессия и метод наименьших квадратов</span></a>
+  <a href="./ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Когда арифметика лжёт: числа с плавающей точкой</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.3 Задача классификации и нейронные сети</span></a>
+  <a href="./ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Сингулярное разложение SVD: главный фокус линейной алгебры</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.4 Задачи обучения без учителя</span></a>
+  <a href="./ch_linalg_4_luchshee-malorangovoe-priblizhen.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Лучшее малоранговое приближение: теорема Эккарта–Янга</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3.5 Как искусственный интеллект меняет мир</span></a>
+  <a href="./ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Eigenfaces: как алгоритм узнаёт лицо</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ PCA и Eigenfaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_6_eigencats-to-zhe-samoe-dlya-koti.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Eigencats: то же самое для котиков</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_7_pagerank-kak-google-nashel-porya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">PageRank: как Google нашёл порядок в Интернете</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Собственные значения: от PageRank до шатающихся мостов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_ica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ ICA и задача коктейльной вечеринки</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Word2Vec: слова как векторы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Когда нейросеть устойчива: оценки Липшицевости</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_9_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Подведение итогов главы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Что почитать дальше</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Большой итоговый проект</span></a>
   </div>
 </li>
       </ul>
@@ -213,7 +300,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
+ <span class="menu-text">Часть IV. Анализ данных и ИИ</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -221,50 +308,97 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Введение в анализ данных и искусственный интеллект</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_1_prosteyshie-primery-zadach-anali.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_2_lineynaya-regressiya-i-metod-nai.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Линейная регрессия и метод наименьших квадратов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задача классификации и нейронные сети</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_4_zadachi-obucheniya-bez-uchitelya.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Задачи обучения без учителя</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_5_kak-iskusstvennyy-intellekt-meny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Как искусственный интеллект меняет мир</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть V. Дискретная математика и криптография</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Глава 4. Элементы теории чисел и шифрование</span></a>
+ <span class="menu-text">Элементы теории чисел и шифрование</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_1_elementy-teorii-chisel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.1 Элементы теории чисел</span></a>
+ <span class="menu-text">Элементы теории чисел</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_2_shifrovanie-ot-taynopisi-k-matem.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.2 Шифрование: от тайнописи к математической задаче</span></a>
+ <span class="menu-text">Шифрование: от тайнописи к математической задаче</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_3_kriptosistemy-rsa-i-diffi-hellma.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.3 Криптосистемы RSA и Диффи–Хеллмана</span></a>
+ <span class="menu-text">Криптосистемы RSA и Диффи–Хеллмана</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_4_primeneniya-rsa-autentifikaciya.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.4 Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
+ <span class="menu-text">Применения RSA: аутентификация, цифровая подпись, электронное голосование</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_5_heshirovanie-teoriya-chisel-vstr.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.5 Хеширование: теория чисел встречается с рандомизацией</span></a>
+ <span class="menu-text">Хеширование: теория чисел встречается с рандомизацией</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.6 Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
+ <span class="menu-text">Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_7_podvedenie-itogov-glavy.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4.7 Подведение итогов главы</span></a>
+ <span class="menu-text">Подведение итогов главы</span></a>
   </div>
 </li>
       </ul>
@@ -298,7 +432,408 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<style>
+  /* На лендинге свой герой-блок — дефолтный заголовок Quarto прячем. */
+  #title-block-header.quarto-title-block { display: none; }
+</style>
+<section class="sigma-hero">
+  <span class="sigma-hero-sigma">Σ</span>
+  <h1 class="sigma-hero-title">Сигма</h1>
+  <p class="sigma-hero-sub">
+    Интерактивный учебник по математике современного ИИ. Каждая страница —
+    история, формула и работающий код прямо в браузере.
+  </p>
+
+  <div class="sigma-hero-cards">
+    <a class="sigma-story-card" href="story_pca.html">
+      <img class="sigma-story-card-img" src="figures/stories/pca_eigenfaces.svg" alt="Собственные лица">
+      <div class="sigma-story-card-body">
+        <span class="sigma-story-card-badge">▶ Поиграть</span>
+        <div class="sigma-story-card-title">Eigenfaces и сжатие</div>
+        <div class="sigma-story-card-desc">Лицо как сумма «собственных лиц». Двигайте число компонент — смотрите, как оно собирается.</div>
+      </div>
+    </a>
+    <a class="sigma-story-card" href="story_fft_matrix.html">
+      <img class="sigma-story-card-img" src="figures/stories/fft_spectrogram.png" alt="Спектрограмма звука">
+      <div class="sigma-story-card-body">
+        <span class="sigma-story-card-badge">▶ Поиграть</span>
+        <div class="sigma-story-card-title">Спектр звука и Shazam</div>
+        <div class="sigma-story-card-desc">ДПФ как умножение на матрицу: разложите два тона и постройте спектрограмму.</div>
+      </div>
+    </a>
+    <a class="sigma-story-card" href="story_eigenvalues.html">
+      <img class="sigma-story-card-img" src="figures/stories/eigen_resonance.svg" alt="Кривая резонанса">
+      <div class="sigma-story-card-body">
+        <span class="sigma-story-card-badge">▶ Поиграть</span>
+        <div class="sigma-story-card-title">Резонанс и мост Такома</div>
+        <div class="sigma-story-card-desc">Собственные частоты от PageRank до рухнувшего моста. Поймайте резонанс сами.</div>
+      </div>
+    </a>
+    <a class="sigma-story-card" href="story_ica.html">
+      <img class="sigma-story-card-img" src="figures/stories/ica_separation.svg" alt="Разделение сигналов">
+      <div class="sigma-story-card-body">
+        <span class="sigma-story-card-badge">▶ Поиграть</span>
+        <div class="sigma-story-card-title">Коктейльная вечеринка</div>
+        <div class="sigma-story-card-desc">Три микрофона, три голоса. ICA разбирает смесь на независимые источники.</div>
+      </div>
+    </a>
+    <a class="sigma-story-card" href="story_global_optim.html">
+      <img class="sigma-story-card-img" src="figures/stories/optim_pso.png" alt="Рой частиц">
+      <div class="sigma-story-card-body">
+        <span class="sigma-story-card-badge">▶ Поиграть</span>
+        <div class="sigma-story-card-title">Муравьи, рой и отжиг</div>
+        <div class="sigma-story-card-desc">Метаэвристики против коммивояжёра — и та же «температура», что в LLM.</div>
+      </div>
+    </a>
+    <a class="sigma-story-card" href="story_double_descent.html">
+      <img class="sigma-story-card-img" src="figures/stories/dd_curve.svg" alt="Кривая двойного спуска">
+      <div class="sigma-story-card-body">
+        <span class="sigma-story-card-badge">▶ Поиграть</span>
+        <div class="sigma-story-card-title">Двойной спуск</div>
+        <div class="sigma-story-card-desc">Почему сети с триллионом параметров не переобучаются. Крутите степень полинома.</div>
+      </div>
+    </a>
+  </div>
+</section>
+<style>
+  .sigma-tree { margin: 1.2em 0 2em; font-family: et-book, Palatino, Georgia, serif; }
+  .sigma-tree h2 { margin: 0 0 0.4em; font-size: 1.5em; }
+  .sigma-tree .lede { color: #555; font-size: 0.95em; margin-bottom: 1em; max-width: 56ch; }
+  .sigma-tree .legend { color: #777; font-size: 0.85em; margin-bottom: 1em; }
+  .sigma-tree details { margin: 0; padding: 0; }
+  .sigma-tree > details {
+    border-left: 2px solid #c8c2a8;
+    padding: 0.05em 0 0.05em 0.9em;
+    margin: 0 0 0.25em 0;
+  }
+  .sigma-tree > details[open] { border-left-color: #7253ED; }
+  .sigma-tree details details {
+    border-left: 1px solid #e0dcc8;
+    padding: 0 0 0 0.9em;
+    margin: 0 0 0 0.3em;
+  }
+  .sigma-tree details details[open] { border-left-color: #b8a8e8; }
+  .sigma-tree summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.12em 0.25em;
+    border-radius: 3px;
+    user-select: none;
+    line-height: 1.35;
+  }
+  .sigma-tree summary::-webkit-details-marker { display: none; }
+  .sigma-tree summary::before {
+    content: "▸";
+    display: inline-block;
+    width: 1em;
+    color: #b0a890;
+    font-size: 0.85em;
+    transition: transform 0.12s ease;
+  }
+  .sigma-tree details[open] > summary::before {
+    transform: rotate(90deg);
+    color: #7253ED;
+  }
+  .sigma-tree > details > summary {
+    font-weight: 600;
+    font-size: 1.08em;
+    color: #1d1d1f;
+  }
+  .sigma-tree details details > summary { font-size: 0.98em; color: #2d2d31; }
+  .sigma-tree details details > summary:hover { background: #fff5d8; }
+  .sigma-tree summary a { color: inherit; text-decoration: none; }
+  .sigma-tree summary a:hover { color: #7253ED; text-decoration: underline; }
+  .sigma-tree .desc {
+    margin: 0.15em 0 0.35em 0;
+    padding: 0 0.4em 0 2em;
+    color: #4a4a52;
+    font-size: 0.93em;
+    line-height: 1.55;
+    max-width: 60ch;
+  }
+  .sigma-tree .tag {
+    display: inline-block;
+    font-size: 0.68em;
+    padding: 0.05em 0.45em;
+    margin-left: 0.45em;
+    border-radius: 3px;
+    background: #ece8d4;
+    color: #6a5a30;
+    font-weight: 500;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    vertical-align: 1px;
+  }
+  .sigma-tree .tag.new   { background: #ffe79a; color: #7a5500; }
+  .sigma-tree .tag.star  { background: #efe0fa; color: #5a2da3; }
+  .sigma-tree .tag.armen { background: #d8eafc; color: #1c4f8a; }
+  .sigma-tree .tag.daniil{ background: #fad7d8; color: #8a2628; }
+  .sigma-tree .controls { font-size: 0.85em; color: #777; margin: 0 0 0.8em; }
+  .sigma-tree .controls a { color: #7253ED; cursor: pointer; margin-right: 0.7em; text-decoration: none; }
+  .sigma-tree .controls a:hover { text-decoration: underline; }
+</style>
+
+<section class="sigma-tree">
+
+<h2 class="anchored">О чём книга</h2>
+
+<p class="lede">Пять частей, один сквозной рассказ. Каждая страница — история, формула и работающий код. Раскройте часть, чтобы увидеть её страницы.</p>
+
+<p class="controls">
+<a onclick="document.querySelectorAll('.sigma-tree details').forEach(d=>d.open=true)">раскрыть всё</a>
+<a onclick="document.querySelectorAll('.sigma-tree details').forEach(d=>d.open=false)">свернуть всё</a>
+</p>
+
+<details>
+<summary><a href="ch01_intro.html">Часть I. Введение в ИИ</a></summary>
+
+<details>
+<summary><a href="ch01_intro.html">Что такое искусственный интеллект</a></summary>
+<div class="desc">Откуда взялась идея «думающей машины»: от Тьюринга и Дартмутского семинара до нынешних больших моделей. Зачем для понимания ИИ нужна именно математика — оптимизация, линейная алгебра, вероятность — и что мы пройдём дальше по книге.</div>
+</details>
+
+</details>
+
+<details>
+<summary>Часть II. Оптимизация</summary>
+
+<details>
+<summary><a href="story_loss_landscape.html">Ландшафт функции потерь <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Веса сети — точка в $\mathbb{R}^d$, $d$ до миллиардов. Проецируем потери на случайную плоскость и видим «карту высот»: ResNet без skip-connections хаотичен, с ними — гладкая долина. Парадоксы размерности: почти все критические точки — сёдла, объём шара уходит в корку, расстояния концентрируются. Виджет: крутите проекцию.</div>
+</details>
+
+<details>
+<summary><a href="ch02_newton.html">Метод Ньютона</a></summary>
+<div class="desc">Метод касательных: вместо линейной аппроксимации — квадратичная, минимум параболы и есть следующий шаг. Сходимость квадратичная — число точных знаков удваивается за итерацию. Школьник проверяет руками: $f(x)=x^2-2$, корень $\sqrt 2$ за 4 шага. Отсюда — Ньютон-Канторович, корни уравнений и квазиньютоновские методы.</div>
+</details>
+
+<details>
+<summary><a href="story_global_optim.html">Глобальная оптимизация: муравьи, рой, отжиг <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Когда градиента нет или ям много: имитация отжига с формулой Метрополиса $\exp(-\Delta E/T)$, роевой интеллект (PSO), муравьиные феромоны, генетика против коммивояжёра. Та же «температура» $T$ всплывает в softmax больших моделей: $T\to0$ — жадный argmax, $T&gt;1$ — креатив. Виджет: ловите глобальный минимум.</div>
+</details>
+
+<details>
+<summary><a href="story_mds.html">Многомерное шкалирование и проклятие размерности <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Дана таблица расстояний — восстановите координаты, минимизируя стресс. На этой задаче видно превосходство методов первого порядка: точный градиент сходится за секунды, а безградиентные платят фактор размерности $d$ и при $d=50$ не сходятся. Почему сети с $10^{11}$ параметров учат градиентом, а не перебором.</div>
+</details>
+
+<details>
+<summary><a href="story_double_descent.html">Феномен двойного спуска <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Классика обещает U-образную ошибку (bias-variance). Белкин, 2019: за порогом интерполяции $p=n$ ошибка снова падает — двойной спуск. При $p\gg n$ выбирается решение минимальной нормы, неявная регуляризация даёт гладкость и хорошее обобщение. Почему модели с триллионом параметров не переобучаются. Виджет: степень полинома от 1 до 80.</div>
+</details>
+
+</details>
+
+<details>
+<summary><a href="ch_linalg.html">Часть III. Линейная алгебра и данные</a></summary>
+
+<details>
+<summary><a href="ch_linalg.html">Вычислительная линейная алгебра</a></summary>
+<div class="desc">Когда арифметика лжёт (числа с плавающей точкой), SVD как главный фокус, теорема Эккарта–Янга о лучшем малоранговом приближении, eigencats и оценки липшицевости сети. Базовая глава Части III; eigenfaces и PageRank вынесены в отдельные сюжеты ниже.</div>
+</details>
+
+<details>
+<summary><a href="story_pca.html">PCA и Eigenfaces <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Фотография лица — вектор из тысяч пикселей, но лица живут на тонком многообразии. PCA = собственное разложение ковариации; 50–80 «собственных лиц» покрывают 95% вариации. Лицо как короткий список коэффициентов. Виджет: двигайте число компонент, смотрите, как лицо собирается.</div>
+</details>
+
+<details>
+<summary><a href="story_eigenvalues.html">Собственные значения: PageRank и шатающиеся мосты <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Одно уравнение $Av=\lambda v$ объясняет ранжирование Google и крах моста Такома. PageRank: стационарное распределение случайного сёрфера = собственный вектор при $\lambda=1$ (Перрон–Фробениус), степенной метод. Мост: собственные частоты, резонанс. Виджет: поймайте резонанс сами.</div>
+</details>
+
+<details>
+<summary><a href="story_ica.html">ICA и задача коктейльной вечеринки <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Три микрофона, три голоса, каждый слышит смесь $x=As$. Найти $W\approx A^{-1}$ и восстановить голоса. PCA делает компоненты некоррелированными, ICA — независимыми: ищем максимально негауссовы направления (FastICA). Очистка ЭЭГ, fMRI, рыночные факторы. Виджет: разберите смесь.</div>
+</details>
+
+<details>
+<summary><a href="story_word2vec.html">Word2Vec: слова как векторы <span class="tag new">сюжет</span></a></summary>
+<div class="desc">Каждое слово — вектор; слова с похожим контекстом оказываются рядом. Семантика становится геометрией: король − мужчина + женщина ≈ королева. Дистрибутивная гипотеза, skip-gram, мост к BERT и GPT. Виджет: арифметика смыслов в браузере.</div>
+</details>
+
+<details>
+<summary><a href="story_fft_matrix.html">БПФ как умножение на матрицу: спектр звука и Shazam <span class="tag new">сюжет</span></a></summary>
+<div class="desc">ДПФ — умножение на унитарную матрицу из корней единицы; БПФ факторизует её в $\log_2 n$ разреженных «бабочек». Shazam строит спектрограмму, хеширует пики в отпечаток и ищет по миллионам треков за миллисекунды. Та же математика в JPEG, MP3, Wi-Fi, MRI. Виджет: разложите два тона.</div>
+</details>
+
+</details>
+
+<details>
+<summary><a href="ch03_0_intro.html">Часть IV. Анализ данных и ИИ</a></summary>
+
+<details>
+<summary><a href="ch03_1_prosteyshie-primery-zadach-anali.html">Простейшие задачи и принцип максимума правдоподобия</a></summary>
+<div class="desc">Опрос на втором туре выборов, асимптотика Фишера и Ле Кама, доверительные интервалы через Чебышёва и ЦПТ, оценка площади методом Монте-Карло, теорема Гаусса о том, почему симметричный шум обязан быть нормальным.</div>
+</details>
+
+<details>
+<summary><a href="ch03_2_lineynaya-regressiya-i-metod-nai.html">Линейная регрессия и метод наименьших квадратов</a></summary>
+<div class="desc">МНК как ОМП при гауссовом шуме, решение через принцип Ферма, два исторических примера: III закон Кеплера по данным Тихо Браге и ускорение свободного падения по данным Галилея. Множественная регрессия кратким обзором.</div>
+</details>
+
+<details>
+<summary><a href="ch03_3_zadacha-klassifikacii-i-neyronny.html">Задача классификации и нейронные сети</a></summary>
+<div class="desc">MNIST и UCI Digits, чем классификация отличается от регрессии, полносвязная сеть и кривые потерь, переобучение и U-образная кривая, теоремы об универсальной аппроксимации, свёрточные сети, градиентный спуск и обратное распространение ошибки.</div>
+</details>
+
+<details>
+<summary><a href="ch03_4_zadachi-obucheniya-bez-uchitelya.html">Задачи обучения без учителя</a></summary>
+<div class="desc">Задача Netflix и восстановление матрицы малого ранга, автокодировщики и их связь с PCA, эмбеддинги в современных моделях, сиамские сети и контрастивное обучение, SVD как общий язык.</div>
+</details>
+
+<details>
+<summary><a href="ch03_5_kak-iskusstvennyy-intellekt-meny.html">Как ИИ меняет мир</a></summary>
+<div class="desc">AlphaGo, революция трансформеров и ChatGPT, законы скейлинга в формулах, AlphaFold и Нобель-2024, рассуждения и вывод во время инференса, воплощённый ИИ, исчерпание данных, прогнозы о сингулярности и меняющийся ландшафт профессий.</div>
+</details>
+
+</details>
+
+<details>
+<summary><a href="ch04_0_intro.html">Часть V. Дискретная математика и криптография</a></summary>
+
+<details>
+<summary><a href="ch04_1_elementy-teorii-chisel.html">Элементы теории чисел</a></summary>
+<div class="desc">Делимость и сравнения по модулю, алгоритм Евклида (обычный и расширенный), линейные сравнения, быстрое возведение в степень, функция Эйлера и малая теорема Ферма, проверка простоты и задача факторизации — фундамент для RSA.</div>
+</details>
+
+<details>
+<summary><a href="ch04_2_shifrovanie-ot-taynopisi-k-matem.html">Шифрование: от тайнописи к математической задаче</a></summary>
+<div class="desc">Зачем людям шифры, симметричная схема и её предел, революция открытого ключа 1976 года, односторонние функции и функции с секретом, где криптография работает прямо сейчас.</div>
+</details>
+
+<details>
+<summary><a href="ch04_3_kriptosistemy-rsa-i-diffi-hellma.html">Криптосистемы RSA и Диффи–Хеллмана</a></summary>
+<div class="desc">RSA: замок $N=pq$ кричишь в эфир, ключом владеешь только ты. Корректность и безопасность шифра, протокол Диффи–Хеллмана для обмена ключами, атака «человек посередине» и как от неё защищаются.</div>
+</details>
+
+<details>
+<summary><a href="ch04_4_primeneniya-rsa-autentifikaciya.html">Применения RSA: подпись и голосование</a></summary>
+<div class="desc">Аутентификация «докажи, что это ты», электронная цифровая подпись, схема электронного голосования — как одна и та же арифметика RSA даёт целый спектр протоколов доверия.</div>
+</details>
+
+<details>
+<summary><a href="ch04_5_heshirovanie-teoriya-chisel-vstr.html">Хеширование: теория чисел встречается с рандомизацией</a></summary>
+<div class="desc">Быстрый поиск и беда детерминированного хеширования, универсальное семейство хеш-функций и его конструкция через теорию чисел, маленькая хеш-таблица на пальцах, применения.</div>
+</details>
+
+<details>
+<summary><a href="ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html">Счётчики с короткой памятью: HyperLogLog</a></summary>
+<div class="desc">Как посчитать число различных элементов почти без памяти: идея «самого длинного хвоста нулей», набор счётчиков, и неожиданный мост к эксперименту Стэнли Милгрэма о шести рукопожатиях.</div>
+</details>
+
+</details>
+
+</section>
+
+<script>
+(function () {
+  function loadOnce(href, attr) {
+    return new Promise(function (res, rej) {
+      if (document.querySelector('[' + attr + '="sigma-katex"]')) return res();
+      var el;
+      if (href.endsWith('.css')) {
+        el = document.createElement('link');
+        el.rel = 'stylesheet'; el.href = href;
+      } else {
+        el = document.createElement('script');
+        el.src = href;
+      }
+      el.setAttribute(attr, 'sigma-katex');
+      el.onload = res; el.onerror = rej;
+      document.head.appendChild(el);
+    });
+  }
+  function render() {
+    var root = document.querySelector('.sigma-tree');
+    if (!root || !window.renderMathInElement) return;
+    window.renderMathInElement(root, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false }
+      ],
+      throwOnError: false,
+      strict: false
+    });
+  }
+  if (window.katex && window.renderMathInElement) { render(); return; }
+  Promise.all([
+    loadOnce('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css', 'data-sigma-katex-css'),
+    loadOnce('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js', 'data-sigma-katex-js')
+  ]).then(function () {
+    return loadOnce('https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js', 'data-sigma-katex-auto');
+  }).then(render).catch(function (e) { console.warn('KaTeX load failed', e); });
+})();
+</script>
+<hr>
 <p>Учебник для тех, кто хочет глубже понять <em>математические основы</em> современного искусственного интеллекта: оптимизацию, линейную алгебру, анализ данных, криптографию.</p>
+<section id="как-устроена-книга" class="level2">
+<h2 class="anchored" data-anchor-id="как-устроена-книга">Как устроена книга</h2>
+<p>Источник — TeX-проект в Overleaf. По расписанию забираем ZIP, прогоняем сборочный конвейер и публикуем три формата: PDF всей книги, HTML с живой математикой, и отдельный PDF каждой главы. Поверх HTML — ИИ-ассистент, который знает оглавление и текст глав.</p>
+<style>
+  /* Mermaid в body-колонке: растянуть SVG, но не вылазить за её ширину */
+  .cell-output-display figure.figure {
+    display: block !important;
+    margin: 0 !important;
+  }
+  .cell-output-display pre.mermaid {
+    display: block !important;
+    text-align: center;
+  }
+  .cell-output-display pre.mermaid > svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+    margin: 0 auto;
+  }
+  .mermaid .nodeLabel,
+  .mermaid .edgeLabel,
+  .mermaid foreignObject div,
+  .mermaid foreignObject span {
+    font-family: "et-book", Palatino, Georgia, serif !important;
+    font-size: 15px !important;
+    line-height: 1.35 !important;
+  }
+</style>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {"flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 30, "rankSpacing": 55, "padding": 12}, "themeVariables": {"fontSize": "15px", "fontFamily": "et-book, Palatino, Georgia, serif"}}}%%
+flowchart TB
+  OL["📘 &lt;b&gt;Overleaf MIPT&lt;/b&gt; · главы .tex + рисунки&lt;br/&gt;&lt;i&gt;источник истины&lt;/i&gt;"]
+  REPO["📦 &lt;b&gt;git-репозиторий&lt;/b&gt; · &lt;code&gt;overleaf_export/&lt;/code&gt;"]
+  BUILD["⚙️ &lt;b&gt;scripts/build.sh&lt;/b&gt;&lt;br/&gt;latexmk · tex_to_qmd · split · augment · quarto"]
+  NGINX["🌐 &lt;b&gt;nginx&lt;/b&gt; · sigma.fmin.xyz"]
+
+  R1["📕 &lt;b&gt;PDF&lt;/b&gt;&lt;br/&gt;всей книги"]
+  R2["📄 &lt;b&gt;HTML&lt;/b&gt;&lt;br/&gt;+ KaTeX"]
+  R3["📄 &lt;b&gt;PDF&lt;/b&gt;&lt;br/&gt;главы"]
+  R4["🤖 &lt;b&gt;ИИ-ассистент&lt;/b&gt;&lt;br/&gt;чат + Pyodide"]
+
+  OL -.-&gt;|"sync.sh — ZIP по cron"| REPO
+  REPO --&gt; BUILD
+  BUILD --&gt; NGINX
+  NGINX --&gt; R1
+  NGINX --&gt; R2
+  NGINX --&gt; R3
+  NGINX --&gt; R4
+
+  classDef src fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#3e2723;
+  classDef build fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+  classDef hub fill:#fce4ec,stroke:#ad1457,stroke-width:2px,color:#880e4f;
+  classDef out fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
+  class OL,REPO src;
+  class BUILD build;
+  class NGINX hub;
+  class R1,R2,R3,R4 out;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 <div class="sigma-landing">
   <a class="sigma-pdf-btn" href="./book.pdf">📕 Скачать PDF всей книги</a>
 
@@ -369,6 +904,7 @@ ul.task-list li input[type="checkbox"] {
 </script>
 
 
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
 <script>
