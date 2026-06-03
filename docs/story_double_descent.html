@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch04_0_intro.html" rel="next">
+<link href="./ch_linalg.html" rel="next">
 <link href="./story_loss_landscape.html" rel="prev">
 <link href="./../favicon.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
@@ -165,7 +165,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Сюжеты: Машинное обучение</a></li><li class="breadcrumb-item"><a href="./story_double_descent.html">Феномен двойного спуска</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_double_descent.html">Феномен двойного спуска</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -222,7 +222,7 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть II. Математические основы</span></a>
+ <span class="menu-text">Часть II. Оптимизация</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -236,8 +236,26 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ландшафт функции потерь и парадоксы высокой размерности</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Феномен двойного спуска</span></a>
   </div>
 </li>
       </ul>
@@ -245,12 +263,59 @@ window.Quarto = {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть III. Анализ данных и ИИ</span></a>
+ <span class="menu-text">Часть III. Линейная алгебра и данные</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch_linalg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Вычислительная линейная алгебра</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">PCA и Eigenfaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Собственные значения: от PageRank до шатающихся мостов</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_ica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ICA и задача коктейльной вечеринки</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Word2Vec: слова как векторы</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Часть IV. Анализ данных и ИИ</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch03_0_intro.html" class="sidebar-item-text sidebar-link">
@@ -291,100 +356,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Сюжеты: Линейная алгебра и данные</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_word2vec.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Word2Vec: слова как векторы</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_fft_matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">БПФ как умножение на матрицу: от спектра звука до Shazam</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_pca.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">PCA и Eigenfaces</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_ica.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">ICA и задача коктейльной вечеринки</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_eigenvalues.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Собственные значения: от PageRank до шатающихся мостов</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text">Сюжеты: Оптимизация</span></a>
+ <span class="menu-text">Часть V. Дискретная математика и криптография</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_global_optim.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Глобальная оптимизация: от муравьёв до температуры в LLM</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_mds.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Многомерное шкалирование и проклятие размерности для безградиентных методов</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text">Сюжеты: Машинное обучение</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_loss_landscape.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Ландшафт функции потерь и парадоксы высокой размерности</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Феномен двойного спуска</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text">Часть IV. Дискретная математика и криптография</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Переключить раздел">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch04_0_intro.html" class="sidebar-item-text sidebar-link">
@@ -445,7 +423,7 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Сюжеты: Машинное обучение</a></li><li class="breadcrumb-item"><a href="./story_double_descent.html">Феномен двойного спуска</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch02_newton.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_double_descent.html">Феномен двойного спуска</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Феномен двойного спуска</h1>
 </div>
@@ -1093,8 +1071,8 @@ document.addEventListener("DOMContentLoaded", function () {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch04_0_intro.html" class="pagination-link" aria-label="Элементы теории чисел и шифрование">
-        <span class="nav-page-text">Элементы теории чисел и шифрование</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./ch_linalg.html" class="pagination-link" aria-label="Вычислительная линейная алгебра">
+        <span class="nav-page-text">Вычислительная линейная алгебра</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

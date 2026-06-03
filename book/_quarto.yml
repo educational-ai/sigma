@@ -25,11 +25,22 @@ website:
       - section: "Часть I. Введение в ИИ"
         contents:
           - ch01_intro.qmd
-      - section: "Часть II. Математические основы"
+      - section: "Часть II. Оптимизация"
         contents:
           - ch02_newton.qmd
+          - story_global_optim.qmd
+          - story_mds.qmd
+          - story_loss_landscape.qmd
+          - story_double_descent.qmd
+      - section: "Часть III. Линейная алгебра и данные"
+        contents:
           - ch_linalg.qmd
-      - section: "Часть III. Анализ данных и ИИ"
+          - story_pca.qmd
+          - story_eigenvalues.qmd
+          - story_ica.qmd
+          - story_word2vec.qmd
+          - story_fft_matrix.qmd
+      - section: "Часть IV. Анализ данных и ИИ"
         contents:
           - ch03_0_intro.qmd
           - ch03_1_prosteyshie-primery-zadach-anali.qmd
@@ -37,7 +48,7 @@ website:
           - ch03_3_zadacha-klassifikacii-i-neyronny.qmd
           - ch03_4_zadachi-obucheniya-bez-uchitelya.qmd
           - ch03_5_kak-iskusstvennyy-intellekt-meny.qmd
-      - section: "Часть IV. Дискретная математика и криптография"
+      - section: "Часть V. Дискретная математика и криптография"
         contents:
           - ch04_0_intro.qmd
           - ch04_1_elementy-teorii-chisel.qmd
