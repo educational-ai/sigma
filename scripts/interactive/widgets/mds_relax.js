@@ -39,7 +39,8 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   let Y = [];           // текущий эмбеддинг [{x,y}]
   let dragIdx = -1;     // индекс перетаскиваемой точки
   let iter = 0;
-  let stressHist = [];  // история стресса (для кривой)
+  let histGrad = [];    // история стресса градиентного метода
+  let histZero = [];    // история стресса безградиентного метода
   const HIST_MAX = 240;
 
   function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -75,7 +76,8 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     buildTruth(n);
     buildEmbedding(n);
     iter = 0;
-    stressHist = [];
+    histGrad = [];
+    histZero = [];
   }
 
   // стресс σ = Σ_{i<j} (||yi-yj|| - Dij)²
@@ -141,8 +143,9 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       iter++;
     }
     const st = stressOf(Y);
-    stressHist.push(st);
-    if (stressHist.length > HIST_MAX) stressHist.shift();
+    const h = method === "grad" ? histGrad : histZero;
+    h.push(st);
+    if (h.length > HIST_MAX) h.shift();
     return st;
   }
 
@@ -205,15 +208,19 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
     ctx.fillText("Стресс σ(t), лог-шкала", curve.x, curve.y - 10);
 
-    if (stressHist.length > 1) {
-      // лог-шкала по y
+    // подпись оси x
+    ctx.fillStyle = P.mut; ctx.font = "11px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("итерация t", curve.x + curve.w / 2, curve.y + curve.h + 18);
+
+    if (histGrad.length > 1 || histZero.length > 1) {
+      // лог-шкала по y по объединению обеих историй
       let lo = Infinity, hi = -Infinity;
-      for (const v of stressHist) {
+      for (const v of histGrad.concat(histZero)) {
         const lv = Math.log10(Math.max(v, 1e-6));
         if (lv < lo) lo = lv; if (lv > hi) hi = lv;
       }
-      if (hi - lo < 0.5) { hi += 0.25; lo -= 0.25; }
-      const tx = S.scale(0, stressHist.length - 1, curve.x, curve.x + curve.w);
+      if (hi - lo < 1.0) { hi += 0.5; lo -= 0.5; }
+      const tx = S.scale(0, HIST_MAX - 1, curve.x, curve.x + curve.w);
       const ty = S.scale(lo, hi, curve.y + curve.h, curve.y);
 
       // горизонтальные грид-линии по степеням 10
@@ -228,19 +235,27 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
         ctx.fillText("10" + (e >= 0 ? "" : "⁻") + Math.abs(e), curve.x - 4, y + 3);
       }
 
-      // линия стресса
-      const col = method === "grad" ? P.green : P.purple;
-      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
-      for (let i = 0; i < stressHist.length; i++) {
-        const X = tx(i), Yp = ty(Math.log10(Math.max(stressHist[i], 1e-6)));
-        i === 0 ? ctx.moveTo(X, Yp) : ctx.lineTo(X, Yp);
-      }
-      ctx.stroke();
-
-      // текущая точка
-      const lastY = ty(Math.log10(Math.max(stressHist[stressHist.length - 1], 1e-6)));
-      ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(curve.x + curve.w, lastY, 3.5, 0, 2 * Math.PI); ctx.fill();
+      // две кривые: grad (зелёная) и zero (фиолетовая); неактивная — с alpha 0.35
+      const drawCurve = (hist, color, active) => {
+        if (hist.length < 2) return;
+        const off = Math.max(0, hist.length - HIST_MAX);
+        ctx.globalAlpha = active ? 1 : 0.35;
+        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+        for (let i = off; i < hist.length; i++) {
+          const X = tx(i - off), Yp = ty(Math.log10(Math.max(hist[i], 1e-6)));
+          i === off ? ctx.moveTo(X, Yp) : ctx.lineTo(X, Yp);
+        }
+        ctx.stroke();
+        // текущая точка
+        const lastIdx = hist.length - 1;
+        const lastX = tx(lastIdx - off);
+        const lastY = ty(Math.log10(Math.max(hist[lastIdx], 1e-6)));
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(lastX, lastY, 3.5, 0, 2 * Math.PI); ctx.fill();
+        ctx.globalAlpha = 1;
+      };
+      drawCurve(histGrad, P.green, method === "grad");
+      drawCurve(histZero, P.purple, method === "zero");
     }
   }
 
@@ -292,7 +307,7 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       { value: "grad", label: "градиентный" },
       { value: "zero", label: "безградиентный" },
     ],
-  }, (v) => { method = v; stressHist = []; iter = 0; });
+  }, (v) => { method = v; });
 
   S.slider(controls, {
     label: "Число точек N", min: 4, max: 16, step: 1, value: N, fmt: (v) => v | 0,

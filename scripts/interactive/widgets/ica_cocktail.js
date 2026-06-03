@@ -12,7 +12,7 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
   }));
 
   const stage = S.row(root);
-  const W = 640, H = 460;
+  const W = 640, H = 440;
   const cv = S.makeCanvas(stage, W, H, { maxWidth: 640, pan: false });
   const ctx = cv.ctx;
 
@@ -51,8 +51,8 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
   // Диапазон мира ~[-3,3] чтобы вместить вытянутые параллелограммы
   const WR = 2.6;
   const cx = W / 2, cy = H / 2;
-  const px = S.scale(-WR, WR, cx - 200, cx + 200);  // x: world→px
-  const py = S.scale(-WR, WR, cy + 200, cy - 200);  // y: world→px (инверсия)
+  const px = S.scale(-WR, WR, cx - 215, cx + 215);  // x: world→px
+  const py = S.scale(-WR, WR, cy + 215, cy - 215);  // y: world→px (инверсия)
 
   let mode = "ica"; // "mix" | "pca" | "ica"
 
@@ -148,15 +148,15 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
     ctx.beginPath(); ctx.moveTo(px(0), py(-WR)); ctx.lineTo(px(0), py(WR)); ctx.stroke();
 
     // облако смешанных точек
-    ctx.fillStyle = "rgba(31,78,121,0.32)";
+    ctx.fillStyle = "rgba(31,78,121,0.40)";
     for (let i = 0; i < Npts; i++) {
       const X = mix(S0[2 * i], S0[2 * i + 1]);
-      ctx.fillRect(px(X.x) - 0.9, py(X.y) - 0.9, 1.8, 1.8);
+      ctx.fillRect(px(X.x) - 1.0, py(X.y) - 1.0, 2.0, 2.0);
     }
 
     // контур параллелограмма (углы квадрата (±1,±1) → смесь)
     const corners = [mix(-1, -1), mix(1, -1), mix(1, 1), mix(-1, 1)];
-    ctx.strokeStyle = "rgba(17,17,17,0.45)"; ctx.lineWidth = 1.4;
+    ctx.strokeStyle = "rgba(17,17,17,0.45)"; ctx.lineWidth = 1.8;
     ctx.setLineDash([4, 3]);
     ctx.beginPath();
     corners.forEach((c, i) => {
@@ -232,8 +232,9 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
       { k: "A =", v: "[[" + f2(col1.x) + ", " + f2(col2.x) + "], [" + f2(col1.y) + ", " + f2(col2.y) + "]]", color: P.ink },
       { k: "det A", v: f2(det) + (Math.abs(det) < 0.05 ? " ⚠ вырождена" : ""), color: Math.abs(det) < 0.05 ? P.red : P.mut },
       { k: "угол сторон", v: angle.toFixed(0) + "°", color: P.gold },
-      { k: "куртозис вдоль ICA-оси", v: kICA.toFixed(2), color: P.gold },
-      { k: "куртозис вдоль PCA-оси", v: kPCA.toFixed(2), color: P.green },
+      { k: "куртозис ICA-проекции", v: kICA.toFixed(2), color: P.gold },
+      { k: "куртозис PCA-проекции", v: kPCA.toFixed(2), color: P.green },
+      { k: "(гаусс)", v: "0.00", color: P.mut },
     ]);
   }
 

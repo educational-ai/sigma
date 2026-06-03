@@ -245,6 +245,14 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     drawCurve(curves.teE, P.red, 2.2);
     drawCurve(curves.trE, P.blue, 1.6);
 
+    // подпись «шпиль» у пика test-кривой, если он рядом с порогом d ≈ n
+    let iPeak = 0;
+    for (let i = 1; i <= DMAX; i++) if (curves.teE[i] > curves.teE[iPeak]) iPeak = i;
+    if (Math.abs(iPeak - n) <= 2) {
+      ctx.fillStyle = P.red; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
+      ctx.fillText("шпиль", xCap(iPeak), yS(logE(curves.teE[iPeak])) - 6);
+    }
+
     // легенда
     ctx.font = "11px Palatino, serif"; ctx.textAlign = "left";
     ctx.fillStyle = P.red; ctx.fillText("— test", b.x + 6, b.y + b.h - 20);
@@ -267,7 +275,10 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     // y-диапазон: по чистой функции + точкам + немного запаса
     let lo = Infinity, hi = -Infinity;
     for (let i = 0; i < train.x.length; i++) { lo = Math.min(lo, train.y[i]); hi = Math.max(hi, train.y[i]); }
-    lo = Math.min(lo, -1.2); hi = Math.max(hi, 1.2);
+    // привязка к истинной функции (амплитуда sin-сигнала), а не к жёстким ±1.2
+    let loF = Infinity, hiF = -Infinity;
+    for (let i = 0; i < test.x.length; i++) { loF = Math.min(loF, test.y[i]); hiF = Math.max(hiF, test.y[i]); }
+    lo = Math.min(lo, loF); hi = Math.max(hi, hiF);
     const pad = (hi - lo) * 0.12;
     const yS = S.scale(lo - pad, hi + pad, b.y + b.h, b.y);
 
@@ -275,6 +286,18 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     ctx.fillText("Полиномиальная подгонка, d = " + d, b.x + b.w / 2, b.y - 12);
 
     S.axes(ctx, b, { xlabel: "x", ylabel: "y" });
+
+    // числовые y-тики + горизонтальная сетка (линейная шкала, шаг 0.5)
+    ctx.font = "10px Palatino, serif";
+    const tLo = Math.ceil((lo - pad) / 0.5) * 0.5;
+    const tHi = Math.floor((hi + pad) / 0.5) * 0.5;
+    for (let t = tLo; t <= tHi + 1e-9; t += 0.5) {
+      const Y = yS(t);
+      ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(b.x, Y); ctx.lineTo(b.x + b.w, Y); ctx.stroke();
+      ctx.fillStyle = P.mut; ctx.textAlign = "right";
+      ctx.fillText(t.toFixed(1), b.x - 5, Y + 3);
+    }
 
     // нулевая линия
     if (yS.dom[0] < 0 && yS.dom[1] > 0) {

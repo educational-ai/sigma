@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Что почитать дальше – Σ Сигма</title>
+<title>interactive_review – Σ Сигма</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" rel="next">
-<link href="./ch_linalg_9_podvedenie-itogov-glavy.html" rel="prev">
 <link href="./../favicon.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -87,7 +85,9 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch_linalg_0_intro.html">Часть III. Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./ch_linalg_10_chto-pochitat-dalshe.html">Что почитать дальше</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">
+      Σ Сигма
+      </li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -289,7 +289,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link active">
+  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Что почитать дальше</span></a>
   </div>
 </li>
@@ -413,39 +413,90 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <div class="quarto-alternate-formats"><h2>Другие форматы</h2><ul><li><a href="ch_linalg_10_chto-pochitat-dalshe.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></div>
+    <div class="quarto-alternate-formats"><h2>Другие форматы</h2><ul><li><a href="INTERACTIVE_REVIEW.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch_linalg_0_intro.html">Часть III. Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./ch_linalg_10_chto-pochitat-dalshe.html">Что почитать дальше</a></li></ol></nav>
-<div class="quarto-title">
-<h1 class="title">Что почитать дальше</h1>
-</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
-<div class="quarto-title-meta">
 
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<section id="сигма-стандарт-качества-и-критического-ревью-живых-виджетов" class="level1">
+<h1>Сигма — стандарт качества и критического ревью живых виджетов</h1>
+<p>Свод правил для нативных интерактивных визуализаций (<code>scripts/interactive/</code>, монтируются как <code>&lt;div data-sigma-widget="..."&gt;</code>). Планка — <strong>distill.pub</strong>. Этот файл — рубрика adversarial-ревью: каждый виджет проходит её перед «готово».</p>
+<section id="главный-принцип-нарушение-блокер" class="level2">
+<h2 class="anchored" data-anchor-id="главный-принцип-нарушение-блокер">0. Главный принцип (нарушение = блокер)</h2>
+<p><strong>Никаких кнопок «Запустить».</strong> Взаимодействие — ползунок / перетаскивание / поворот / клик — даёт МГНОВЕННЫЙ пересчёт и перерисовку в браузере. Если пользователь должен нажать кнопку и ждать результат — это не живой виджет, это форма. Переделать.</p>
+</section>
+<section id="тактильность-и-отклик-distill-bar" class="level2">
+<h2 class="anchored" data-anchor-id="тактильность-и-отклик-distill-bar">1. Тактильность и отклик (distill-bar)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Что-то можно <strong>тянуть, крутить или двигать</strong> (не только ползунки-числа).</label></li>
+<li><label><input type="checkbox">Отклик &lt; 1 кадра (rafThrottle); при перетаскивании картинка движется за курсором.</label></li>
+<li><label><input type="checkbox">Виджет рисует осмысленное состояние СРАЗУ при загрузке (draw() в билдере), без действий.</label></li>
+<li><label><input type="checkbox">Непрерывные процессы (отжиг, релаксация, колебания) идут сами через <code>S.loop</code>, а пользователь их <em>подкручивает</em>, а не <em>запускает</em>.</label></li>
+</ul>
+</section>
+<section id="визуальное-качество" class="level2">
+<h2 class="anchored" data-anchor-id="визуальное-качество">2. Визуальное качество</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Палитра Сигмы: blue #1F4E79 / red #C0392B / green #2E7D5B / gold / purple; фон #fffff8.</label></li>
+<li><label><input type="checkbox">Сериф (Palatino/Georgia) в подписях canvas; tabular-nums в read-out.</label></li>
+<li><label><input type="checkbox">Ничего не наезжает, не обрезается, не вылезает за рамку; оси/подписи читаемы.</label></li>
+<li><label><input type="checkbox">Чёткость на retina (deviceScaleFactor=2 — makeCanvas это обеспечивает).</label></li>
+<li><label><input type="checkbox">Адаптив: на ширине 360–600px не ломается, контролы переносятся.</label></li>
+<li><label><input type="checkbox">Нет «кринжа»: не рисуем реалистичные объекты примитивами (лица из кружков и т.п.); либо реальные данные, либо честная абстрактная схема. (Инцидент: синтетические гауссовы «лица» в eigenfaces → заменены на реальные Olivetti.)</label></li>
+</ul>
+</section>
+<section id="педагогика" class="level2">
+<h2 class="anchored" data-anchor-id="педагогика">3. Педагогика</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Виджет показывает РОВНО ту идею, что в тексте сюжета, и усиливает её.</label></li>
+<li><label><input type="checkbox">Есть hint сверху (как взаимодействовать) и caption снизу (что видим).</label></li>
+<li><label><input type="checkbox">Read-out показывает ключевые величины и обновляется вживую.</label></li>
+<li><label><input type="checkbox">Крайние/«ломающие» состояния поучительны, а не баг (резонанс, переинтерполяция, T→0).</label></li>
+</ul>
+</section>
+<section id="корректность-математики" class="level2">
+<h2 class="anchored" data-anchor-id="корректность-математики">4. Корректность математики</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Формулы и численные методы верны (сверить с эталоном Python при сомнении).</label></li>
+<li><label><input type="checkbox">Нет деления на ноль, NaN, расходимостей при крайних значениях ползунков.</label></li>
+<li><label><input type="checkbox">Никаких внешних библиотек и numpy: всё на чистом JS (в браузере numpy НЕТ).</label></li>
+</ul>
+</section>
+<section id="инженерия" class="level2">
+<h2 class="anchored" data-anchor-id="инженерия">5. Инженерия</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Файл = один <code>SigmaInt.register(...)</code>; использует только <code>S.*</code> и стандартный DOM/canvas.</label></li>
+<li><label><input type="checkbox"><code>node --check</code> проходит; в браузере <strong>0 console-error</strong> (проверка verify_widget.py).</label></li>
+<li><label><input type="checkbox">verify_widget.py: <code>reactsToSlider=true</code>, <code>hasCanvas</code>/<code>hasSvg</code>, <code>err=null</code>.</label></li>
+<li><label><input type="checkbox">Данные (если нужны) — git-tracked JSON в <code>docs/assistant/data/</code>, считаются один раз через <code>scripts/precompute_interactive.py</code>, НЕ на каждом билде.</label></li>
+</ul>
+</section>
+<section id="процесс-ревью-как-доводим-до-готовности" class="level2">
+<h2 class="anchored" data-anchor-id="процесс-ревью-как-доводим-до-готовности">Процесс ревью (как доводим до готовности)</h2>
+<ol type="1">
+<li>Собрать бандл: <code>bash scripts/build_interactive.sh</code>.</li>
+<li>Отрендерить сюжет: <code>cd book &amp;&amp; quarto render story_X.qmd --to html</code>.</li>
+<li>Браузерная проверка: <code>/root/.venv/bin/python scripts/verify_widget.py &lt;url&gt; /tmp/sigverify</code>.</li>
+<li><strong>Глазами</strong> открыть скриншоты <code>_before/_after</code> (инструмент Read) — оценить по п.1–4. Чистый <code>report.json</code> ≠ красиво. Смотреть всегда.</li>
+<li>Adversarial-критик (роль скептика distill.pub): найти ближайшую к кринжу/непонятности деталь и одну конкретную правку, повышающую планку. Применить. Повторять, пока чисто.</li>
+<li>Готово = сам открыл, сам покрутил (в headless с эмуляцией ввода), верифицировал конкретный элемент. «Отправил скриншот» ≠ «готово».</li>
+</ol>
+</section>
+<section id="где-что-лежит" class="level2">
+<h2 class="anchored" data-anchor-id="где-что-лежит">Где что лежит</h2>
 <ul>
-<li><p><em>Е. Е.&nbsp;Тыртышников.</em> Методы численного анализа. М.: Академия, 2007. — классический российский учебник по вычислительной линейной алгебре университетского уровня.</p></li>
-<li><p><em>G.&nbsp;Strang.</em> Linear Algebra and Learning from Data. Wellesley-Cambridge Press, 2019. — свежая книга от автора знаменитого MIT-курса 18.06, написанная с прицелом на data science.</p></li>
-<li><p><em>L. N.&nbsp;Trefethen, D.&nbsp;Bau.</em> Numerical Linear Algebra. SIAM, 1997. — классика, с очень понятным изложением SVD и итерационных методов.</p></li>
-<li><p><em>Видеокурс «Numerical Linear Algebra»</em>, И. В.&nbsp;Оселедец, Сколтех (<a href="https://github.com/MerkulovDaniil/nla360">github.com/MerkulovDaniil/nla360</a>). Лекции, семинары, ноутбуки — из которых, в частности, и взяты eigencats для этой главы.</p></li>
-<li><p><em>S.&nbsp;Brin, L.&nbsp;Page.</em> The Anatomy of a Large-Scale Hypertextual Web Search Engine. WWW Conference, 1998. — оригинальная статья про PageRank, читается легко.</p></li>
-<li><p><em>I.&nbsp;Goodfellow et al.</em> Explaining and Harnessing Adversarial Examples. ICLR, 2015. — статья про панду-гиббона, из которой взят рис.&nbsp;0.10.</p></li>
+<li>Ядро API: <code>scripts/interactive/core.js</code> (объект <code>S</code>).</li>
+<li>Виджеты: <code>scripts/interactive/widgets/*.js</code> (по одному на виджет).</li>
+<li>Бандл: <code>docs/assistant/interactive.js</code> (генерится <code>build_interactive.sh</code>, инъектится nginx).</li>
+<li>Данные: <code>docs/assistant/data/*.json</code> (<code>precompute_interactive.py</code>).</li>
+<li>Верификация/ревью: <code>scripts/verify_widget.py</code>.</li>
 </ul>
 
 
+</section>
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
 <script>
@@ -861,18 +912,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
   </script>
-<nav class="page-navigation">
-  <div class="nav-page nav-page-previous">
-      <a href="./ch_linalg_9_podvedenie-itogov-glavy.html" class="pagination-link" aria-label="Подведение итогов главы">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Подведение итогов главы</span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" class="pagination-link" aria-label="Большой итоговый проект">
-        <span class="nav-page-text">Большой итоговый проект</span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">

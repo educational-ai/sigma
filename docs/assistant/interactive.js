@@ -444,6 +444,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   let bestTour = [], bestLen = Infinity;
   let iter = 0, accepted = 0, rejected = 0, acceptedWorse = 0;
   let history = [];       // длина тура по времени (для графика)
+  let histMaxEver = 0;    // максимум длины за всю сессию — устойчивый верх Y-масштаба
   const HIST_MAX = 240;
 
   // температура
@@ -489,6 +490,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     bestTour = tour.slice(); bestLen = curLen;
     iter = 0; accepted = 0; rejected = 0; acceptedWorse = 0;
     history = [curLen];
+    histMaxEver = curLen;
     Tmax = Math.max(1e-6, avgEdge() * 1.0);
     if (!manualT) T = Tmax * tFromSlider();   // позиция ползунка задаёт долю Tmax
   }
@@ -594,11 +596,13 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     ctx.strokeRect(plot.x + 0.5, plot.y + 0.5, plot.w - 1, plot.h - 1);
 
     if (history.length < 2) return;
-    let mn = Infinity, mx = -Infinity;
-    for (const v of history) { if (v < mn) mn = v; if (v > mx) mx = v; }
-    if (mx - mn < 1e-6) { mx = mn + 1; }
-    const pad = (mx - mn) * 0.08;
-    const yS = S.scale(mn - pad, mx + pad, plot.y + plot.h - 6, plot.y + 6);
+    // устойчивый Y-масштаб: верх — по историческому максимуму за сессию,
+    // низ — по bestLen с небольшим pad. Кривая реально идёт сверху вниз и
+    // упирается в плато best, а не дрожит посередине с переменной амплитудой.
+    const yLo = (bestLen === Infinity ? 0 : bestLen) * 0.98;
+    let yHi = histMaxEver * 1.02;
+    if (yHi - yLo < 1e-6) { yHi = yLo + 1; }
+    const yS = S.scale(yLo, yHi, plot.y + plot.h - 6, plot.y + 6);
     const xS = S.scale(0, Math.max(1, history.length - 1), plot.x + 6, plot.x + plot.w - 6);
     // линия best (горизонталь)
     ctx.strokeStyle = "rgba(46,125,91,0.5)"; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
@@ -611,6 +615,9 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     // подпись best
     ctx.fillStyle = P.green; ctx.font = "11px Palatino, serif"; ctx.textAlign = "right";
     ctx.fillText("best " + bestLen.toFixed(0), plot.x + plot.w - 6, yS(bestLen) - 4);
+    // верхняя Y-метка — задаёт оси смысл «от худшего к best»
+    ctx.textAlign = "left"; ctx.fillStyle = P.mut; ctx.font = "11px Palatino, serif";
+    ctx.fillText(yHi.toFixed(0), plot.x + 6, plot.y + 12);
   }
 
   // полоса температуры — её можно «схватить» и тянуть, как кривую охлаждения
@@ -692,6 +699,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
         rebuildDist();
         // вставить новый город в тур рядом с ближайшим, не сбрасывая прогресс
         insertCity(cities.length - 1);
+        if (curLen > histMaxEver) histMaxEver = curLen;
         history.push(curLen); if (history.length > HIST_MAX) history.shift();
         redraw();
       }
@@ -726,7 +734,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
 
   // ---- контролы ----------------------------------------------------------
   S.slider(controls, {
-    label: "Число городов", min: 5, max: 40, step: 1, value: 18, fmt: (v) => v | 0,
+    label: "Число городов", min: 12, max: 40, step: 1, value: 18, fmt: (v) => v | 0,
   }, (v) => { scatterCities(v | 0); redraw(); });
 
   tSlider = S.slider(controls, {
@@ -782,6 +790,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     histClock += dt;
     if (histClock > 0.04) {
       histClock = 0;
+      if (curLen > histMaxEver) histMaxEver = curLen;
       history.push(curLen);
       if (history.length > HIST_MAX) history.shift();
     }
@@ -1041,6 +1050,14 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     drawCurve(curves.teE, P.red, 2.2);
     drawCurve(curves.trE, P.blue, 1.6);
 
+    // подпись «шпиль» у пика test-кривой, если он рядом с порогом d ≈ n
+    let iPeak = 0;
+    for (let i = 1; i <= DMAX; i++) if (curves.teE[i] > curves.teE[iPeak]) iPeak = i;
+    if (Math.abs(iPeak - n) <= 2) {
+      ctx.fillStyle = P.red; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
+      ctx.fillText("шпиль", xCap(iPeak), yS(logE(curves.teE[iPeak])) - 6);
+    }
+
     // легенда
     ctx.font = "11px Palatino, serif"; ctx.textAlign = "left";
     ctx.fillStyle = P.red; ctx.fillText("— test", b.x + 6, b.y + b.h - 20);
@@ -1063,7 +1080,10 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     // y-диапазон: по чистой функции + точкам + немного запаса
     let lo = Infinity, hi = -Infinity;
     for (let i = 0; i < train.x.length; i++) { lo = Math.min(lo, train.y[i]); hi = Math.max(hi, train.y[i]); }
-    lo = Math.min(lo, -1.2); hi = Math.max(hi, 1.2);
+    // привязка к истинной функции (амплитуда sin-сигнала), а не к жёстким ±1.2
+    let loF = Infinity, hiF = -Infinity;
+    for (let i = 0; i < test.x.length; i++) { loF = Math.min(loF, test.y[i]); hiF = Math.max(hiF, test.y[i]); }
+    lo = Math.min(lo, loF); hi = Math.max(hi, hiF);
     const pad = (hi - lo) * 0.12;
     const yS = S.scale(lo - pad, hi + pad, b.y + b.h, b.y);
 
@@ -1071,6 +1091,18 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     ctx.fillText("Полиномиальная подгонка, d = " + d, b.x + b.w / 2, b.y - 12);
 
     S.axes(ctx, b, { xlabel: "x", ylabel: "y" });
+
+    // числовые y-тики + горизонтальная сетка (линейная шкала, шаг 0.5)
+    ctx.font = "10px Palatino, serif";
+    const tLo = Math.ceil((lo - pad) / 0.5) * 0.5;
+    const tHi = Math.floor((hi + pad) / 0.5) * 0.5;
+    for (let t = tLo; t <= tHi + 1e-9; t += 0.5) {
+      const Y = yS(t);
+      ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(b.x, Y); ctx.lineTo(b.x + b.w, Y); ctx.stroke();
+      ctx.fillStyle = P.mut; ctx.textAlign = "right";
+      ctx.fillText(t.toFixed(1), b.x - 5, Y + 3);
+    }
 
     // нулевая линия
     if (yS.dom[0] < 0 && yS.dom[1] > 0) {
@@ -1192,6 +1224,8 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
 
   // состояние
   let f1 = 440, f2 = 1200, N = 512, fs = 8000;
+  // экранные позиции пиков (логические X) и текущий предел оси — для hit-testing мышью
+  const hit = { kMax: 1, peaks: [{ which: 1, screenX: 0 }, { which: 2, screenX: 0 }] };
 
   // геометрия (логические 760×320)
   const top = 26, bot = 256, lx = 56;
@@ -1240,6 +1274,8 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
     const amp = dft(sig);
     const half = amp.length - 1;        // = N/2
     const nyq = fs / 2;                  // Гц, верхняя граница спектра
+    // потолок слайдеров 2000 Гц + ~10% запас → не рисуем мёртвую правую половину
+    const kMax = Math.min(half, Math.ceil((2200 * N) / fs));
 
     // ===== Осциллограмма (первые ~128 отсчётов) =====
     const SHOW = Math.min(128, N);
@@ -1278,9 +1314,9 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
     ctx.fillText("время →  (первые " + SHOW + " отсчётов)", wavBox.x + wavBox.w / 2, wavBox.y + wavBox.h + 18);
 
     // ===== Спектр |X_k| =====
-    const xf = S.scale(0, half, specBox.x, specBox.x + specBox.w);
+    const xf = S.scale(0, kMax, specBox.x, specBox.x + specBox.w);
     let amax = 1e-9;
-    for (let k = 0; k <= half; k++) if (amp[k] > amax) amax = amp[k];
+    for (let k = 0; k <= kMax; k++) if (amp[k] > amax) amax = amp[k];
     const yf = S.scale(0, amax * 1.12, specBox.y + specBox.h, specBox.y);
 
     ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
@@ -1288,9 +1324,9 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
 
     // линии стебля (stem plot)
     ctx.strokeStyle = P.mut; ctx.lineWidth = 1;
-    const dx = specBox.w / half;
+    const dx = specBox.w / kMax;
     const thin = dx < 1.5;
-    for (let k = 0; k <= half; k++) {
+    for (let k = 0; k <= kMax; k++) {
       const X = xf(k), Y = yf(amp[k]);
       if (thin) {
         // плотный спектр — заливка
@@ -1306,21 +1342,24 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
       { f: f1, k: Math.min(binOf(f1), half), col: P.red },
       { f: f2, k: Math.min(binOf(f2), half), col: P.green },
     ];
-    peaks.forEach((pk) => {
+    hit.kMax = kMax;
+    peaks.forEach((pk, i) => {
       const X = xf(pk.k), Y = yf(amp[pk.k]);
+      hit.peaks[i].screenX = X;
       ctx.strokeStyle = pk.col; ctx.lineWidth = 2.4;
       ctx.beginPath(); ctx.moveTo(X, yf(0)); ctx.lineTo(X, Y); ctx.stroke();
       ctx.fillStyle = pk.col; ctx.beginPath(); ctx.arc(X, Y, 3.4, 0, 2 * Math.PI); ctx.fill();
       ctx.fillStyle = pk.col; ctx.font = "11px Palatino, serif"; ctx.textAlign = "center";
-      ctx.fillText("k=" + pk.k, X, Y - 7);
+      const Y_label = Math.max(Y - 7, specBox.y + 12); // не лезть за верхнюю рамку/заголовок
+      ctx.fillText("k=" + pk.k, X, Y_label);
     });
 
     ctx.fillStyle = P.ink; ctx.font = "13px Palatino, Georgia, serif"; ctx.textAlign = "center";
     ctx.fillText("|X_k| — амплитудный спектр", specBox.x + specBox.w / 2, specBox.y - 10);
 
-    // ось частот: 0, nyq/2, nyq Гц
+    // ось частот: 0, середина, верхняя граница (по новому пределу kMax)
     ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif";
-    [[0, "0"], [half / 2, Math.round(nyq / 2) + " Гц"], [half, Math.round(nyq) + " Гц"]]
+    [[0, "0"], [kMax / 2, Math.round(kMax * fs / N / 2) + " Гц"], [kMax, Math.round(kMax * fs / N) + " Гц"]]
       .forEach(([k, lbl]) => {
         ctx.fillText(lbl, xf(k), specBox.y + specBox.h + 16);
       });
@@ -1338,11 +1377,11 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
   const redraw = S.rafThrottle(draw);
 
   // ---- контролы ----
-  S.slider(controls, {
+  const sl1 = S.slider(controls, {
     label: "Частота f₁", min: 100, max: 2000, step: 10, value: f1, unit: " Гц", fmt: (v) => v,
   }, (v) => { f1 = v | 0; redraw(); });
 
-  S.slider(controls, {
+  const sl2 = S.slider(controls, {
     label: "Частота f₂", min: 100, max: 2000, step: 10, value: f2, unit: " Гц", fmt: (v) => v,
   }, (v) => { f2 = v | 0; redraw(); });
 
@@ -1355,6 +1394,51 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
     label: "fs", value: String(fs),
     options: [{ value: "8000", label: "8000 Гц" }, { value: "16000", label: "16000 Гц" }],
   }, (v) => { fs = +v; redraw(); });
+
+  // ---- перетаскивание пиков прямо на спектре (tactile) ----
+  const canvas = cv.canvas;
+  // CSS-пиксели курсора → логический X (канвас рисует в координатах 760×320)
+  function logicalX(ev) {
+    const r = canvas.getBoundingClientRect();
+    return ((ev.clientX - r.left) / (r.width || 1)) * 760;
+  }
+  // логический X на спектре → частота, привязанная к сетке 10 Гц и потолку слайдеров
+  function freqAtX(X) {
+    const kf = ((X - specBox.x) / specBox.w) * hit.kMax; // дробный бин
+    const f = (kf * fs) / N;
+    return Math.min(2000, Math.max(100, Math.round(f / 10) * 10));
+  }
+  function nearestPeak(X) {
+    let best = -1, bestD = 12; // порог 12px (логических)
+    hit.peaks.forEach((p, i) => {
+      const d = Math.abs(X - p.screenX);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    return best;
+  }
+  let dragIdx = -1;
+  canvas.addEventListener("pointerdown", (ev) => {
+    const X = logicalX(ev);
+    const i = nearestPeak(X);
+    if (i < 0) return;
+    dragIdx = i;
+    canvas.setPointerCapture && canvas.setPointerCapture(ev.pointerId);
+    ev.preventDefault();
+  });
+  canvas.addEventListener("pointermove", (ev) => {
+    const X = logicalX(ev);
+    if (dragIdx < 0) {
+      canvas.style.cursor = nearestPeak(X) >= 0 ? "ew-resize" : "";
+      return;
+    }
+    const f = freqAtX(X);
+    if (dragIdx === 0) { f1 = f; sl1.set(f); } else { f2 = f; sl2.set(f); }
+    redraw();
+    ev.preventDefault();
+  });
+  function endDrag() { dragIdx = -1; }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
 
   draw();
 });
@@ -1375,7 +1459,7 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
   }));
 
   const stage = S.row(root);
-  const W = 640, H = 460;
+  const W = 640, H = 440;
   const cv = S.makeCanvas(stage, W, H, { maxWidth: 640, pan: false });
   const ctx = cv.ctx;
 
@@ -1414,8 +1498,8 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
   // Диапазон мира ~[-3,3] чтобы вместить вытянутые параллелограммы
   const WR = 2.6;
   const cx = W / 2, cy = H / 2;
-  const px = S.scale(-WR, WR, cx - 200, cx + 200);  // x: world→px
-  const py = S.scale(-WR, WR, cy + 200, cy - 200);  // y: world→px (инверсия)
+  const px = S.scale(-WR, WR, cx - 215, cx + 215);  // x: world→px
+  const py = S.scale(-WR, WR, cy + 215, cy - 215);  // y: world→px (инверсия)
 
   let mode = "ica"; // "mix" | "pca" | "ica"
 
@@ -1511,15 +1595,15 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
     ctx.beginPath(); ctx.moveTo(px(0), py(-WR)); ctx.lineTo(px(0), py(WR)); ctx.stroke();
 
     // облако смешанных точек
-    ctx.fillStyle = "rgba(31,78,121,0.32)";
+    ctx.fillStyle = "rgba(31,78,121,0.40)";
     for (let i = 0; i < Npts; i++) {
       const X = mix(S0[2 * i], S0[2 * i + 1]);
-      ctx.fillRect(px(X.x) - 0.9, py(X.y) - 0.9, 1.8, 1.8);
+      ctx.fillRect(px(X.x) - 1.0, py(X.y) - 1.0, 2.0, 2.0);
     }
 
     // контур параллелограмма (углы квадрата (±1,±1) → смесь)
     const corners = [mix(-1, -1), mix(1, -1), mix(1, 1), mix(-1, 1)];
-    ctx.strokeStyle = "rgba(17,17,17,0.45)"; ctx.lineWidth = 1.4;
+    ctx.strokeStyle = "rgba(17,17,17,0.45)"; ctx.lineWidth = 1.8;
     ctx.setLineDash([4, 3]);
     ctx.beginPath();
     corners.forEach((c, i) => {
@@ -1595,8 +1679,9 @@ SigmaInt.register("ica-cocktail", function (root, opts, S) {
       { k: "A =", v: "[[" + f2(col1.x) + ", " + f2(col2.x) + "], [" + f2(col1.y) + ", " + f2(col2.y) + "]]", color: P.ink },
       { k: "det A", v: f2(det) + (Math.abs(det) < 0.05 ? " ⚠ вырождена" : ""), color: Math.abs(det) < 0.05 ? P.red : P.mut },
       { k: "угол сторон", v: angle.toFixed(0) + "°", color: P.gold },
-      { k: "куртозис вдоль ICA-оси", v: kICA.toFixed(2), color: P.gold },
-      { k: "куртозис вдоль PCA-оси", v: kPCA.toFixed(2), color: P.green },
+      { k: "куртозис ICA-проекции", v: kICA.toFixed(2), color: P.gold },
+      { k: "куртозис PCA-проекции", v: kPCA.toFixed(2), color: P.green },
+      { k: "(гаусс)", v: "0.00", color: P.mut },
     ]);
   }
 
@@ -1679,7 +1764,7 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     "встречаются на порядки чаще. Покрути камеру, чтобы увидеть рельеф со всех сторон.");
 
   // ----------------------------------------------------------- состояние
-  let yaw = -0.7, pitch = 0.62;     // углы камеры (радианы)
+  let yaw = -0.7, pitch = 0.78;     // углы камеры (радианы)
   let surface = "gaussians";        // тип ландшафта
   let rough = 1.0;                  // масштаб неровности
   let res = 40;                     // разрешение сетки (точек на сторону)
@@ -1746,10 +1831,10 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     const Z2 = Y * sp + Zc * cp;
     // ортографическая проекция с лёгкой перспективой по глубине
     const persp = 1 / (1 + 0.12 * (Y2 + 2.2));
-    const scale = 132 * persp;
+    const scale = 178 * persp;
     return {
       sx: W * 0.5 + X * scale,
-      sy: H * 0.52 - Z2 * scale * 0.95 + Y2 * scale * 0.18,
+      sy: H * 0.62 - Z2 * scale * 0.95 + Y2 * scale * 0.18,
       depth: Y2, // больше = дальше (для сортировки)
     };
   }
@@ -1787,7 +1872,7 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
   // ----------------------------------------------------------- шарик
   let ball = null; // {x,y,vx,vy} в координатах DOM
   function dropBall(wx, wy) {
-    ball = { x: wx, y: wy, vx: 0, vy: 0, age: 0 };
+    ball = { x: wx, y: wy, vx: 0, vy: 0, age: 0, trail: [] };
   }
   function stepBall(dt) {
     if (!ball) return;
@@ -1797,6 +1882,8 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     ball.vy = ball.vy * friction - lr * g[1];
     ball.x += ball.vx;
     ball.y += ball.vy;
+    ball.trail.push([ball.x, ball.y]);
+    if (ball.trail.length > 200) ball.trail.shift();
     // удерживаем в области
     ball.x = Math.max(-DOM, Math.min(DOM, ball.x));
     ball.y = Math.max(-DOM, Math.min(DOM, ball.y));
@@ -1890,17 +1977,42 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
   }
 
   function drawAxisHints(n, grid) {
-    ctx.font = "13px Palatino, Georgia, serif";
-    ctx.fillStyle = P.mut;
+    ctx.font = "15px Palatino, Georgia, serif";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     // углы основания: (ix,iy) = (0,0),(n-1,0),(0,n-1)
     const c00 = grid[0][0].p, cN0 = grid[0][n - 1].p, c0N = grid[n - 1][0].p;
-    // подпись α по ребру вдоль x, β вдоль y
-    ctx.fillText("α (направление 1)", (cN0.sx + c00.sx) / 2, (cN0.sy + c00.sy) / 2 + 18);
-    ctx.fillText("β (направление 2)", (c0N.sx + c00.sx) / 2 - 6, (c0N.sy + c00.sy) / 2 + 6);
+    // экстраполируем метку на ~12% за угол c00 вдоль соответствующего ребра
+    const ax = c00.sx + (cN0.sx - c00.sx) * 1.12;
+    const ay = c00.sy + (cN0.sy - c00.sy) * 1.12;
+    const bx = c00.sx + (c0N.sx - c00.sx) * 1.12;
+    const by = c00.sy + (c0N.sy - c00.sy) * 1.12;
+    label("α", ax, ay);
+    label("β", bx, by);
+
+    function label(s, x, y) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255,255,248,0.9)";
+      ctx.strokeText(s, x, y);
+      ctx.fillStyle = P.mut;
+      ctx.fillText(s, x, y);
+    }
   }
 
   function drawBall() {
+    // траектория спуска — путь шарика по поверхности
+    if (ball.trail && ball.trail.length > 1) {
+      ctx.strokeStyle = P.gold;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < ball.trail.length; i++) {
+        const tx = ball.trail[i][0], ty = ball.trail[i][1];
+        const tp = project(toWorld(tx), toWorld(ty), worldZ(L(tx, ty)) + 0.04);
+        if (i === 0) ctx.moveTo(tp.sx, tp.sy);
+        else ctx.lineTo(tp.sx, tp.sy);
+      }
+      ctx.stroke();
+    }
     const wz = worldZ(L(ball.x, ball.y)) + 0.06; // чуть над поверхностью
     const p = project(toWorld(ball.x), toWorld(ball.y), wz);
     // тень на «дне»
@@ -2036,7 +2148,8 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   let Y = [];           // текущий эмбеддинг [{x,y}]
   let dragIdx = -1;     // индекс перетаскиваемой точки
   let iter = 0;
-  let stressHist = [];  // история стресса (для кривой)
+  let histGrad = [];    // история стресса градиентного метода
+  let histZero = [];    // история стресса безградиентного метода
   const HIST_MAX = 240;
 
   function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -2072,7 +2185,8 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     buildTruth(n);
     buildEmbedding(n);
     iter = 0;
-    stressHist = [];
+    histGrad = [];
+    histZero = [];
   }
 
   // стресс σ = Σ_{i<j} (||yi-yj|| - Dij)²
@@ -2138,8 +2252,9 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       iter++;
     }
     const st = stressOf(Y);
-    stressHist.push(st);
-    if (stressHist.length > HIST_MAX) stressHist.shift();
+    const h = method === "grad" ? histGrad : histZero;
+    h.push(st);
+    if (h.length > HIST_MAX) h.shift();
     return st;
   }
 
@@ -2202,15 +2317,19 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
     ctx.fillText("Стресс σ(t), лог-шкала", curve.x, curve.y - 10);
 
-    if (stressHist.length > 1) {
-      // лог-шкала по y
+    // подпись оси x
+    ctx.fillStyle = P.mut; ctx.font = "11px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("итерация t", curve.x + curve.w / 2, curve.y + curve.h + 18);
+
+    if (histGrad.length > 1 || histZero.length > 1) {
+      // лог-шкала по y по объединению обеих историй
       let lo = Infinity, hi = -Infinity;
-      for (const v of stressHist) {
+      for (const v of histGrad.concat(histZero)) {
         const lv = Math.log10(Math.max(v, 1e-6));
         if (lv < lo) lo = lv; if (lv > hi) hi = lv;
       }
-      if (hi - lo < 0.5) { hi += 0.25; lo -= 0.25; }
-      const tx = S.scale(0, stressHist.length - 1, curve.x, curve.x + curve.w);
+      if (hi - lo < 1.0) { hi += 0.5; lo -= 0.5; }
+      const tx = S.scale(0, HIST_MAX - 1, curve.x, curve.x + curve.w);
       const ty = S.scale(lo, hi, curve.y + curve.h, curve.y);
 
       // горизонтальные грид-линии по степеням 10
@@ -2225,19 +2344,27 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
         ctx.fillText("10" + (e >= 0 ? "" : "⁻") + Math.abs(e), curve.x - 4, y + 3);
       }
 
-      // линия стресса
-      const col = method === "grad" ? P.green : P.purple;
-      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
-      for (let i = 0; i < stressHist.length; i++) {
-        const X = tx(i), Yp = ty(Math.log10(Math.max(stressHist[i], 1e-6)));
-        i === 0 ? ctx.moveTo(X, Yp) : ctx.lineTo(X, Yp);
-      }
-      ctx.stroke();
-
-      // текущая точка
-      const lastY = ty(Math.log10(Math.max(stressHist[stressHist.length - 1], 1e-6)));
-      ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(curve.x + curve.w, lastY, 3.5, 0, 2 * Math.PI); ctx.fill();
+      // две кривые: grad (зелёная) и zero (фиолетовая); неактивная — с alpha 0.35
+      const drawCurve = (hist, color, active) => {
+        if (hist.length < 2) return;
+        const off = Math.max(0, hist.length - HIST_MAX);
+        ctx.globalAlpha = active ? 1 : 0.35;
+        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+        for (let i = off; i < hist.length; i++) {
+          const X = tx(i - off), Yp = ty(Math.log10(Math.max(hist[i], 1e-6)));
+          i === off ? ctx.moveTo(X, Yp) : ctx.lineTo(X, Yp);
+        }
+        ctx.stroke();
+        // текущая точка
+        const lastIdx = hist.length - 1;
+        const lastX = tx(lastIdx - off);
+        const lastY = ty(Math.log10(Math.max(hist[lastIdx], 1e-6)));
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(lastX, lastY, 3.5, 0, 2 * Math.PI); ctx.fill();
+        ctx.globalAlpha = 1;
+      };
+      drawCurve(histGrad, P.green, method === "grad");
+      drawCurve(histZero, P.purple, method === "zero");
     }
   }
 
@@ -2289,7 +2416,7 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       { value: "grad", label: "градиентный" },
       { value: "zero", label: "безградиентный" },
     ],
-  }, (v) => { method = v; stressHist = []; iter = 0; });
+  }, (v) => { method = v; });
 
   S.slider(controls, {
     label: "Число точек N", min: 4, max: 16, step: 1, value: N, fmt: (v) => v | 0,
@@ -2309,6 +2436,261 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     updateReadout(st);
     redraw();
   }).start();
+});
+
+
+// ===== widget: optimizers_descent.js =====
+// optimizers-descent — гонка first-order методов по 2D-ландшафту потерь.
+// Тяни точку старта — GD / Momentum / Adam стартуют оттуда и наперегонки катятся
+// вниз живыми траекториями. Меняй learning rate, momentum β и сам ландшафт.
+// Сердце курса оптимизации: видно, как momentum пробивает овраг, а Adam адаптируется.
+SigmaInt.register("optimizers-descent", function (root, opts, S) {
+  const P = S.PALETTE;
+
+  root.appendChild(S.el("div", "sigma-int-hint", {
+    text: "Тяни белую точку старта по карте — три метода побегут вниз из неё. Крути learning rate, β и выбирай ландшафт.",
+  }));
+
+  const stage = S.row(root);
+  const W = 720, H = 460;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 720, pan: false });
+  const ctx = cv.ctx;
+  const controls = S.row(root, "controls");
+  const out = S.readout(root);
+  S.caption(root,
+    "Карта высот — поверхность потерь L(x,y) (тёмное — дно). Градиентный спуск (синий) " +
+    "медлит в оврагах; momentum (золотой) разгоняется вдоль дна и проскакивает; Adam " +
+    "(зелёный) подстраивает шаг по координатам. Тяни старт, меняй шаг — и смотри, кто застрянет.");
+
+  // ---------- ландшафты: f(x,y) и градиент ----------
+  const SURFACES = {
+    ravine: {
+      label: "Овраг (плохо обусловлен)",
+      f: (x, y) => 0.5 * (0.06 * x * x + 3.0 * y * y),
+      g: (x, y) => [0.06 * x, 3.0 * y],
+      min: [0, 0], dom: 6,
+    },
+    rosenbrock: {
+      label: "Розенброк (банан)",
+      f: (x, y) => { const a = 1 - x, b = y - x * x; return (a * a + 8 * b * b) * 0.04; },
+      g: (x, y) => { const b = y - x * x; return [(-2 * (1 - x) - 32 * x * b) * 0.04, (16 * b) * 0.04]; },
+      min: [1, 1], dom: 2.2,
+    },
+    saddle: {
+      label: "Седло",
+      f: (x, y) => 0.12 * (x * x - y * y) + 0.0008 * (x * x + y * y) * (x * x + y * y),
+      g: (x, y) => {
+        const r2 = x * x + y * y;
+        return [0.24 * x + 0.0032 * x * r2, -0.24 * y + 0.0032 * y * r2];
+      },
+      min: [0, 0], dom: 6,
+    },
+    bumps: {
+      label: "Много ям",
+      f: (x, y) => {
+        let s = 0.02 * (x * x + y * y);
+        s -= 1.2 * Math.exp(-((x - 2) ** 2 + (y - 1.5) ** 2) / 1.2);
+        s -= 1.0 * Math.exp(-((x + 2.2) ** 2 + (y + 1) ** 2) / 1.0);
+        s -= 0.9 * Math.exp(-((x - 0.5) ** 2 + (y + 2.4) ** 2) / 0.9);
+        return s;
+      },
+      g: (x, y) => {
+        let gx = 0.04 * x, gy = 0.04 * y;
+        const bump = (cx, cy, A, s) => {
+          const e = A * Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / s);
+          gx -= e * (-2 * (x - cx) / s); gy -= e * (-2 * (y - cy) / s);
+        };
+        bump(2, 1.5, 1.2, 1.2); bump(-2.2, -1, 1.0, 1.0); bump(0.5, -2.4, 0.9, 0.9);
+        return [gx, gy];
+      },
+      min: [2, 1.5], dom: 4.5,
+    },
+  };
+
+  let surfKey = "ravine";
+  let lr = 0.18, beta = 0.85;
+  let start = { x: -4.2, y: 2.4 };
+
+  // ---------- world↔pixel ----------
+  let DOM = SURFACES[surfKey].dom;
+  const cx = W / 2, cy = H / 2, SCALE = () => (Math.min(W, H) * 0.46) / DOM;
+  const wx = (x) => cx + x * SCALE();
+  const wy = (y) => cy - y * SCALE();
+  const ix = (sx) => (sx - cx) / SCALE();
+  const iy = (sy) => (cy - sy) / SCALE();
+
+  // ---------- фон-карта высот (с контурными полосами) ----------
+  let field = null, fieldKey = "";
+  function buildField() {
+    const surf = SURFACES[surfKey];
+    const GW = 240, GH = Math.round(GW * H / W);
+    const off = document.createElement("canvas");
+    off.width = GW; off.height = GH;
+    const octx = off.getContext("2d");
+    const img = octx.createImageData(GW, GH);
+    let lo = Infinity, hi = -Infinity;
+    const vals = new Float32Array(GW * GH);
+    for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) {
+      const x = ix((i / (GW - 1)) * W), y = iy((j / (GH - 1)) * H);
+      const v = surf.f(x, y); vals[j * GW + i] = v;
+      if (v < lo) lo = v; if (v > hi) hi = v;
+    }
+    for (let p = 0; p < GW * GH; p++) {
+      let t = (vals[p] - lo) / (hi - lo + 1e-9);
+      t = Math.pow(t, 0.55);                  // подчёркиваем дно
+      const band = (Math.sin(t * Math.PI * 9) * 0.5 + 0.5) * 0.10; // контурные полосы
+      // террейн: дно тёмно-синее → верх тёплый песочный
+      const r = 32 + t * 210 + band * 30;
+      const g = 60 + t * 180 + band * 30;
+      const b = 90 + (1 - t) * 110 - band * 20;
+      img.data[p * 4] = r; img.data[p * 4 + 1] = g; img.data[p * 4 + 2] = b; img.data[p * 4 + 3] = 255;
+    }
+    octx.putImageData(img, 0, 0);
+    field = off; fieldKey = surfKey;
+  }
+
+  // ---------- оптимизаторы ----------
+  function makeRunners() {
+    const s = { x: start.x, y: start.y };
+    return {
+      gd: { x: s.x, y: s.y, path: [[s.x, s.y]], color: P.blue, label: "GD" },
+      mom: { x: s.x, y: s.y, vx: 0, vy: 0, path: [[s.x, s.y]], color: P.gold, label: "momentum" },
+      adam: { x: s.x, y: s.y, mx: 0, my: 0, vx: 0, vy: 0, t: 0, path: [[s.x, s.y]], color: P.green, label: "Adam" },
+    };
+  }
+  let R = makeRunners();
+
+  function clampDom(o) {
+    const lim = DOM * 1.3;
+    o.x = Math.max(-lim, Math.min(lim, o.x));
+    o.y = Math.max(-lim, Math.min(lim, o.y));
+  }
+
+  function step() {
+    const surf = SURFACES[surfKey];
+    // GD
+    {
+      const [gx, gy] = surf.g(R.gd.x, R.gd.y);
+      R.gd.x -= lr * gx; R.gd.y -= lr * gy; clampDom(R.gd);
+      if (R.gd.path.length < 4000) R.gd.path.push([R.gd.x, R.gd.y]);
+    }
+    // momentum
+    {
+      const [gx, gy] = surf.g(R.mom.x, R.mom.y);
+      R.mom.vx = beta * R.mom.vx - lr * gx; R.mom.vy = beta * R.mom.vy - lr * gy;
+      R.mom.x += R.mom.vx; R.mom.y += R.mom.vy; clampDom(R.mom);
+      if (R.mom.path.length < 4000) R.mom.path.push([R.mom.x, R.mom.y]);
+    }
+    // Adam
+    {
+      const a = R.adam, b1 = 0.9, b2 = 0.999, eps = 1e-8, alpha = lr * 1.6;
+      const [gx, gy] = surf.g(a.x, a.y); a.t++;
+      a.mx = b1 * a.mx + (1 - b1) * gx; a.my = b1 * a.my + (1 - b1) * gy;
+      a.vx = b2 * a.vx + (1 - b2) * gx * gx; a.vy = b2 * a.vy + (1 - b2) * gy * gy;
+      const mhx = a.mx / (1 - Math.pow(b1, a.t)), mhy = a.my / (1 - Math.pow(b1, a.t));
+      const vhx = a.vx / (1 - Math.pow(b2, a.t)), vhy = a.vy / (1 - Math.pow(b2, a.t));
+      a.x -= alpha * mhx / (Math.sqrt(vhx) + eps); a.y -= alpha * mhy / (Math.sqrt(vhy) + eps);
+      clampDom(a);
+      if (a.path.length < 4000) a.path.push([a.x, a.y]);
+    }
+  }
+
+  function drawPath(o) {
+    ctx.strokeStyle = o.color; ctx.lineWidth = 2; ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    o.path.forEach((p, i) => { const X = wx(p[0]), Y = wy(p[1]); i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); });
+    ctx.stroke(); ctx.globalAlpha = 1;
+    const X = wx(o.x), Y = wy(o.y);
+    ctx.fillStyle = o.color; ctx.beginPath(); ctx.arc(X, Y, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = "#fffff8"; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  function draw() {
+    if (fieldKey !== surfKey || !field) buildField();
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(field, 0, 0, W, H);
+
+    // минимум
+    const surf = SURFACES[surfKey];
+    const mX = wx(surf.min[0]), mY = wy(surf.min[1]);
+    ctx.strokeStyle = "#fffff8"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(mX - 6, mY); ctx.lineTo(mX + 6, mY); ctx.moveTo(mX, mY - 6); ctx.lineTo(mX, mY + 6); ctx.stroke();
+
+    drawPath(R.gd); drawPath(R.mom); drawPath(R.adam);
+
+    // точка старта (ручка)
+    const sX = wx(start.x), sY = wy(start.y);
+    ctx.fillStyle = "#fffff8"; ctx.strokeStyle = P.ink; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(sX, sY, 7, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = P.ink; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "center";
+    ctx.fillText("старт", sX, sY - 14);
+
+    // легенда
+    ctx.textAlign = "left"; ctx.font = "12px Palatino, Georgia, serif";
+    let ly = 20;
+    [R.gd, R.mom, R.adam].forEach((o) => {
+      ctx.fillStyle = o.color; ctx.beginPath(); ctx.arc(20, ly - 4, 5, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = "#fffff8"; ctx.fillRect(30, ly - 11, 96, 15);
+      ctx.fillStyle = P.ink; ctx.fillText(o.label, 32, ly);
+      ly += 19;
+    });
+
+    out.set([
+      { k: "ландшафт", v: surf.label, color: P.mut },
+      { k: "L(GD)", v: surf.f(R.gd.x, R.gd.y).toFixed(3), color: P.blue },
+      { k: "L(momentum)", v: surf.f(R.mom.x, R.mom.y).toFixed(3), color: P.gold },
+      { k: "L(Adam)", v: surf.f(R.adam.x, R.adam.y).toFixed(3), color: P.green },
+      { k: "шагов", v: String(R.gd.path.length - 1), color: P.mut },
+    ]);
+  }
+
+  function reset() { R = makeRunners(); }
+
+  // ---------- анимация ----------
+  let frame = 0;
+  const anim = S.loop(() => {
+    // несколько шагов за кадр, пока траектории не «успокоились»
+    const moved = Math.abs(R.gd.path.length) < 4000;
+    if (moved) for (let s = 0; s < 2; s++) step();
+    draw();
+    frame++;
+  });
+
+  // ---------- перетаскивание старта ----------
+  let dragging = false;
+  S.dragify(cv.canvas, { w: W, h: H }, {
+    onDown: (p) => {
+      const sX = wx(start.x), sY = wy(start.y);
+      if (Math.hypot(p.x - sX, p.y - sY) < 28) { dragging = true; setStart(p); }
+      else { setStart(p); }  // клик в любом месте тоже переносит старт
+    },
+    onMove: (p) => { if (dragging) setStart(p); },
+    onUp: () => { dragging = false; },
+    onHover: (p) => {
+      const sX = wx(start.x), sY = wy(start.y);
+      cv.canvas.style.cursor = Math.hypot(p.x - sX, p.y - sY) < 28 ? "grab" : "crosshair";
+    },
+  });
+  function setStart(p) {
+    const lim = DOM * 1.25;
+    start = { x: Math.max(-lim, Math.min(lim, ix(p.x))), y: Math.max(-lim, Math.min(lim, iy(p.y))) };
+    reset();
+  }
+
+  // ---------- контролы ----------
+  S.select(controls, {
+    label: "Ландшафт", value: surfKey,
+    options: Object.keys(SURFACES).map((k) => ({ value: k, label: SURFACES[k].label })),
+  }, (v) => { surfKey = v; DOM = SURFACES[surfKey].dom; field = null; reset(); });
+  S.slider(controls, { label: "Learning rate", min: 0.01, max: 0.6, step: 0.01, value: lr, fmt: (v) => v.toFixed(2) },
+    (v) => { lr = v; reset(); });
+  S.slider(controls, { label: "Momentum β", min: 0, max: 0.97, step: 0.01, value: beta, fmt: (v) => v.toFixed(2) },
+    (v) => { beta = v; reset(); });
+  S.button(controls, "Перезапустить", () => reset(), "ghost");
+
+  draw();
+  anim.start();
 });
 
 
@@ -2422,10 +2804,19 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
     ctx.strokeStyle = P.green; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 1; i <= M; i++) { const X = xK(i), Y = yV(cv2[i - 1]); i === 1 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
     ctx.stroke();
+    // подписи оси X (число компонент)
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
+    [1, Math.round(M / 4), Math.round(M / 2), Math.round(3 * M / 4), M].forEach((tk) => {
+      const tx = xK(tk);
+      ctx.beginPath(); ctx.moveTo(tx, curveBox.y + curveBox.h); ctx.lineTo(tx, curveBox.y + curveBox.h + 4); ctx.stroke();
+      ctx.fillText(String(tk), tx, curveBox.y + curveBox.h + 14);
+    });
+    ctx.fillText("компонент", curveBox.x + curveBox.w / 2, curveBox.y + curveBox.h + 26);
     // маркер k
     const mk = xK(k), my = yV(cv2[k - 1]);
     ctx.strokeStyle = P.red; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(mk, curveBox.y + curveBox.h); ctx.lineTo(mk, my); ctx.lineTo(curveBox.x, my); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mk, curveBox.y + curveBox.h); ctx.lineTo(mk, my); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(mk, my, 4, 0, 2 * Math.PI); ctx.fill();
     ctx.fillStyle = P.ink; ctx.font = "12px Palatino, serif"; ctx.textAlign = "center";
@@ -2503,9 +2894,9 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
   }));
 
   const stage = S.row(root);
-  const cv = S.makeCanvas(stage, 760, 440, { maxWidth: 760 });
+  const cv = S.makeCanvas(stage, 760, 405, { maxWidth: 760 });
   const ctx = cv.ctx;
-  const W = 760, H = 440;
+  const W = 760, H = 405;
 
   const controls = S.row(root, "controls");
   const out = S.readout(root);
@@ -2585,7 +2976,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
   // --------- геометрия рисунка ----------
   const bridge = { x: 50, y: 40, w: W - 100, h: 150 }; // верхний пролёт
   const deckY = bridge.y + bridge.h * 0.5;
-  const ampBox = { x: 60, y: 270, w: W - 120, h: 130 }; // АЧХ
+  const ampBox = { x: 60, y: 235, w: W - 120, h: 130 }; // АЧХ
 
   // динамическое состояние колебаний
   let phase = 0;          // фаза колебаний
@@ -2604,7 +2995,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
 
     // мгновенная амплитуда деки: огибающая × форма моды × cos(phase)
     // визуальный масштаб амплитуды
-    const visAmp = Math.min(envelope, 1) * (bridge.h * 0.42);
+    const visAmp = Math.max(0.18, Math.min(envelope, 1)) * (bridge.h * 0.42);
     const deckColor = resonance
       ? mixColor(P.blue, P.red, Math.min(1, envelope))
       : P.blue;
@@ -2685,17 +3076,17 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
 
     // ---- АЧХ ----
     const xF = S.scale(0, fMaxAxis, ampBox.x, ampBox.x + ampBox.w);
-    // вычислим кривую и её максимум для нормировки
+    // Референсный максимум оси — пик ближайшей моды при малом ζ. Ось фиксирована,
+    // поэтому при росте ζ пик визуально ОПУСКАЕТСЯ (как и положено по 1/2ζ), а не
+    // дёргается под потолком из-за поканадровой перенормировки.
+    const A_REF = totalAmp(modes, near.f, 0.02).amp;
     const NPTS = 360;
     const curve = new Float64Array(NPTS + 1);
-    let amax = 1e-9;
     for (let i = 0; i <= NPTS; i++) {
       const f = (fMaxAxis * i) / NPTS;
-      const a = totalAmp(modes, f, zeta).amp;
-      curve[i] = a;
-      if (a > amax) amax = a;
+      curve[i] = totalAmp(modes, f, zeta).amp;
     }
-    const yA = S.scale(0, amax, ampBox.y + ampBox.h, ampBox.y);
+    const yA = S.scale(0, A_REF, ampBox.y + ampBox.h, ampBox.y);
 
     // рамка/ось АЧХ
     S.axes(ctx, ampBox, { xlabel: "частота вынуждающей силы, Гц" });
@@ -2723,7 +3114,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     ctx.strokeStyle = P.green; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 0; i <= NPTS; i++) {
       const f = (fMaxAxis * i) / NPTS;
-      const X = xF(f), Y = yA(curve[i]);
+      const X = xF(f), Y = yA(Math.min(curve[i], A_REF));
       i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
     }
     ctx.stroke();
@@ -2731,7 +3122,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     // бегущий маркер частоты ветра
     const xw = xF(Math.min(fWind, fMaxAxis));
     const aWind = totalAmp(modes, fWind, zeta).amp;
-    const yw = yA(Math.min(aWind, amax));
+    const yw = yA(Math.min(aWind, A_REF));
     ctx.strokeStyle = resonance ? P.red : P.blue; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xw, ampBox.y + ampBox.h); ctx.lineTo(xw, ampBox.y); ctx.stroke();
     ctx.fillStyle = resonance ? P.red : P.blue;
@@ -2767,7 +3158,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     // Целевая огибающая: видимая базовая раскачка формы моды ВСЕГДА (мост «живой»,
     // дека не лежит плашмя), с резким ростом к резонансу. Knob detune+0.5ζ задаёт
     // остроту резонансного пика.
-    const target = Math.min(1, 0.13 + 0.10 / Math.max(0.05, detune + 0.5 * zeta));
+    const target = Math.min(1, 0.28 + 0.10 / Math.max(0.05, detune + 0.5 * zeta));
     // dt ~ 1/60 c; сглаживание к target
     envelope += (target - envelope) * 0.04;
     // фаза колебаний — медленная, видимая глазом
@@ -2823,14 +3214,14 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     { w: "принц",     x: -0.4, y:  1.4 },
     { w: "принцесса", x: -0.4, y: -1.4 },
     // страны (нижний ряд) и столицы (верхний ряд): «столичность» по Y
-    { w: "Франция",   x:  1.6, y: -2.0 },
-    { w: "Париж",     x:  1.6, y:  0.2 },
-    { w: "Германия",  x:  2.6, y: -2.0 },
-    { w: "Берлин",    x:  2.6, y:  0.2 },
-    { w: "Италия",    x:  3.6, y: -2.0 },
-    { w: "Рим",       x:  3.6, y:  0.2 },
-    { w: "Япония",    x:  4.6, y: -2.0 },
-    { w: "Токио",     x:  4.6, y:  0.2 },
+    { w: "Франция",   x:  0.7, y: -2.0 },
+    { w: "Париж",     x:  0.7, y:  0.2 },
+    { w: "Германия",  x:  1.7, y: -2.0 },
+    { w: "Берлин",    x:  1.7, y:  0.2 },
+    { w: "Италия",    x:  2.7, y: -2.0 },
+    { w: "Рим",       x:  2.7, y:  0.2 },
+    { w: "Япония",    x:  3.7, y: -2.0 },
+    { w: "Токио",     x:  3.7, y:  0.2 },
   ];
   // позиции мутируем при перетаскивании
   const pos = VOCAB.map((d) => ({ x: d.x, y: d.y }));
@@ -2867,7 +3258,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
   // ---- геометрия / шкалы ---------------------------------------------
   const box = { x: 56, y: 28, w: W - 56 - 16, h: H - 28 - 40 };
   // фиксированные домены с запасом
-  const DX = [-3.6, 5.6], DY = [-3.0, 2.6];
+  const DX = [-3.2, 4.4], DY = [-3.0, 2.6];
   const sx = S.scale(DX[0], DX[1], box.x, box.x + box.w);
   const sy = S.scale(DY[0], DY[1], box.y + box.h, box.y); // y вверх
 
@@ -2920,7 +3311,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.setLineDash([]);
     // наконечник
     const ang = Math.atan2(b.py - a.py, b.px - a.px);
-    const hl = 9;
+    const hl = 12;
     ctx.beginPath();
     ctx.moveTo(b.px, b.py);
     ctx.lineTo(b.px - hl * Math.cos(ang - 0.4), b.py - hl * Math.sin(ang - 0.4));
@@ -2962,7 +3353,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.beginPath();
     ctx.moveTo(pb.px, pb.py); ctx.lineTo(pa.px, pa.py);
     ctx.lineTo(pt.px, pt.py); ctx.lineTo(pc.px, pc.py); ctx.closePath();
-    ctx.fillStyle = "rgba(106,76,147,0.08)"; // purple wash
+    ctx.fillStyle = "rgba(106,76,147,0.12)"; // purple wash
     ctx.fill();
 
     // рёбра-стрелки: отношение b→a и c→t (параллельны = аналогия)
@@ -2975,8 +3366,9 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.beginPath(); ctx.moveTo(pa.px, pa.py); ctx.lineTo(pt.px, pt.py); ctx.stroke();
     ctx.setLineDash([]); ctx.globalAlpha = 1;
 
-    // ближайшее слово к t (исключаем сами a,b,c из топа, но покажем всё)
-    const ranked = nearest(t, null);
+    // ближайшее слово к t (исключаем сами a,b,c — ответ аналогии
+    // никогда не должен быть одним из входов)
+    const ranked = nearest(t, new Set([ia, ib, ic]));
     const best = ranked[0];
 
     // все точки-слова
@@ -2994,7 +3386,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.beginPath(); ctx.arc(qt.px, qt.py, 6, 0, 2 * Math.PI);
     ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.setLineDash([2, 2]); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.font = "italic 12px Palatino, Georgia, serif"; ctx.fillStyle = P.ink;
+    ctx.font = "bold italic 12px Palatino, Georgia, serif"; ctx.fillStyle = P.ink;
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
     ctx.fillText("t", qt.px + 9, qt.py + 9);
     ctx.textBaseline = "alphabetic";

@@ -24,7 +24,7 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     "встречаются на порядки чаще. Покрути камеру, чтобы увидеть рельеф со всех сторон.");
 
   // ----------------------------------------------------------- состояние
-  let yaw = -0.7, pitch = 0.62;     // углы камеры (радианы)
+  let yaw = -0.7, pitch = 0.78;     // углы камеры (радианы)
   let surface = "gaussians";        // тип ландшафта
   let rough = 1.0;                  // масштаб неровности
   let res = 40;                     // разрешение сетки (точек на сторону)
@@ -91,10 +91,10 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     const Z2 = Y * sp + Zc * cp;
     // ортографическая проекция с лёгкой перспективой по глубине
     const persp = 1 / (1 + 0.12 * (Y2 + 2.2));
-    const scale = 132 * persp;
+    const scale = 178 * persp;
     return {
       sx: W * 0.5 + X * scale,
-      sy: H * 0.52 - Z2 * scale * 0.95 + Y2 * scale * 0.18,
+      sy: H * 0.62 - Z2 * scale * 0.95 + Y2 * scale * 0.18,
       depth: Y2, // больше = дальше (для сортировки)
     };
   }
@@ -132,7 +132,7 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
   // ----------------------------------------------------------- шарик
   let ball = null; // {x,y,vx,vy} в координатах DOM
   function dropBall(wx, wy) {
-    ball = { x: wx, y: wy, vx: 0, vy: 0, age: 0 };
+    ball = { x: wx, y: wy, vx: 0, vy: 0, age: 0, trail: [] };
   }
   function stepBall(dt) {
     if (!ball) return;
@@ -142,6 +142,8 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
     ball.vy = ball.vy * friction - lr * g[1];
     ball.x += ball.vx;
     ball.y += ball.vy;
+    ball.trail.push([ball.x, ball.y]);
+    if (ball.trail.length > 200) ball.trail.shift();
     // удерживаем в области
     ball.x = Math.max(-DOM, Math.min(DOM, ball.x));
     ball.y = Math.max(-DOM, Math.min(DOM, ball.y));
@@ -235,17 +237,42 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
   }
 
   function drawAxisHints(n, grid) {
-    ctx.font = "13px Palatino, Georgia, serif";
-    ctx.fillStyle = P.mut;
+    ctx.font = "15px Palatino, Georgia, serif";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     // углы основания: (ix,iy) = (0,0),(n-1,0),(0,n-1)
     const c00 = grid[0][0].p, cN0 = grid[0][n - 1].p, c0N = grid[n - 1][0].p;
-    // подпись α по ребру вдоль x, β вдоль y
-    ctx.fillText("α (направление 1)", (cN0.sx + c00.sx) / 2, (cN0.sy + c00.sy) / 2 + 18);
-    ctx.fillText("β (направление 2)", (c0N.sx + c00.sx) / 2 - 6, (c0N.sy + c00.sy) / 2 + 6);
+    // экстраполируем метку на ~12% за угол c00 вдоль соответствующего ребра
+    const ax = c00.sx + (cN0.sx - c00.sx) * 1.12;
+    const ay = c00.sy + (cN0.sy - c00.sy) * 1.12;
+    const bx = c00.sx + (c0N.sx - c00.sx) * 1.12;
+    const by = c00.sy + (c0N.sy - c00.sy) * 1.12;
+    label("α", ax, ay);
+    label("β", bx, by);
+
+    function label(s, x, y) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255,255,248,0.9)";
+      ctx.strokeText(s, x, y);
+      ctx.fillStyle = P.mut;
+      ctx.fillText(s, x, y);
+    }
   }
 
   function drawBall() {
+    // траектория спуска — путь шарика по поверхности
+    if (ball.trail && ball.trail.length > 1) {
+      ctx.strokeStyle = P.gold;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < ball.trail.length; i++) {
+        const tx = ball.trail[i][0], ty = ball.trail[i][1];
+        const tp = project(toWorld(tx), toWorld(ty), worldZ(L(tx, ty)) + 0.04);
+        if (i === 0) ctx.moveTo(tp.sx, tp.sy);
+        else ctx.lineTo(tp.sx, tp.sy);
+      }
+      ctx.stroke();
+    }
     const wz = worldZ(L(ball.x, ball.y)) + 0.06; // чуть над поверхностью
     const p = project(toWorld(ball.x), toWorld(ball.y), wz);
     // тень на «дне»

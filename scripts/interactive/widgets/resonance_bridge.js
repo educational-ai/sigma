@@ -11,9 +11,9 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
   }));
 
   const stage = S.row(root);
-  const cv = S.makeCanvas(stage, 760, 440, { maxWidth: 760 });
+  const cv = S.makeCanvas(stage, 760, 405, { maxWidth: 760 });
   const ctx = cv.ctx;
-  const W = 760, H = 440;
+  const W = 760, H = 405;
 
   const controls = S.row(root, "controls");
   const out = S.readout(root);
@@ -93,7 +93,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
   // --------- геометрия рисунка ----------
   const bridge = { x: 50, y: 40, w: W - 100, h: 150 }; // верхний пролёт
   const deckY = bridge.y + bridge.h * 0.5;
-  const ampBox = { x: 60, y: 270, w: W - 120, h: 130 }; // АЧХ
+  const ampBox = { x: 60, y: 235, w: W - 120, h: 130 }; // АЧХ
 
   // динамическое состояние колебаний
   let phase = 0;          // фаза колебаний
@@ -112,7 +112,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
 
     // мгновенная амплитуда деки: огибающая × форма моды × cos(phase)
     // визуальный масштаб амплитуды
-    const visAmp = Math.min(envelope, 1) * (bridge.h * 0.42);
+    const visAmp = Math.max(0.18, Math.min(envelope, 1)) * (bridge.h * 0.42);
     const deckColor = resonance
       ? mixColor(P.blue, P.red, Math.min(1, envelope))
       : P.blue;
@@ -193,17 +193,17 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
 
     // ---- АЧХ ----
     const xF = S.scale(0, fMaxAxis, ampBox.x, ampBox.x + ampBox.w);
-    // вычислим кривую и её максимум для нормировки
+    // Референсный максимум оси — пик ближайшей моды при малом ζ. Ось фиксирована,
+    // поэтому при росте ζ пик визуально ОПУСКАЕТСЯ (как и положено по 1/2ζ), а не
+    // дёргается под потолком из-за поканадровой перенормировки.
+    const A_REF = totalAmp(modes, near.f, 0.02).amp;
     const NPTS = 360;
     const curve = new Float64Array(NPTS + 1);
-    let amax = 1e-9;
     for (let i = 0; i <= NPTS; i++) {
       const f = (fMaxAxis * i) / NPTS;
-      const a = totalAmp(modes, f, zeta).amp;
-      curve[i] = a;
-      if (a > amax) amax = a;
+      curve[i] = totalAmp(modes, f, zeta).amp;
     }
-    const yA = S.scale(0, amax, ampBox.y + ampBox.h, ampBox.y);
+    const yA = S.scale(0, A_REF, ampBox.y + ampBox.h, ampBox.y);
 
     // рамка/ось АЧХ
     S.axes(ctx, ampBox, { xlabel: "частота вынуждающей силы, Гц" });
@@ -231,7 +231,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     ctx.strokeStyle = P.green; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 0; i <= NPTS; i++) {
       const f = (fMaxAxis * i) / NPTS;
-      const X = xF(f), Y = yA(curve[i]);
+      const X = xF(f), Y = yA(Math.min(curve[i], A_REF));
       i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
     }
     ctx.stroke();
@@ -239,7 +239,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     // бегущий маркер частоты ветра
     const xw = xF(Math.min(fWind, fMaxAxis));
     const aWind = totalAmp(modes, fWind, zeta).amp;
-    const yw = yA(Math.min(aWind, amax));
+    const yw = yA(Math.min(aWind, A_REF));
     ctx.strokeStyle = resonance ? P.red : P.blue; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xw, ampBox.y + ampBox.h); ctx.lineTo(xw, ampBox.y); ctx.stroke();
     ctx.fillStyle = resonance ? P.red : P.blue;
@@ -275,7 +275,7 @@ SigmaInt.register("resonance-bridge", function (root, opts, S) {
     // Целевая огибающая: видимая базовая раскачка формы моды ВСЕГДА (мост «живой»,
     // дека не лежит плашмя), с резким ростом к резонансу. Knob detune+0.5ζ задаёт
     // остроту резонансного пика.
-    const target = Math.min(1, 0.13 + 0.10 / Math.max(0.05, detune + 0.5 * zeta));
+    const target = Math.min(1, 0.28 + 0.10 / Math.max(0.05, detune + 0.5 * zeta));
     // dt ~ 1/60 c; сглаживание к target
     envelope += (target - envelope) * 0.04;
     // фаза колебаний — медленная, видимая глазом

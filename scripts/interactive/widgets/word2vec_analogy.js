@@ -26,14 +26,14 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     { w: "принц",     x: -0.4, y:  1.4 },
     { w: "принцесса", x: -0.4, y: -1.4 },
     // страны (нижний ряд) и столицы (верхний ряд): «столичность» по Y
-    { w: "Франция",   x:  1.6, y: -2.0 },
-    { w: "Париж",     x:  1.6, y:  0.2 },
-    { w: "Германия",  x:  2.6, y: -2.0 },
-    { w: "Берлин",    x:  2.6, y:  0.2 },
-    { w: "Италия",    x:  3.6, y: -2.0 },
-    { w: "Рим",       x:  3.6, y:  0.2 },
-    { w: "Япония",    x:  4.6, y: -2.0 },
-    { w: "Токио",     x:  4.6, y:  0.2 },
+    { w: "Франция",   x:  0.7, y: -2.0 },
+    { w: "Париж",     x:  0.7, y:  0.2 },
+    { w: "Германия",  x:  1.7, y: -2.0 },
+    { w: "Берлин",    x:  1.7, y:  0.2 },
+    { w: "Италия",    x:  2.7, y: -2.0 },
+    { w: "Рим",       x:  2.7, y:  0.2 },
+    { w: "Япония",    x:  3.7, y: -2.0 },
+    { w: "Токио",     x:  3.7, y:  0.2 },
   ];
   // позиции мутируем при перетаскивании
   const pos = VOCAB.map((d) => ({ x: d.x, y: d.y }));
@@ -70,7 +70,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
   // ---- геометрия / шкалы ---------------------------------------------
   const box = { x: 56, y: 28, w: W - 56 - 16, h: H - 28 - 40 };
   // фиксированные домены с запасом
-  const DX = [-3.6, 5.6], DY = [-3.0, 2.6];
+  const DX = [-3.2, 4.4], DY = [-3.0, 2.6];
   const sx = S.scale(DX[0], DX[1], box.x, box.x + box.w);
   const sy = S.scale(DY[0], DY[1], box.y + box.h, box.y); // y вверх
 
@@ -123,7 +123,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.setLineDash([]);
     // наконечник
     const ang = Math.atan2(b.py - a.py, b.px - a.px);
-    const hl = 9;
+    const hl = 12;
     ctx.beginPath();
     ctx.moveTo(b.px, b.py);
     ctx.lineTo(b.px - hl * Math.cos(ang - 0.4), b.py - hl * Math.sin(ang - 0.4));
@@ -165,7 +165,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.beginPath();
     ctx.moveTo(pb.px, pb.py); ctx.lineTo(pa.px, pa.py);
     ctx.lineTo(pt.px, pt.py); ctx.lineTo(pc.px, pc.py); ctx.closePath();
-    ctx.fillStyle = "rgba(106,76,147,0.08)"; // purple wash
+    ctx.fillStyle = "rgba(106,76,147,0.12)"; // purple wash
     ctx.fill();
 
     // рёбра-стрелки: отношение b→a и c→t (параллельны = аналогия)
@@ -178,8 +178,9 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.beginPath(); ctx.moveTo(pa.px, pa.py); ctx.lineTo(pt.px, pt.py); ctx.stroke();
     ctx.setLineDash([]); ctx.globalAlpha = 1;
 
-    // ближайшее слово к t (исключаем сами a,b,c из топа, но покажем всё)
-    const ranked = nearest(t, null);
+    // ближайшее слово к t (исключаем сами a,b,c — ответ аналогии
+    // никогда не должен быть одним из входов)
+    const ranked = nearest(t, new Set([ia, ib, ic]));
     const best = ranked[0];
 
     // все точки-слова
@@ -197,7 +198,7 @@ SigmaInt.register("word2vec-analogy", function (root, opts, S) {
     ctx.beginPath(); ctx.arc(qt.px, qt.py, 6, 0, 2 * Math.PI);
     ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.setLineDash([2, 2]); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.font = "italic 12px Palatino, Georgia, serif"; ctx.fillStyle = P.ink;
+    ctx.font = "bold italic 12px Palatino, Georgia, serif"; ctx.fillStyle = P.ink;
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
     ctx.fillText("t", qt.px + 9, qt.py + 9);
     ctx.textBaseline = "alphabetic";

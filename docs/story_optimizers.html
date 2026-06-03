@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Что почитать дальше – Σ Сигма</title>
+<title>Как методы спускаются с горы: GD, momentum, Adam – Σ Сигма</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" rel="next">
-<link href="./ch_linalg_9_podvedenie-itogov-glavy.html" rel="prev">
+<link href="./ch02_newton.html" rel="next">
+<link href="./story_loss_landscape.html" rel="prev">
 <link href="./../favicon.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -73,12 +73,55 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="sigma-tufte.css">
 <link rel="stylesheet" href="mobile-safe.css">
 </head>
 
-<body class="nav-sidebar floating quarto-light">
+<body class="nav-sidebar floating slimcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -87,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch_linalg_0_intro.html">Часть III. Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./ch_linalg_10_chto-pochitat-dalshe.html">Что почитать дальше</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_optimizers.html">▶ Как методы спускаются с горы: GD, momentum, Adam</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -158,7 +201,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
+  <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">▶ Как методы спускаются с горы: GD, momentum, Adam</span></a>
   </div>
 </li>
@@ -289,7 +332,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link active">
+  <a href="./ch_linalg_10_chto-pochitat-dalshe.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Что почитать дальше</span></a>
   </div>
 </li>
@@ -412,14 +455,14 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-    <div class="quarto-alternate-formats"><h2>Другие форматы</h2><ul><li><a href="ch_linalg_10_chto-pochitat-dalshe.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></div>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch_linalg_0_intro.html">Часть III. Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./ch_linalg_10_chto-pochitat-dalshe.html">Что почитать дальше</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./story_optimizers.html">▶ Как методы спускаются с горы: GD, momentum, Adam</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Что почитать дальше</h1>
+<h1 class="title">Как методы спускаются с горы: GD, momentum, Adam</h1>
 </div>
 
 
@@ -436,16 +479,71 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p><em>Обучить нейросеть — значит спуститься в минимум функции потерь, у которой миллионы измерений. Но геометрия спуска видна уже в двух. Простой градиентный спуск вязнет в оврагах; импульс разгоняется вдоль дна; Adam подстраивает шаг под каждую координату. Возьмите точку старта и отпустите — посмотрите, кто доберётся до дна первым.</em></p>
+<section id="один-шаг-вниз" class="level2">
+<h2 class="anchored" data-anchor-id="один-шаг-вниз">Один шаг вниз</h2>
+<p>Все три метода читают в текущей точке <span class="math inline">w</span> один и тот же градиент <span class="math inline">\nabla L(w)</span> — направление наискорейшего роста. Спуск идёт против него. Разница лишь в том, <strong>как</strong> превратить градиент в шаг.</p>
+<p><strong>Градиентный спуск (GD).</strong> Самое прямое правило: шагнуть против градиента на величину, заданную скоростью обучения <span class="math inline">\eta</span>. <span class="math display">
+w_{t+1} = w_t - \eta\, \nabla L(w_t).
+</span> Просто — но в вытянутом «овраге» (когда вдоль одной оси кривизна большая, а вдоль другой малая) шаг приходится делать крошечным, иначе по крутой оси начинаются осцилляции. Спуск ползёт зигзагом и почти не движется вдоль дна.</p>
+<p><strong>Импульс (momentum).</strong> Накопим скорость, как у скатывающегося шарика: каждый шаг чуть «помнит» предыдущие. <span class="math display">
+v_{t+1} = \beta\, v_t - \eta\, \nabla L(w_t), \qquad w_{t+1} = w_t + v_{t+1}.
+</span> Колебания поперёк оврага гасятся (градиенты разнонаправлены и взаимно сокращаются), а вдоль дна скорость накапливается. Коэффициент <span class="math inline">\beta</span> — это «память» о прошлых шагах; при <span class="math inline">\beta=0</span> это снова обычный GD.</p>
+<p><strong>Adam.</strong> Хранит две скользящие средние: первого момента градиента (как momentum) и второго (квадрата градиента). Делит шаг на корень из второго — получается <strong>свой масштаб для каждой координаты</strong>. <span class="math display">
+m_t = \beta_1 m_{t-1} + (1-\beta_1)\,g_t, \quad
+v_t = \beta_2 v_{t-1} + (1-\beta_2)\,g_t^2, \quad
+w_{t+1} = w_t - \eta\,\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
+</span> По крутым осям шаг автоматически уменьшается, по пологим — растёт. Поэтому Adam устойчив даже там, где для GD пришлось бы подбирать <span class="math inline">\eta</span> вручную.</p>
+</section>
+<section id="потрогайте-спуск" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="потрогайте-спуск">Потрогайте спуск</h2>
+<p>Перетащите <strong>точку старта</strong> по карте высот — тёмное это дно. Три метода побегут вниз из неё одновременно. Покрутите скорость обучения и импульс <span class="math inline">\beta</span>, переключите ландшафт — и увидите, где GD застрянет в зигзаге, как momentum проскакивает овраг по инерции, а Adam ровно идёт к минимуму.</p>
+<div class="column-page">
+<div data-sigma-widget="optimizers-descent"></div>
+</div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-note callout-titled" title="Почему овраг — это плохо">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>Почему овраг — это плохо
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Вытянутость оврага измеряется <strong>числом обусловленности</strong> <span class="math inline">\kappa</span> — отношением наибольшей кривизны к наименьшей. Скорость сходимости GD падает как <span class="math inline">\frac{\kappa-1}{\kappa+1}</span>: при <span class="math inline">\kappa=100</span> каждый шаг сокращает ошибку лишь на <span class="math inline">\sim 2\%</span>. Momentum улучшает зависимость до <span class="math inline">\sqrt{\kappa}</span> — отсюда его разгон вдоль дна.</p>
+</div>
+</div>
+</div></div><div class="callout callout-style-default callout-tip callout-titled" title="Главный инсайт">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Главный инсайт
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Все три метода видят один и тот же градиент — отличается лишь <em>обработка истории шагов</em>. GD живёт настоящим; momentum помнит, куда катился; Adam ещё и помнит, насколько резко менялась каждая координата. В миллионах измерений эта память и есть разница между «обучилось за час» и «не сошлось никогда».</p>
+</div>
+</div>
+</section>
+<section id="за-пределами-картинки" class="level2">
+<h2 class="anchored" data-anchor-id="за-пределами-картинки">За пределами картинки</h2>
+<p>В реальном обучении <span class="math inline">L</span> считается не по всему датасету, а по случайному мини-батчу — отсюда «стохастический» в SGD. Градиент становится шумным, и импульс/адаптивность помогают ещё сильнее: усреднение гасит шум, а покоординатный масштаб не даёт редким, но крупным градиентам сбить шаг. Almost весь современный deep learning обучается вариантами Adam (AdamW) ровно по причинам, которые видны на этой карте: устойчивость к плохой обусловленности без ручного подбора скорости обучения.</p>
+</section>
+<section id="связи" class="level2">
+<h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>
-<li><p><em>Е. Е.&nbsp;Тыртышников.</em> Методы численного анализа. М.: Академия, 2007. — классический российский учебник по вычислительной линейной алгебре университетского уровня.</p></li>
-<li><p><em>G.&nbsp;Strang.</em> Linear Algebra and Learning from Data. Wellesley-Cambridge Press, 2019. — свежая книга от автора знаменитого MIT-курса 18.06, написанная с прицелом на data science.</p></li>
-<li><p><em>L. N.&nbsp;Trefethen, D.&nbsp;Bau.</em> Numerical Linear Algebra. SIAM, 1997. — классика, с очень понятным изложением SVD и итерационных методов.</p></li>
-<li><p><em>Видеокурс «Numerical Linear Algebra»</em>, И. В.&nbsp;Оселедец, Сколтех (<a href="https://github.com/MerkulovDaniil/nla360">github.com/MerkulovDaniil/nla360</a>). Лекции, семинары, ноутбуки — из которых, в частности, и взяты eigencats для этой главы.</p></li>
-<li><p><em>S.&nbsp;Brin, L.&nbsp;Page.</em> The Anatomy of a Large-Scale Hypertextual Web Search Engine. WWW Conference, 1998. — оригинальная статья про PageRank, читается легко.</p></li>
-<li><p><em>I.&nbsp;Goodfellow et al.</em> Explaining and Harnessing Adversarial Examples. ICLR, 2015. — статья про панду-гиббона, из которой взят рис.&nbsp;0.10.</p></li>
+<li><strong>Ландшафт потерь</strong> (§ Ландшафт потерь): почему в высокой размерности оврагов и седловин больше, чем локальных минимумов.</li>
+<li><strong>Глобальная оптимизация</strong> (§ Коммивояжёр и отжиг): когда градиента нет или минимумов много — эвристики вроде отжига.</li>
+<li><strong>Двойной спуск</strong> (§ Двойной спуск): что происходит с ошибкой, когда модель доходит до точного интерполяционного минимума.</li>
 </ul>
 
 
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
 <script>
@@ -863,13 +961,13 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./ch_linalg_9_podvedenie-itogov-glavy.html" class="pagination-link" aria-label="Подведение итогов главы">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Подведение итогов главы</span>
+      <a href="./story_loss_landscape.html" class="pagination-link" aria-label="▶ Ландшафт функции потерь и парадоксы высокой размерности">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">▶ Ландшафт функции потерь и парадоксы высокой размерности</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch_linalg_11_bolshoy-itogovyy-proekt.html" class="pagination-link" aria-label="Большой итоговый проект">
-        <span class="nav-page-text">Большой итоговый проект</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./ch02_newton.html" class="pagination-link" aria-label="Метод Ньютона">
+        <span class="nav-page-text">Метод Ньютона</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

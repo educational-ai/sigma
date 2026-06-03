@@ -29,6 +29,8 @@ website:
         contents:
           - text: "▶ Ландшафт функции потерь и парадоксы высокой размерности"
             href: story_loss_landscape.qmd
+          - text: "▶ Как методы спускаются с горы: GD, momentum, Adam"
+            href: story_optimizers.qmd
           - ch02_newton.qmd
           - text: "▶ Глобальная оптимизация: от муравьёв до температуры в LLM"
             href: story_global_optim.qmd

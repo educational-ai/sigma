@@ -46,6 +46,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   let bestTour = [], bestLen = Infinity;
   let iter = 0, accepted = 0, rejected = 0, acceptedWorse = 0;
   let history = [];       // длина тура по времени (для графика)
+  let histMaxEver = 0;    // максимум длины за всю сессию — устойчивый верх Y-масштаба
   const HIST_MAX = 240;
 
   // температура
@@ -91,6 +92,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     bestTour = tour.slice(); bestLen = curLen;
     iter = 0; accepted = 0; rejected = 0; acceptedWorse = 0;
     history = [curLen];
+    histMaxEver = curLen;
     Tmax = Math.max(1e-6, avgEdge() * 1.0);
     if (!manualT) T = Tmax * tFromSlider();   // позиция ползунка задаёт долю Tmax
   }
@@ -196,11 +198,13 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     ctx.strokeRect(plot.x + 0.5, plot.y + 0.5, plot.w - 1, plot.h - 1);
 
     if (history.length < 2) return;
-    let mn = Infinity, mx = -Infinity;
-    for (const v of history) { if (v < mn) mn = v; if (v > mx) mx = v; }
-    if (mx - mn < 1e-6) { mx = mn + 1; }
-    const pad = (mx - mn) * 0.08;
-    const yS = S.scale(mn - pad, mx + pad, plot.y + plot.h - 6, plot.y + 6);
+    // устойчивый Y-масштаб: верх — по историческому максимуму за сессию,
+    // низ — по bestLen с небольшим pad. Кривая реально идёт сверху вниз и
+    // упирается в плато best, а не дрожит посередине с переменной амплитудой.
+    const yLo = (bestLen === Infinity ? 0 : bestLen) * 0.98;
+    let yHi = histMaxEver * 1.02;
+    if (yHi - yLo < 1e-6) { yHi = yLo + 1; }
+    const yS = S.scale(yLo, yHi, plot.y + plot.h - 6, plot.y + 6);
     const xS = S.scale(0, Math.max(1, history.length - 1), plot.x + 6, plot.x + plot.w - 6);
     // линия best (горизонталь)
     ctx.strokeStyle = "rgba(46,125,91,0.5)"; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
@@ -213,6 +217,9 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     // подпись best
     ctx.fillStyle = P.green; ctx.font = "11px Palatino, serif"; ctx.textAlign = "right";
     ctx.fillText("best " + bestLen.toFixed(0), plot.x + plot.w - 6, yS(bestLen) - 4);
+    // верхняя Y-метка — задаёт оси смысл «от худшего к best»
+    ctx.textAlign = "left"; ctx.fillStyle = P.mut; ctx.font = "11px Palatino, serif";
+    ctx.fillText(yHi.toFixed(0), plot.x + 6, plot.y + 12);
   }
 
   // полоса температуры — её можно «схватить» и тянуть, как кривую охлаждения
@@ -294,6 +301,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
         rebuildDist();
         // вставить новый город в тур рядом с ближайшим, не сбрасывая прогресс
         insertCity(cities.length - 1);
+        if (curLen > histMaxEver) histMaxEver = curLen;
         history.push(curLen); if (history.length > HIST_MAX) history.shift();
         redraw();
       }
@@ -328,7 +336,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
 
   // ---- контролы ----------------------------------------------------------
   S.slider(controls, {
-    label: "Число городов", min: 5, max: 40, step: 1, value: 18, fmt: (v) => v | 0,
+    label: "Число городов", min: 12, max: 40, step: 1, value: 18, fmt: (v) => v | 0,
   }, (v) => { scatterCities(v | 0); redraw(); });
 
   tSlider = S.slider(controls, {
@@ -384,6 +392,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     histClock += dt;
     if (histClock > 0.04) {
       histClock = 0;
+      if (curLen > histMaxEver) histMaxEver = curLen;
       history.push(curLen);
       if (history.length > HIST_MAX) history.shift();
     }

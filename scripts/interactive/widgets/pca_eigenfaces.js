@@ -107,10 +107,19 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
     ctx.strokeStyle = P.green; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 1; i <= M; i++) { const X = xK(i), Y = yV(cv2[i - 1]); i === 1 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y); }
     ctx.stroke();
+    // подписи оси X (число компонент)
+    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
+    ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "center";
+    [1, Math.round(M / 4), Math.round(M / 2), Math.round(3 * M / 4), M].forEach((tk) => {
+      const tx = xK(tk);
+      ctx.beginPath(); ctx.moveTo(tx, curveBox.y + curveBox.h); ctx.lineTo(tx, curveBox.y + curveBox.h + 4); ctx.stroke();
+      ctx.fillText(String(tk), tx, curveBox.y + curveBox.h + 14);
+    });
+    ctx.fillText("компонент", curveBox.x + curveBox.w / 2, curveBox.y + curveBox.h + 26);
     // маркер k
     const mk = xK(k), my = yV(cv2[k - 1]);
     ctx.strokeStyle = P.red; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(mk, curveBox.y + curveBox.h); ctx.lineTo(mk, my); ctx.lineTo(curveBox.x, my); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mk, curveBox.y + curveBox.h); ctx.lineTo(mk, my); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(mk, my, 4, 0, 2 * Math.PI); ctx.fill();
     ctx.fillStyle = P.ink; ctx.font = "12px Palatino, serif"; ctx.textAlign = "center";
