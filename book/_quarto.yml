@@ -27,16 +27,16 @@ website:
           - ch01_intro.qmd
       - section: "Часть II. Оптимизация"
         contents:
-          - text: "▶ Ландшафт функции потерь и парадоксы высокой размерности"
+          - text: "Ландшафт функции потерь и парадоксы высокой размерности"
             href: story_loss_landscape.qmd
-          - text: "▶ Как методы спускаются с горы: GD, momentum, Adam"
+          - text: "Как методы спускаются с горы: GD, momentum, Adam"
             href: story_optimizers.qmd
           - ch02_newton.qmd
-          - text: "▶ Глобальная оптимизация: от муравьёв до температуры в LLM"
+          - text: "Глобальная оптимизация: от муравьёв до температуры в LLM"
             href: story_global_optim.qmd
-          - text: "▶ Многомерное шкалирование и проклятие размерности для безградиентных методов"
+          - text: "Многомерное шкалирование и проклятие размерности для безградиентных методов"
             href: story_mds.qmd
-          - text: "▶ Феномен двойного спуска"
+          - text: "Феномен двойного спуска"
             href: story_double_descent.qmd
       - section: "Часть III. Линейная алгебра и данные"
         contents:
@@ -46,19 +46,19 @@ website:
           - ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.qmd
           - ch_linalg_4_luchshee-malorangovoe-priblizhen.qmd
           - ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.qmd
-          - text: "▶ PCA и Eigenfaces"
+          - text: "PCA и Eigenfaces"
             href: story_pca.qmd
           - ch_linalg_6_eigencats-to-zhe-samoe-dlya-koti.qmd
           - ch_linalg_7_pagerank-kak-google-nashel-porya.qmd
-          - text: "▶ Собственные значения: от PageRank до шатающихся мостов"
+          - text: "Собственные значения: от PageRank до шатающихся мостов"
             href: story_eigenvalues.qmd
-          - text: "▶ ICA и задача коктейльной вечеринки"
+          - text: "ICA и задача коктейльной вечеринки"
             href: story_ica.qmd
-          - text: "▶ Word2Vec: слова как векторы"
+          - text: "Word2Vec: слова как векторы"
             href: story_word2vec.qmd
-          - text: "▶ Внимание: как трансформер решает, на что смотреть"
+          - text: "Внимание: как трансформер решает, на что смотреть"
             href: story_attention.qmd
-          - text: "▶ БПФ как умножение на матрицу: от спектра звука до Shazam"
+          - text: "БПФ как умножение на матрицу: от спектра звука до Shazam"
             href: story_fft_matrix.qmd
           - ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.qmd
           - ch_linalg_9_podvedenie-itogov-glavy.qmd
@@ -69,13 +69,13 @@ website:
           - ch03_0_intro.qmd
           - ch03_1_prosteyshie-primery-zadach-anali.qmd
           - ch03_2_lineynaya-regressiya-i-metod-nai.qmd
-          - text: "▶ Тяжёлые хвосты: когда среднее обманывает"
+          - text: "Тяжёлые хвосты"
             href: story_heavy_tails.qmd
           - ch03_3_zadacha-klassifikacii-i-neyronny.qmd
-          - text: "▶ Свёртка: скользящее окно, из которого выросли CNN"
+          - text: "Свёртка: скользящее окно, из которого выросли CNN"
             href: story_convolution.qmd
           - ch03_4_zadachi-obucheniya-bez-uchitelya.qmd
-          - text: "▶ k-средних: как машина находит кластеры сама"
+          - text: "k-средних: как машина находит кластеры сама"
             href: story_kmeans.qmd
           - ch03_5_kak-iskusstvennyy-intellekt-meny.qmd
       - section: "Часть V. Дискретная математика и криптография"
