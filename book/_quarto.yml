@@ -40,6 +40,8 @@ website:
             href: story_double_descent.qmd
           - text: "Шум превращает оптимизацию в генерацию"
             href: story_langevin.qmd
+          - text: "Оптимальный транспорт и расстояние Вассерштейна"
+            href: story_optimal_transport.qmd
       - section: "Часть III. Линейная алгебра и данные"
         contents:
           - ch_linalg_0_intro.qmd
