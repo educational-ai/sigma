@@ -69,6 +69,8 @@ website:
           - ch03_0_intro.qmd
           - ch03_1_prosteyshie-primery-zadach-anali.qmd
           - ch03_2_lineynaya-regressiya-i-metod-nai.qmd
+          - text: "▶ Тяжёлые хвосты: когда среднее обманывает"
+            href: story_heavy_tails.qmd
           - ch03_3_zadacha-klassifikacii-i-neyronny.qmd
           - text: "▶ Свёртка: скользящее окно, из которого выросли CNN"
             href: story_convolution.qmd
