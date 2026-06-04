@@ -677,9 +677,13 @@ window.Quarto = {
 <section id="двойной-спуск-в-нейросетях" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="двойной-спуск-в-нейросетях">Двойной спуск в нейросетях</h2>
 <p>Nakkiran et al.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали тот же паттерн для ResNet-18 на CIFAR-10 в трёх вариантах:</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Nakkiran, Kaplun, Bansal, Yang, Barak, Sutskever. <a href="https://arxiv.org/abs/1912.02292">Deep Double Descent: Where Bigger Models and More Data Can Hurt</a>, ICLR 2020.</p></div></div><section id="поширинный-model-wise" class="level3">
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Nakkiran, Kaplun, Bansal, Yang, Barak, Sutskever. <a href="https://arxiv.org/abs/1912.02292">Deep Double Descent: Where Bigger Models and More Data Can Hurt</a>, ICLR 2020.</p></div></div><section id="поширинный-model-wise" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="поширинный-model-wise">Поширинный (model-wise)</h3>
 <p>Фиксируем число эпох, увеличиваем ширину сети. При ширине <span class="math inline">\approx</span> порог интерполяции — пик ошибки. При дальнейшем увеличении ширины — ошибка падает.</p>
+<p>И это не только про ResNet на CIFAR — тот же эффект виден на <strong>маленькой реальной сети</strong>, которую можно обучить за минуту. Ниже — настоящий MLP (один скрытый слой, ReLU, Adam), обученный на зашумлённых рукописных цифрах при растущей ширине:</p>
+<div class="column-page">
+<div data-sigma-widget="double-descent-nn"></div>
+</div>
 </section>
 <section id="поэпохный-epoch-wise" class="level3">
 <h3 class="anchored" data-anchor-id="поэпохный-epoch-wise">Поэпохный (epoch-wise)</h3>
