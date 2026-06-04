@@ -38,6 +38,8 @@ website:
             href: story_mds.qmd
           - text: "Феномен двойного спуска"
             href: story_double_descent.qmd
+          - text: "Шум превращает оптимизацию в генерацию"
+            href: story_langevin.qmd
       - section: "Часть III. Линейная алгебра и данные"
         contents:
           - ch_linalg_0_intro.qmd
