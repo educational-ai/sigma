@@ -24,7 +24,7 @@ SigmaInt.register("double-descent", function (root, opts, S) {
   // -------------------------------------------------- параметры (состояние)
   let d = 4;        // текущая степень (ёмкость) — число параметров = d+1
   let noise = 0.25; // ст. отклонение шума (как в референсе fmin.xyz)
-  let nPts = 20;    // число точек: порог интерполяции d=n, длинный overparam-хвост для 2-го спуска
+  let nPts = 50;    // референс fmin.xyz: 50 точек (QR-солвер стабилен у порога)
   const DMAX = 80;  // выше порога интерполяции n, чтобы виден второй спуск
   const RIDGE = 1e-7; // лёгкая регуляризация для устойчивости псевдообратной
 
@@ -109,30 +109,45 @@ SigmaInt.register("double-descent", function (root, opts, S) {
     return w;
   }
 
+  // Устойчивый МНК через QR (модифицированный Грам–Шмидт): X (n×p, n≥p) → Q,R.
+  // Решаем R w = Qᵀy обратной подстановкой. НЕ возводит число обусловленности в
+  // квадрат (в отличие от нормальных уравнений XᵀX) → нет рваного плато у порога
+  // при больших n: n=50 как в референсе fmin.xyz считается чисто.
+  function lstsqQR(X, y, p) {
+    const n = X.length;
+    const Q = X.map((r) => r.slice());          // n×p, ортонормируем по столбцам
+    const R = Array.from({ length: p }, () => new Array(p).fill(0));
+    for (let j = 0; j < p; j++) {
+      let nrm = 0; for (let k = 0; k < n; k++) nrm += Q[k][j] * Q[k][j];
+      nrm = Math.sqrt(nrm); R[j][j] = nrm;
+      if (nrm > 1e-12) for (let k = 0; k < n; k++) Q[k][j] /= nrm;
+      for (let l = j + 1; l < p; l++) {
+        let dot = 0; for (let k = 0; k < n; k++) dot += Q[k][j] * Q[k][l];
+        R[j][l] = dot;
+        for (let k = 0; k < n; k++) Q[k][l] -= dot * Q[k][j];
+      }
+    }
+    const qty = new Array(p).fill(0);
+    for (let j = 0; j < p; j++) { let s = 0; for (let k = 0; k < n; k++) s += Q[k][j] * y[k]; qty[j] = s; }
+    const w = new Array(p).fill(0);
+    for (let i = p - 1; i >= 0; i--) {
+      let s = qty[i];
+      for (let j = i + 1; j < p; j++) s -= R[i][j] * w[j];
+      w[i] = Math.abs(R[i][i]) < 1e-12 ? 0 : s / R[i][i];
+    }
+    return w;
+  }
+
   // подгонка полинома степени deg к обучающим точкам.
   //   p = deg+1 параметров, n точек.
-  //   p <= n (недо/идеально): обычный МНК через нормальное уравнение
-  //                           (XᵀX + λI) w = Xᵀy.
+  //   p <= n (недо/идеально): устойчивый МНК через QR (Грам–Шмидт).
   //   p  > n (сверхпарам.):   решение минимальной нормы w = Xᵀ (XXᵀ + λI)⁻¹ y.
   function fitPoly(deg) {
     const n = train.x.length, p = deg + 1;
     const X = train.x.map((x) => feat(x, deg)); // n×p
     const y = train.y;
     if (p <= n) {
-      // XᵀX (p×p) + λI, Xᵀy (p)
-      const G = [], g = new Array(p).fill(0);
-      for (let i = 0; i < p; i++) G.push(new Array(p).fill(0));
-      for (let i = 0; i < p; i++) {
-        for (let j = 0; j < p; j++) {
-          let s = 0;
-          for (let k = 0; k < n; k++) s += X[k][i] * X[k][j];
-          G[i][j] = s + (i === j ? RIDGE : 0);
-        }
-        let gs = 0;
-        for (let k = 0; k < n; k++) gs += X[k][i] * y[k];
-        g[i] = gs;
-      }
-      return solve(G, g);
+      return lstsqQR(X, y, p);    // устойчиво у порога интерполяции
     } else {
       // min-norm: a = (XXᵀ + λI)⁻¹ y  (n×n),  w = Xᵀ a
       const K = [];
