@@ -54,7 +54,6 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   let manualT = false;    // пользователь держит T вручную
   let Tmax = 1;           // верхняя граница (масштаб) — задаётся от данных
   let coolMode = false;   // режим авто-охлаждения
-  let coolClock = 0;      // секунды в режиме охлаждения
 
   function pad(n) { return Math.max(2, n); }
 
@@ -363,7 +362,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   }, (v) => {
     coolMode = (v === "cool");
     manualT = !coolMode;
-    if (coolMode) coolClock = 0; // перезапустить расписание остывания
+    // момент старта остывания фиксируется в loop по фронту coolMode (elapsed-время)
   });
 
   S.button(controls, "перемешать города", () => {
@@ -381,28 +380,32 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   tSlider.set(tSlider.get());
 
   const STEPS_PER_FRAME = 140;
-  let histClock = 0;
+  // ВАЖНО: S.loop отдаёт в колбэк НАКОПЛЕННОЕ время с начала цикла (сек), НЕ дельту кадра.
+  // Поэтому время используем как абсолютное (elapsed), а не аккумулируем (+= ломалось:
+  // coolClock += elapsed взрывался за ~1с → T мгновенно в 0).
+  let lastHistT = 0;     // elapsed последней записи истории
+  let coolStartT = 0;    // elapsed на момент входа в режим охлаждения
+  let wasCool = false;   // для детекта фронта включения охлаждения
 
-  S.loop((dt) => {
+  S.loop((elapsed) => {
     if (cities.length >= 4) {
-      // авто-охлаждение: монотонный экспоненциальный спад Tmax→~0, затем УДЕРЖАНИЕ.
-      // Тур «замерзает» в найденном решении — это и есть суть отжига (сходимость).
-      // Без периодического reheat: тот вечный цикл cool→разогрев выглядел как баг
-      // и ломал педагогику. Чтобы посмотреть заново — «перемешать города» или ручной режим.
+      // авто-охлаждение: монотонный экспоненциальный спад Tmax→~0 за ~12с, затем УДЕРЖАНИЕ.
+      // Тур «замерзает» в найденном решении — суть отжига. Заново — «перемешать» / ручной режим.
       if (coolMode) {
-        coolClock += dt;
+        if (!wasCool) { coolStartT = elapsed; wasCool = true; } // зафиксировать старт остывания
         const dur = 12; // секунд от Tmax до ~0
-        const phase = Math.min(1, coolClock / dur); // 0..1, дальше держится 1
-        const frac = Math.pow(1 - phase, 2.2);       // Tmax→0, затем 0
+        const phase = Math.min(1, (elapsed - coolStartT) / dur);
+        const frac = Math.pow(1 - phase, 2.2);
         T = Tmax * frac;
         if (tSlider) tSlider.set(Math.max(0, Math.min(1, frac)));
+      } else {
+        wasCool = false;
       }
       for (let s = 0; s < STEPS_PER_FRAME; s++) annealStep();
     }
-    // запись истории ~25 раз/сек
-    histClock += dt;
-    if (histClock > 0.04) {
-      histClock = 0;
+    // запись истории ~25 раз/сек (по абсолютному elapsed, не аккумуляция)
+    if (elapsed - lastHistT > 0.04) {
+      lastHistT = elapsed;
       if (curLen > histMaxEver) histMaxEver = curLen;
       history.push(curLen);
       if (history.length > HIST_MAX) history.shift();
