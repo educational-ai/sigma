@@ -379,6 +379,12 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./story_heavy_tails.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">▶ Тяжёлые хвосты: когда среднее обманывает</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./ch03_3_zadacha-klassifikacii-i-neyronny.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Задача классификации и нейронные сети</span></a>
   </div>
@@ -555,6 +561,15 @@ J = \sum_{i=1}^{n} \big\lVert x_i - \mu_{c(i)} \big\rVert^2,
 <li><strong>Сегментация и предобработка:</strong> грубое разбиение данных перед более тонкой моделью; инициализация компонент в GMM.</li>
 <li><strong>Поиск похожего:</strong> центроиды как «прототипы» для быстрой приближённой кластеризации миллионов объектов.</li>
 </ul>
+</section>
+<section id="масштабирование-мини-батч-k-means" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="масштабирование-мини-батч-k-means">Масштабирование: мини-батч k-means</h2>
+<p>У классического Ллойда есть слабое место: каждая итерация трогает <strong>все</strong> <span class="math inline">N</span> точек — <span class="math inline">N\cdot k</span> вычислений расстояний за проход. При миллионах точек это больно. Идея мини-батча (Sculley, 2010): на каждом шаге брать случайную <strong>пачку</strong> из <span class="math inline">b\ll N</span> точек, приписывать их к ближайшим центроидам и сдвигать центроиды скользящим средним (шаг <span class="math inline">1/\text{счётчик}</span>). Стоимость шага — <span class="math inline">b\cdot k</span> вместо <span class="math inline">N\cdot k</span>.</p>
+<p>Удивительно, но качество почти не страдает: мини-батч приходит к <strong>почти той же инерции</strong>, что и полный k-means, но достигает её за <strong>в разы меньший</strong> бюджет вычислений (а на больших <span class="math inline">N</span> — на порядки). Цена — слегка более высокая итоговая инерция и шумный путь сходимости. Покрутите размер пачки <span class="math inline">b</span> и посмотрите на правый график: оранжевая кривая (мини-батч) сваливается к оптимуму левее дорогих ступеней полного метода.</p>
+<div class="column-page">
+<div data-sigma-widget="kmeans-minibatch"></div>
+</div>
+<p>Именно мини-батч стоит за <code>MiniBatchKMeans</code> в scikit-learn и за кластеризацией в промышленных пайплайнах: когда точек миллионы, «потрогать все» на каждом шаге — непозволительная роскошь.</p>
 </section>
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
