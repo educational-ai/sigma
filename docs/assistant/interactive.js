@@ -451,6 +451,8 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   let T = 0;              // текущая
   let manualT = false;    // пользователь держит T вручную
   let Tmax = 1;           // верхняя граница (масштаб) — задаётся от данных
+  let coolMode = false;   // режим авто-охлаждения
+  let coolClock = 0;      // секунды в режиме охлаждения
 
   function pad(n) { return Math.max(2, n); }
 
@@ -742,9 +744,15 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   tSlider = S.slider(controls, {
     label: "Температура T", min: 0, max: 1, step: 0.01, value: 0.35,
     fmt: (v) => v.toFixed(2) + "·Tmax",
-  }, (v) => { manualT = true; T = v * Tmax; redraw(); });
+  }, (v) => {
+    // перетаскивание T = ручной режим: выходим из авто-охлаждения, чтобы
+    // ползунок не «дрался» с расписанием (loop иначе перезаписывает T каждый кадр)
+    manualT = true;
+    if (coolMode) { coolMode = false; if (segCtl) segCtl.set("manual"); }
+    T = v * Tmax; redraw();
+  });
 
-  S.segmented(controls, {
+  const segCtl = S.segmented(controls, {
     label: "T-режим", value: "manual",
     options: [
       { value: "manual", label: "ручная" },
@@ -753,7 +761,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   }, (v) => {
     coolMode = (v === "cool");
     manualT = !coolMode;
-    if (coolMode) coolClock = 0; // перезапустить расписание
+    if (coolMode) coolClock = 0; // перезапустить расписание остывания
   });
 
   S.button(controls, "перемешать города", () => {
@@ -762,10 +770,6 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     scatterCities(n);
     redraw();
   }, "ghost");
-
-  // ---- расписание охлаждения --------------------------------------------
-  let coolMode = false;
-  let coolClock = 0; // секунды в режиме охлаждения
 
   // ---- непрерывный отжиг -------------------------------------------------
   // стартовая раскладка
@@ -779,13 +783,15 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
 
   S.loop((dt) => {
     if (cities.length >= 4) {
-      // авто-охлаждение: экспоненциальный спад с периодическим reheat
+      // авто-охлаждение: монотонный экспоненциальный спад Tmax→~0, затем УДЕРЖАНИЕ.
+      // Тур «замерзает» в найденном решении — это и есть суть отжига (сходимость).
+      // Без периодического reheat: тот вечный цикл cool→разогрев выглядел как баг
+      // и ломал педагогику. Чтобы посмотреть заново — «перемешать города» или ручной режим.
       if (coolMode) {
         coolClock += dt;
-        const period = 14; // секунд на полный цикл охлаждения
-        const phase = (coolClock % period) / period; // 0..1
-        // T: Tmax при phase=0 → ~0 к концу; затем снова разогрев (цикл)
-        const frac = Math.max(0.0, Math.pow(1 - phase, 2.2));
+        const dur = 12; // секунд от Tmax до ~0
+        const phase = Math.min(1, coolClock / dur); // 0..1, дальше держится 1
+        const frac = Math.pow(1 - phase, 2.2);       // Tmax→0, затем 0
         T = Tmax * frac;
         if (tSlider) tSlider.set(Math.max(0, Math.min(1, frac)));
       }

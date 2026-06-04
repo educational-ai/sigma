@@ -58,7 +58,7 @@
   border: 1px solid #cfc8b3; border-radius: 4px; background: #fffff8; color: #111;
 }
 
-.sigma-int-seg { display: inline-flex; border: 1px solid #cfc8b3; border-radius: 5px; overflow: hidden; }
+.sigma-int-seg { display: inline-flex; align-self: flex-start; border: 1px solid #cfc8b3; border-radius: 5px; overflow: hidden; }
 .sigma-int-seg-btn {
   font-family: inherit; font-size: 0.85rem; padding: 0.3rem 0.7rem;
   border: none; background: #fffff8; color: #555; cursor: pointer; border-right: 1px solid #e7e2d0;
