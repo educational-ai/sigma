@@ -71,10 +71,10 @@ SigmaInt.register("heavy-tails", function (root, opts, S) {
     ctx.clearRect(0, 0, W, H);
 
     // --- верх: бегущее среднее ---
-    // y-диапазон по фактическому размаху бегущего среднего тяжёлого хвоста (клампим)
-    let lo = 0, hi = 0;
-    for (let i = 0; i < N; i++) { lo = Math.min(lo, runHT[i]); hi = Math.max(hi, runHT[i]); }
-    const span = Math.max(0.6, Math.min(20, Math.max(Math.abs(lo), Math.abs(hi)) * 1.15));
+    // Фиксированная шкала ±2.5 с клипом: одинаковая для всех ν (сравнимо), и один
+    // ранний выброс не сплющивает картину — блуждание Коши хлещет по всей полосе,
+    // гаусс жмётся к 0. Реальные гиганты видны на нижней панели.
+    const span = 2.5;
     const xS = S.scale(0, N, top.x, top.x + top.w);
     const yT = S.scale(-span, span, top.y + top.h, top.y);
 
