@@ -57,6 +57,15 @@ with sync_playwright() as p:
                  "err": None, "reacts": None}
             if w.locator(".sigma-int-err").count():
                 r["err"] = w.locator(".sigma-int-err").first.text_content()
+            # render-gate: непорендеренный $...$ в подписях/метках + ошибки KaTeX
+            gate = w.element_handle().evaluate(
+                """el => ({
+                    rawdollar: ((el.innerText || '').match(/\\$/g) || []).length,
+                    kerr: el.querySelectorAll('.katex-error').length
+                })"""
+            )
+            r["rawdollar"] = gate["rawdollar"]
+            r["kerr"] = gate["kerr"]
             try:
                 w.screenshot(path=f"{out_dir}/{slug}_w{i}_before.png")
             except Exception:
@@ -87,8 +96,12 @@ for s in summary:
     if "load_error" in s:
         print(f"  ✗ {s['page']}: LOAD ERROR {s['load_error'][:60]}"); continue
     for w in s["widgets"]:
-        flag = "✓" if (w["reacts"] and not w["err"]) else ("⚠" if not w["err"] else "✗")
-        print(f"  {flag} {s['page']} [{w['widget']}] canvas={w['canvas']} svg={w['svg']} reacts={w['reacts']} err={w['err']}")
+        render_bad = w.get("rawdollar", 0) or w.get("kerr", 0)
+        flag = "✗" if (w["err"] or render_bad) else ("✓" if w["reacts"] else "⚠")
+        extra = ""
+        if render_bad:
+            extra = f" RENDER-GATE raw$={w.get('rawdollar', 0)} katex-err={w.get('kerr', 0)}"
+        print(f"  {flag} {s['page']} [{w['widget']}] canvas={w['canvas']} svg={w['svg']} reacts={w['reacts']} err={w['err']}{extra}")
     if s["console_errors"]:
         print(f"      console: {s['console_errors']}")
 print(f"\nСводка: {out_dir}/_summary.json | скриншоты: {out_dir}/*_w*.png")
