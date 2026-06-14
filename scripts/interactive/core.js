@@ -241,7 +241,25 @@
   }
 
   function caption(parent, text) {
-    parent.appendChild(el("div", "sigma-int-cap", { text }));
+    const cap = el("div", "sigma-int-cap");
+    // Render inline $...$ math with KaTeX; keep literal text between as text nodes.
+    // Quarto pages load the global `katex`; degrade gracefully if absent.
+    const parts = String(text).split(/\$([^$]+)\$/);
+    parts.forEach((seg, i) => {
+      if (i % 2 === 1) {
+        if (window.katex) {
+          const span = document.createElement("span");
+          try { window.katex.render(seg, span, { throwOnError: false }); }
+          catch (_) { span.textContent = seg; }
+          cap.appendChild(span);
+        } else {
+          cap.appendChild(document.createTextNode(seg));
+        }
+      } else if (seg) {
+        cap.appendChild(document.createTextNode(seg));
+      }
+    });
+    parent.appendChild(cap);
   }
 
   function row(parent, cls) {

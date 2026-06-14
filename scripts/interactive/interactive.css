@@ -79,7 +79,7 @@
   margin-top: 0.7rem; font-size: 0.92rem; color: #333;
   display: flex; flex-wrap: wrap; gap: 0.4rem 1.3rem;
 }
-.sigma-int-metric { white-space: nowrap; }
+.sigma-int-metric { white-space: normal; overflow-wrap: anywhere; }
 .sigma-int-metric b { color: #555; font-weight: 600; }
 .sigma-int-metric span {
   font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
