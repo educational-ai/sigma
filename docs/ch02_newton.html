@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Метод Ньютона – Σ Сигма</title>
+<title>Численные методы оптимизации – Σ Сигма</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -165,7 +165,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Метод Ньютона</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Численные методы оптимизации</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Переключить боковую панель навигации" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Поиск" onclick="window.quartoOpenSearch();">
@@ -243,7 +243,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Метод Ньютона</span></a>
+ <span class="menu-text">Численные методы оптимизации</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -262,6 +262,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_langevin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шум превращает оптимизацию в генерацию</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_optimal_transport.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Оптимальный транспорт и расстояние Вассерштейна</span></a>
   </div>
 </li>
       </ul>
@@ -519,9 +531,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Метод Ньютона</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./story_loss_landscape.html">Часть II. Оптимизация</a></li><li class="breadcrumb-item"><a href="./ch02_newton.html">Численные методы оптимизации</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Метод Ньютона</h1>
+<h1 class="title">Численные методы оптимизации</h1>
 </div>
 
 
@@ -539,7 +551,9 @@ window.Quarto = {
 
 
 <section id="sec:newton" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="sec:newton">Касательная вместо уравнения</h2>
+<h2 class="anchored" data-anchor-id="sec:newton">Метод касательных Ньютона и его приложения</h2>
+<section id="от-ньютона-до-канторовича" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="от-ньютона-до-канторовича">От Ньютона до Канторовича</h3>
 <p>Задачи отыскания корня уравнения <span class="math inline">f(x)=0</span> и поиска минимума функции <span class="math inline">g(x)</span> относятся к разным «жанрам» школьной математики, однако численно они решаются почти одним и тем же приёмом — итерационной схемой, придуманной Исааком Ньютоном.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
@@ -570,8 +584,8 @@ window.Quarto = {
 \;x_{k+1}=x_k-\dfrac{f(x_k)}{f'(x_k)}\;\qquad k=0,1,2,\dots</span></p>
 <p>Это и есть <em>итерационная формула Ньютона</em>. Точка <span class="math inline">x_0</span> выбирается исследователем; от её выбора может зависеть, сойдётся ли метод вообще.</p>
 </section>
-<section id="ньютон-для-оптимизации" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="ньютон-для-оптимизации">Ньютон для оптимизации</h2>
+<section id="метод-ньютона-для-задач-оптимизации" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="метод-ньютона-для-задач-оптимизации">Метод Ньютона для задач оптимизации</h3>
 <p>Пусть теперь нужно найти минимум функции <span class="math inline">g</span>. В любой точке минимума <span class="math inline">x^{\star}</span> выполнено <span class="math inline">g'(x^{\star})=0</span>. Значит, минимизация дифференцируемой функции — это решение уравнения</p>
 <p><span class="math display">g'(x)=0.</span></p>
 <p>Применим к нему формулу&nbsp;(2.1) с <span class="math inline">f=g'</span> (и тогда <span class="math inline">f'=g''</span>):</p>
@@ -591,9 +605,27 @@ g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
 <figcaption class="margin-caption">Рис. 2.2. Метод Ньютона как минимизация локальной квадратичной модели <span class="math inline">q_k</span> (пунктир): следующая точка <span class="math inline">x_{k+1}</span> — это вершина параболы, касающейся графика <span class="math inline">g</span> в точке <span class="math inline">x_k</span>.</figcaption>
 </figure>
 </div>
-</section>
-<section id="ssec:heron" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="ssec:heron">Квадратный корень за пять шагов</h2>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-note callout-titled" title="«Разделяй и властвуй»">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Уведомление</span>«Разделяй и властвуй»
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Метод Ньютона для оптимизации — классический пример принципа <em>разделяй и властвуй</em>: вместо того чтобы решать сложную задачу минимизации произвольной функции <span class="math inline">g</span> целиком, мы заменяем её на каждом шаге простой подзадачей — минимизацией параболы <span class="math inline">q_k</span>. Парабола подбирается так, чтобы локально (в окрестности <span class="math inline">x_k</span>) имитировать поведение <span class="math inline">g</span>, и её минимум вычисляется явно.</p>
+</div>
+</div>
+</div>
+</div></div></section>
+<section id="ssec:heron" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="ssec:heron">Пример 1. Извлечение квадратного корня</h3>
 <p>Пусть <span class="math inline">a&gt;0</span>. Вычислим <span class="math inline">\sqrt{a}</span>, применяя метод Ньютона к уравнению</p>
 <p><span class="math display">f(x)=x^{2}-a=0.</span></p>
 <p>Тогда <span class="math inline">f'(x)=2x</span>, и формула&nbsp;(2.1) принимает вид</p>
@@ -601,7 +633,7 @@ g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
 \;x_{k+1}=\dfrac12\!\left(x_k+\dfrac{a}{x_k}\right)\;</span></p>
 <p>Это — знаменитый <strong>метод Герона</strong>, или вавилонский метод квадратного корня.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -610,7 +642,7 @@ g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Формулу&nbsp;(2.4) в явном виде описал <em>Герон Александрийский</em> (I век н.&nbsp;э.) в трактате «Метрика». Однако эту итерацию умели применять задолго до него: на вавилонской глиняной табличке <span class="sans-serif">YBC&nbsp;7289</span> (примерно XVIII–XVI вв. до н.&nbsp;э.) сохранилось вычисление <span class="math inline">\sqrt{2}</span> с точностью до шестого десятичного знака — именно с помощью среднего арифметического и среднего гармонического, что эквивалентно&nbsp;(2.4). Получается, что одна из итерационных схем «пережила» три с половиной тысячи лет и по сей день используется в библиотеках вычисления корня.</p>
 </div>
@@ -620,7 +652,7 @@ g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
 <h4 class="unnumbered anchored" data-anchor-id="сходимость-через-сжимающее-отображение">Сходимость через сжимающее отображение</h4>
 <p>Запишем&nbsp;(2.4) как <span class="math inline">x_{k+1}=T(x_k)</span>, где <span class="math inline">T(x)=\tfrac12(x+a/x)</span>. Точка <span class="math inline">\sqrt{a}</span> — <em>неподвижная</em> для <span class="math inline">T</span>: <span class="math inline">T(\sqrt{a})=\sqrt{a}</span>.</p>
 <div class="callout callout-style-default callout-warning callout-titled" title="Теорема 2.1. Сходимость метода Герона">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -629,7 +661,7 @@ g(x)\;=\;g(x_k)\;+\;g'(x_k)(x-x_k)\;+\;\tfrac12 g''(x_k)(x-x_k)^2
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Для любого <span class="math inline">x_0&gt;0</span> последовательность&nbsp;(2.4) монотонно убывает (начиная с <span class="math inline">k=1</span>) и сходится к <span class="math inline">\sqrt{a}</span>. Более того, для ошибки <span class="math inline">e_k=x_k-\sqrt{a}</span> выполнено</p>
 <p><span class="math display">\tag{2.5}
@@ -647,7 +679,7 @@ e_{k+1}\;=\;\dfrac{e_k^2}{2x_k}\,, \qquad
 <p><strong>Шаг 3 (сжатие).</strong> Производная <span class="math inline">T'(x)=\tfrac12(1-a/x^{2})</span>. На луче <span class="math inline">x\geq\sqrt{a}</span> выполнено <span class="math inline">T'(x)\in[0,\tfrac12)</span>. Значит, <span class="math inline">T</span>&nbsp;— <em>сжимающее отображение</em> (с константой&nbsp;<span class="math inline">\tfrac12</span>) на <span class="math inline">[\sqrt{a},\infty)</span>. По теореме Банаха о неподвижной точке последовательность <span class="math inline">x_k=T^{k}(x_1)</span> сходится к единственной неподвижной точке&nbsp;<span class="math inline">\sqrt{a}</span>.<span class="math inline">\square</span></p>
 <p>Из&nbsp;(2.5) видно, что после первой итерации ошибка <em>квадрируется</em>: каждые два десятичных знака удваиваются за один шаг. Поэтому при разумном <span class="math inline">x_0</span> хватает 4–5 итераций, чтобы получить машинную точность.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Пример 2.2. Расстояние до горизонта">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -656,7 +688,7 @@ e_{k+1}\;=\;\dfrac{e_k^2}{2x_k}\,, \qquad
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Стоящий человек ростом <span class="math inline">h=1{,}70</span>&nbsp;м смотрит на море. До какой точки далеко он видит? Из теоремы Пифагора (рис.&nbsp;2.3) для прямой, касательной к поверхности Земли:</p>
 <p><span class="math display">d^{2}+R^{2}=(R+h)^{2},\qquad
@@ -668,8 +700,8 @@ d=\sqrt{2Rh+h^{2}}\;\approx\;\sqrt{2Rh}.</span></p>
 k &amp; x_k \\\hline
 0 &amp; 5{,}000\,000 \\
 1 &amp; \tfrac{1}{2}(5+21{,}66/5)=4{,}666\,000 \\
-2 &amp; 4{,}654\,463 \\
-3 &amp; 4{,}654\,460
+2 &amp; 4{,}654\,046 \\
+3 &amp; 4{,}654\,031
 \end{array}</span></p>
 <p>Получаем <span class="math inline">d\approx 4{,}65</span>&nbsp;км — расстояние, которое запоминается любому, кто хоть раз стоял у моря.</p>
 </div>
@@ -681,28 +713,10 @@ k &amp; x_k \\\hline
 <figcaption class="margin-caption">Рис. 2.3. Расстояние до горизонта <span class="math inline">d=\sqrt{(R+h)^2-R^2}\approx\sqrt{2Rh}</span>.</figcaption>
 </figure>
 </div>
-
-<div class="no-row-height column-margin column-container"><div class="">
-<div class="callout callout-style-default callout-note callout-titled" title="«Разделяй и властвуй»">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Уведомление</span>«Разделяй и властвуй»
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>Метод Ньютона для оптимизации — классический пример принципа <em>разделяй и властвуй</em>: вместо того чтобы решать сложную задачу минимизации произвольной функции <span class="math inline">g</span> целиком, мы заменяем её на каждом шаге простой подзадачей — минимизацией параболы <span class="math inline">q_k</span>. Парабола подбирается так, чтобы локально (в окрестности <span class="math inline">x_k</span>) имитировать поведение <span class="math inline">g</span>, и её минимум вычисляется явно.</p>
-</div>
-</div>
-</div>
-</div></div></section>
 </section>
-<section id="деление-без-деления" class="level2">
-<h2 class="anchored" data-anchor-id="деление-без-деления">Деление без деления</h2>
+</section>
+<section id="пример-2.-вычисление-обратного-числа" class="level3">
+<h3 class="anchored" data-anchor-id="пример-2.-вычисление-обратного-числа">Пример 2. Вычисление обратного числа</h3>
 <p>Что, если на нашем процессоре нет аппаратного деления, и нужно вычислить <span class="math inline">1/a</span> при <span class="math inline">a&gt;0</span> (только сложениями и умножениями)? Применим метод Ньютона к уравнению</p>
 <p><span class="math display">f(x)=\dfrac{1}{x}-a=0.</span></p>
 <p>Тогда <span class="math inline">f'(x)=-1/x^{2}</span>, и подстановка в&nbsp;(2.1) даёт</p>
@@ -717,10 +731,10 @@ k &amp; x_k \\\hline
 <h4 class="unnumbered anchored" data-anchor-id="анализ-сходимости">Анализ сходимости</h4>
 <p>Введём «относительную невязку» <span class="math inline">u_k=1-a x_k</span>. Тогда</p>
 <p><span class="math display">u_{k+1}=1-a x_{k+1}=1-a x_k(2-ax_k)=1-2 a x_k+(a x_k)^{2}=(1-a x_k)^{2}=u_k^{2}.</span></p>
-<p>и отсюда</p>
+<p>Таким образом</p>
 <p><span class="math display">\tag{2.7}
 u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1.</span></p>
-<p>Условие <span class="math inline">|1-a x_0|&lt;1</span> эквивалентно <span class="math inline">0&lt;x_0&lt;2/a</span>. <em>Радиус сходимости</em> метода — интервал <span class="math inline">\bigl(0,\,2/a\bigr)</span>, и он <strong>конечен</strong>: вне этого интервала (<span class="math inline">x_0&gt;2/a</span> или <span class="math inline">x_0&lt;0</span>) итерации расходятся. Это принципиальное отличие от метода Герона, который сходится для любого <span class="math inline">x_0&gt;0</span>.</p>
+<p>Условие <span class="math inline">|1-a x_0|&lt;1</span> эквивалентно <span class="math inline">0&lt;x_0&lt;2/a</span>. <em>Радиусом сходимости</em> метода является интервал <span class="math inline">\bigl(0,\,2/a\bigr)</span>, и он <strong>конечен</strong>: вне этого интервала (<span class="math inline">x_0&gt;2/a</span> или <span class="math inline">x_0&lt;0</span>) итерации расходятся. Это принципиальное отличие от метода Герона, который сходится для любого <span class="math inline">x_0&gt;0</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Метод Ньютона–Шульца и оптимизатор Muon">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -740,8 +754,8 @@ u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1
 </div>
 </section>
 </section>
-<section id="численный-эксперимент-на-python" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="численный-эксперимент-на-python">Численный эксперимент на Python</h2>
+<section id="реализация-на-python-и-численный-эксперимент" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="реализация-на-python-и-численный-эксперимент">Реализация на Python и численный эксперимент</h3>
 <p>Запишем универсальную функцию, реализующую метод Ньютона по формуле&nbsp;(2.1), и применим её к двум разобранным примерам. Комментарии в коде даны по-английски (как принято в большинстве библиотек): <code>f</code>, <code>df</code> — сама функция и её производная; <code>x0</code> — начальное приближение; <code>n_iter</code> — максимальное число итераций; <code>tol</code> — точность остановки; функция возвращает массив <code>xs</code> с историей итераций.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:newton" data-label="lst:newton"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:newton-1"><a href="#lst:newton-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="lst:newton-2"><a href="#lst:newton-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -798,7 +812,7 @@ u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1
 <figcaption class="margin-caption">Рис. 2.4. Глобальная сходимость метода Герона для <span class="math inline">\sqrt{2}</span> из четырёх очень разных стартовых точек. Шкала ошибки логарифмическая.</figcaption>
 </figure>
 </div>
-<p>Совсем иначе ведёт себя метод Ньютона–Шульца для <span class="math inline">1/a</span> при <span class="math inline">a=3</span> (рис.&nbsp;2.5): радиус сходимости равен интервалу <span class="math inline">(0,\,2/3)\approx(0,\,0{,}667)</span>. Стартуя <em>внутри</em> этого интервала, метод сходится квадратично (нижние три кривые); на самой границе (<span class="math inline">x_0=0{,}66</span>) — сходится, но «впритык»; а уже при <span class="math inline">x_0=0{,}70</span> ошибка взрывообразно растёт: <span class="math inline">|u_k|=|u_0|^{2^{k}}\to\infty</span> в полном согласии с (2.7). Это <strong>локальная сходимость</strong>.</p>
+<p>Совсем другое поведение демонстрирует метод Ньютона–Шульца для <span class="math inline">1/a</span> при <span class="math inline">a=3</span> (рис.&nbsp;2.5): радиус сходимости равен интервалу <span class="math inline">(0,\,2/3)\approx(0,\,0{,}667)</span>. Стартуя <em>внутри</em> этого интервала, метод сходится квадратично (нижние три кривые); на самой границе (<span class="math inline">x_0=0{,}66</span>) — сходится, но «впритык»; а уже при <span class="math inline">x_0=0{,}70</span> ошибка взрывообразно растёт: <span class="math inline">|u_k|=|u_0|^{2^{k}}\to\infty</span> в полном согласии с (2.7). Это <strong>локальная сходимость</strong>.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="./figures/reciprocal_convergence.svg" class="img-fluid figure-img"></p>
@@ -806,8 +820,8 @@ u_k=u_0^{\,2^{k}}\quad\Longrightarrow\quad u_k\to 0\;\Leftrightarrow\;|u_0|&lt;1
 </figure>
 </div>
 </section>
-<section id="ssec:thm-superlinear" class="level2">
-<h2 class="anchored" data-anchor-id="ssec:thm-superlinear">Когда сходимость сверхлинейна<span class="math inline">^\star</span></h2>
+<section id="ssec:thm-superlinear" class="level3">
+<h3 class="anchored" data-anchor-id="ssec:thm-superlinear">Достаточные условия сверхлинейной сходимости<span class="math inline">^\star</span></h3>
 <p>Сравнение двух примеров наводит на вопрос: <em>когда именно</em> метод Ньютона сходится так быстро, как мы наблюдаем? Ответ даёт следующая теорема, восходящая к Канторовичу.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Определение 2.3. Сверхлинейная и квадратичная сходимости">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
@@ -885,7 +899,7 @@ x_{k+1}-x^{\star}\;=\;\dfrac{f''(\xi_k)}{2 f'(x_k)}\,(x_k-x^{\star})^{2}.</span>
 <p><strong>Где условия выполняются для наших примеров?</strong></p>
 <p><strong>Метод Герона.</strong> Здесь <span class="math inline">f(x)=x^{2}-a</span>, <span class="math inline">f'(x)=2x</span>, <span class="math inline">f''(x)=2</span>. В точке <span class="math inline">x^{\star}=\sqrt{a}&gt;0</span> выполнено <span class="math inline">f'(x^{\star})=2\sqrt{a}\neq 0</span>. <em>Условия теоремы выполняются на всём луче <span class="math inline">(0,\infty)</span>, не содержащем ноль</em>, и константа в&nbsp;(2.8) принимает вид <span class="math inline">M=\frac{1}{2\sqrt{a}}</span> — в полном согласии с явным выражением&nbsp;(2.5), полученным элементарно.</p>
 <p><strong>Метод Ньютона–Шульца.</strong> Здесь <span class="math inline">f(x)=1/x-a</span>, <span class="math inline">f'(x)=-1/x^{2}</span>, <span class="math inline">f''(x)=2/x^{3}</span>. В точке <span class="math inline">x^{\star}=1/a</span> имеем <span class="math inline">f'(x^{\star})=-a^{2}\neq 0</span>, и теорема применима в малой окрестности этой точки. Однако, в отличие от метода Герона, оценка снизу <span class="math inline">|f'(x)|\geq m&gt;0</span> <em>ломается</em> при <span class="math inline">x\to\infty</span>: производная стремится к нулю. Именно поэтому радиус сходимости в этом примере конечен и равен <span class="math inline">1/a</span> слева и справа от <span class="math inline">x^{\star}</span>, что в сумме даёт интервал <span class="math inline">(0,\,2/a)</span>, найденный нами ранее аналитически.</p>
-<p>Итого, два простейших примера полностью укладываются в доказанную теорему: метод Ньютона сходится сверхлинейно <em>там, где</em> производная регулярна и отделена от нуля. Глобальную же сходимость, как у Герона, приходится доказывать дополнительно — например, ссылаясь на структуру функции (выпуклость) и теорему Банаха о сжимающем отображении, как мы и сделали в разделе&nbsp;2.1.</p>
+<p>Таким образом, два простейших примера полностью укладываются в доказанную теорему: метод Ньютона сходится сверхлинейно <em>там, где</em> производная регулярна и отделена от нуля. Глобальную же сходимость, как у Герона, приходится доказывать дополнительно — например, ссылаясь на структуру функции (выпуклость) и теорему Банаха о сжимающем отображении, как мы и сделали в разделе&nbsp;2.1.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Задачи для самостоятельной работы">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -908,10 +922,9 @@ x_{k+1}-x^{\star}\;=\;\dfrac{f''(\xi_k)}{2 f'(x_k)}\,(x_k-x^{\star})^{2}.</span>
 </div>
 </div>
 </div>
-<hr>
-<p>Мы шли по одномерному графику и сводили минимизацию к решению уравнения <span class="math inline">g'(x)=0</span>. Но функция потерь нейросети живёт не на прямой, а в пространстве миллионов параметров. Там вторую производную уже не поделить в уме: матрица Гессе огромна, а интуиция «парабола касается графика» отказывает. Что вообще видит оптимизатор в таком пространстве — узкий овраг, гладкую чашу или поле сёдел? С этого вопроса начинается следующий сюжет — <a href="./story_loss_landscape.html">ландшафт функции потерь и парадоксы высокой размерности</a>.</p>
 
 
+</section>
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->

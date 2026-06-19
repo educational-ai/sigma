@@ -121,7 +121,7 @@ window.Quarto = {
 <link rel="stylesheet" href="mobile-safe.css">
 </head>
 
-<body class="nav-sidebar floating fullcontent quarto-light">
+<body class="nav-sidebar floating slimcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -208,7 +208,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Метод Ньютона</span></a>
+ <span class="menu-text">Численные методы оптимизации</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -227,6 +227,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_langevin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шум превращает оптимизацию в генерацию</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_optimal_transport.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Оптимальный транспорт и расстояние Вассерштейна</span></a>
   </div>
 </li>
       </ul>
@@ -479,7 +491,8 @@ window.Quarto = {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
@@ -532,7 +545,7 @@ window.Quarto = {
 </ul>
 <p>Во всех этих случаях фраза «в среднем» вводит в заблуждение, а доверительный интервал, посчитанный по формуле с конечной дисперсией, — просто неверен.</p>
 </section>
-<section id="что-делать" class="level2">
+<section id="что-делать" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="что-делать">Что делать</h2>
 <ol type="1">
 <li><strong>Смотрите на медиану, а не среднее.</strong> Медиана устойчива к выбросам и существует всегда.</li>
@@ -540,6 +553,8 @@ window.Quarto = {
 <li><strong>Не доверяйте ЦПТ вслепую.</strong> Прежде чем строить доверительный интервал, проверьте, конечна ли дисперсия — иначе <span class="math inline">1/\sqrt{n}</span>-сходимость не наступит.</li>
 <li><strong>Считайте максимум значимой величиной.</strong> В тяжёлохвостом мире рекорд — это не шум, а часто и есть главный сигнал.</li>
 </ol>
+
+<div class="no-row-height column-margin column-container"><div class="">
 <div class="callout callout-style-default callout-note callout-titled" title="Связь с гауссом">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -553,7 +568,7 @@ window.Quarto = {
 <p>Стьюдентово <span class="math inline">t_\nu \to \mathcal N(0,1)</span> при <span class="math inline">\nu\to\infty</span>. Тяжёлые хвосты — это не «другой мир», а непрерывная шкала: параметр <span class="math inline">\nu</span> плавно ведёт от дикого Коши к ручному гауссу. Большинство классических методов статистики живут на правом конце этой шкалы — и молча предполагают, что ваши данные тоже там.</p>
 </div>
 </div>
-</section>
+</div></div></section>
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>

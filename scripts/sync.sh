@@ -68,28 +68,28 @@ DL_INFO=$(curl -s -b "$COOKIE_JAR" -L -o "$ZIP_NEW" \
 log "$DL_INFO"
 file "$ZIP_NEW" | grep -q "Zip archive" || { log "ERROR: not a zip"; exit 1; }
 
-# 4. Skip rebuild if content identical
-if [ -f "$ZIP_PREV" ]; then
-  PREV_HASH=$(sha256sum "$ZIP_PREV" | cut -d' ' -f1)
-  NEW_HASH=$(sha256sum "$ZIP_NEW" | cut -d' ' -f1)
-  if [ "$PREV_HASH" = "$NEW_HASH" ]; then
-    log "no changes (hash $NEW_HASH); skip rebuild"
-    rm -f "$ZIP_NEW"
-    exit 0
-  fi
-fi
-log "content changed, rebuilding"
-
-# 5. Replace overleaf_export/ atomically.
-#    Распаковываем в WORK_DIR, потом mv. Это сохраняет main.pdf/main.aux от
-#    локального latexmk-run (build.sh их пересоберёт при необходимости).
+# 4. Распаковываем и решаем по хэшу СОДЕРЖИМОГО, а не zip.
+#    Overleaf отдаёт недетерминированный zip (одинаковый контент — разные байты
+#    каждую загрузку), поэтому хэш zip срабатывал «content changed» каждый час.
+#    Хэшируем извлечённые исходники (.tex/.bib/.cls/.sty + figures).
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR"
 unzip -oq "$ZIP_NEW" -d "$WORK_DIR/"
+rm -f "$ZIP_NEW"
 
+CONTENT_HASH=$( (cd "$WORK_DIR" && find . -type f \( -name '*.tex' -o -name '*.bib' \
+  -o -name '*.cls' -o -name '*.sty' -o -path './figures/*' \) | sort \
+  | xargs -r sha256sum) | sha256sum | cut -d' ' -f1)
+HASH_FILE="${LOG_DIR}/content.hash"
+if [ -f "$HASH_FILE" ] && [ "$(cat "$HASH_FILE")" = "$CONTENT_HASH" ]; then
+  log "no source changes (content $CONTENT_HASH); skip rebuild"
+  rm -rf "$WORK_DIR"
+  exit 0
+fi
+log "content changed, rebuilding (content $CONTENT_HASH)"
+
+# 5. Заменяем overleaf_export/ (rsync поверх, сохраняя артефакты latexmk).
 EXPORT_DIR="${REPO_ROOT}/overleaf_export"
-# Preserve build-artifact files (main.pdf etc) — но затрём всё, что есть в новом zip.
-# Стратегия: rsync поверх. Удаляем .tex/.cls/.bib/.sty + chapters/figures, остальное (artifacts) trust.
 rsync -a --delete \
   --exclude='main.pdf' --exclude='main.aux' --exclude='main.log' \
   --exclude='main.out' --exclude='main.toc' --exclude='main.fls' \
@@ -102,7 +102,8 @@ log "overleaf_export updated"
 "${REPO_ROOT}/scripts/build.sh" >> "$LOG" 2>&1
 log "build.sh finished"
 
-# 7. Promote zip as prev
-mv "$ZIP_NEW" "$ZIP_PREV"
+# 7. Зафиксировать хэш контента ТОЛЬКО после успешной сборки
+#    (упавший билд → повтор на следующем часу).
+echo "$CONTENT_HASH" > "$HASH_FILE"
 
 log "=== sigma sync done ==="

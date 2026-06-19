@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -121,7 +156,7 @@ window.Quarto = {
 <link rel="stylesheet" href="mobile-safe.css">
 </head>
 
-<body class="nav-sidebar floating quarto-light">
+<body class="nav-sidebar floating slimcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -208,7 +243,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Метод Ньютона</span></a>
+ <span class="menu-text">Численные методы оптимизации</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -227,6 +262,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_langevin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шум превращает оптимизацию в генерацию</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_optimal_transport.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Оптимальный транспорт и расстояние Вассерштейна</span></a>
   </div>
 </li>
       </ul>
@@ -482,7 +529,7 @@ window.Quarto = {
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
     <div class="quarto-alternate-formats"><h2>Другие форматы</h2><ul><li><a href="ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.pdf"><i class="bi bi-file-pdf"></i>Typst</a></li></ul></div></div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch_linalg_0_intro.html">Часть III. Линейная алгебра и данные</a></li><li class="breadcrumb-item"><a href="./ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.html">Eigenfaces: как алгоритм узнаёт лицо</a></li></ol></nav>
 <div class="quarto-title">
@@ -503,10 +550,119 @@ window.Quarto = {
 </header>
 
 
-<p>Самое наглядное применение SVD — <strong>собственные лица</strong> (<em>eigenfaces</em>, Тёрк и Пентланд, MIT, 1991). Фотография лица <span class="math inline">64\times 64</span> — вектор длины <span class="math inline">4\,096</span>, но реальные лица занимают в этом пространстве узкое подпространство размерности <span class="math inline">\sim 50</span>. SVD центрированных снимков находит это подпространство: строки <span class="math inline">V^{\!\top}</span> — собственные лица, проекция на первые <span class="math inline">k</span> из них сжимает любое лицо в <span class="math inline">\sim 50</span> чисел, по которым его уже можно узнать и восстановить.</p>
-<p>Полный разбор — со средним лицом, центрированием, распознаванием, кодом на датасете Olivetti и интерактивным виджетом «двигайте число компонент» — вынесен в отдельный сюжет: <a href="./story_pca.html">PCA и Eigenfaces</a>. Нам тут важен один факт: PCA — это SVD центрированных данных, а eigenfaces — её самый красивый частный случай. Та же конструкция работает не только на лицах.</p>
+<section id="постановка-задачи" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="постановка-задачи">Постановка задачи</h2>
+<p>В <span class="math inline">1991</span>&nbsp;г. Мэттью Тёрк и Алекс Пентланд из MIT поставили простой вопрос: <em>можно ли обучить компьютер узнавать лицо, не прибегая ни к каким специальным «лицевым» признакам — носу, глазам, контурам, — а просто работая с матрицей пикселей?</em> Их ответ — метод <strong>собственных лиц</strong> (<em>eigenfaces</em>) — стал классикой и открыл целую область computer vision.</p>
+<p>Идея: каждая фотография лица — это точка в очень многомерном пространстве. Например, лицо <span class="math inline">64\times 64</span> — это вектор длины <span class="math inline">64\cdot 64 = 4\,096</span> в пространстве <span class="math inline">\mathbb{R}^{4096}</span>. Двух разных людей снимали много раз — получаем облако точек в этом пространстве.</p>
+<p>Главное наблюдение: <em>это облако очень узкое</em>. Хотя пространство <span class="math inline">4\,096</span>-мерное, реальные лица занимают в нём подпространство размерности всего лишь <span class="math inline">\sim 50</span>. Найти это подпространство — и есть задача.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_dataset.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.4. Фрагмент датасета <em>Olivetti Faces</em>: <span class="math inline">400</span> фотографий <span class="math inline">64\times 64</span> пикселя, <span class="math inline">40</span> человек по <span class="math inline">10</span> снимков каждого. Каждая фотография — точка в <span class="math inline">\mathbb{R}^{4096}</span>.</figcaption>
+</figure>
+</div>
+</section>
+<section id="шаг-1.-среднее-лицо-и-центрирование" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="шаг-1.-среднее-лицо-и-центрирование">Шаг 1. Среднее лицо и центрирование</h2>
+<p>Пусть у нас <span class="math inline">N</span> фотографий <span class="math inline">x_1,\ldots,x_N\in\mathbb{R}^{d}</span> (где <span class="math inline">d=4096</span> для <span class="math inline">64\times 64</span>). Вычислим <strong>среднее лицо</strong>:</p>
+<p><span class="math display">\bar x \;=\; \dfrac{1}{N}\sum_{i=1}^{N} x_i.</span></p>
+<p>И вычтем его из каждого изображения: <span class="math inline">\tilde x_i = x_i - \bar x</span>. <em>Среднее лицо</em> (рис.&nbsp;0.5) — это размытая маска, в которой видно «лицо вообще»: усреднённые глаза, нос, рот, овал. Дальше мы будем работать только с отклонениями от этого среднего.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_mean.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.5. Среднее лицо по <span class="math inline">400</span> снимкам датасета Olivetti.</figcaption>
+</figure>
+</div>
+</section>
+<section id="шаг-2.-главные-направления-изменчивости" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="шаг-2.-главные-направления-изменчивости">Шаг 2. Главные направления изменчивости</h2>
+<p>Соберём центрированные изображения в строки матрицы <span class="math inline">X\in\mathbb{R}^{N\times d}</span> (одна строка = одно лицо). Применим к ней SVD:</p>
+<p><span class="math display">X\;=\;U\,\Sigma\,V^{\!\top}.</span></p>
+<p>Каждая <em>строка</em> <span class="math inline">v_i^{\!\top}</span> матрицы <span class="math inline">V^{\!\top}</span> — это вектор длины <span class="math inline">d=4096</span>, который можно нарисовать как картинку <span class="math inline">64\times 64</span>. Эти картинки и называются <strong>собственными лицами</strong> — eigenfaces (рис.&nbsp;0.6). Содержательно:</p>
+<ul>
+<li><p><em><span class="math inline">v_1</span></em> — направление наибольшей изменчивости. Чаще всего это «освещение слева/справа».</p></li>
+<li><p><em><span class="math inline">v_2</span></em> — направление второй по величине изменчивости (часто «улыбка / не улыбка»).</p></li>
+<li><p><em><span class="math inline">v_3,\ldots</span></em> — постепенно более тонкие признаки: очки, форма щёк, наклон головы, индивидуальные особенности.</p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_components.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.6. Первые 12 eigenfaces датасета Olivetti, отрисованные как картинки <span class="math inline">64\times 64</span>. Эти странные «полу-лица» — координатные оси в пространстве, где живут все настоящие лица.</figcaption>
+</figure>
+</div>
+</section>
+<section id="шаг-3.-лицо-как-вектор-из-50-чисел" class="level2">
+<h2 class="anchored" data-anchor-id="шаг-3.-лицо-как-вектор-из-50-чисел">Шаг 3. Лицо как вектор из 50 чисел</h2>
+<p>Зафиксируем <span class="math inline">k</span> (обычно <span class="math inline">k=30\div 100</span>) и спроектируем каждое лицо <span class="math inline">x</span> на эти <span class="math inline">k</span> собственных лиц:</p>
+<p><span class="math display">\tag{0.6}
+\alpha_i \;=\; v_i^{\!\top}(x-\bar x),\qquad i=1,\ldots,k.</span></p>
+<p>Получили вектор коэффициентов <span class="math inline">\alpha=(\alpha_1,\ldots,\alpha_k)\in\mathbb{R}^{k}</span>. Это и есть «лицо человека» с точки зрения алгоритма — <em>всего <span class="math inline">50</span> чисел</em> вместо <span class="math inline">4096</span>.</p>
+</section>
+<section id="шаг-4.-распознавание-и-реконструкция" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="шаг-4.-распознавание-и-реконструкция">Шаг 4. Распознавание и реконструкция</h2>
+<p><strong>Распознавание.</strong> Чтобы узнать, кто на новой фотографии <span class="math inline">y</span>, вычислим её коэффициенты <span class="math inline">\beta</span> по&nbsp;(0.6) и найдём в базе ближайшего соседа: <span class="math inline">\hat j = \operatorname*{arg\,min}_j \left\lVert \beta-\alpha^{(j)} \right\rVert</span>.</p>
+<p><strong>Реконструкция.</strong> Зная <span class="math inline">\alpha</span>, можно восстановить лицо:</p>
+<p><span class="math display">x \;\approx\; \bar x + \sum_{i=1}^{k}\alpha_i\,v_i.</span></p>
+<p>Рис.&nbsp;0.7 показывает, как качество реконструкции растёт с <span class="math inline">k</span>.</p>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="./figures/eigenfaces_reconstruction.svg" class="img-fluid figure-img"></p>
+<figcaption class="margin-caption">Рис. 0.7. Реконструкция одной из фотографий датасета через первые <span class="math inline">k</span> eigenfaces. При <span class="math inline">k=10</span> узнаётся «общий тип» лица; при <span class="math inline">k=50</span> — уже конкретный человек; при <span class="math inline">k=150</span> — почти оригинал.</figcaption>
+</figure>
+</div>
+</section>
+<section id="реализация-на-python" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="реализация-на-python">Реализация на Python</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:eigenfaces" data-label="lst:eigenfaces"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:eigenfaces-1"><a href="#lst:eigenfaces-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="lst:eigenfaces-2"><a href="#lst:eigenfaces-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="lst:eigenfaces-3"><a href="#lst:eigenfaces-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> fetch_olivetti_faces</span>
+<span id="lst:eigenfaces-4"><a href="#lst:eigenfaces-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-5"><a href="#lst:eigenfaces-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Load: 400 faces, 64x64 each</span></span>
+<span id="lst:eigenfaces-6"><a href="#lst:eigenfaces-6" aria-hidden="true" tabindex="-1"></a>faces <span class="op">=</span> fetch_olivetti_faces().images        <span class="co"># (400, 64, 64)</span></span>
+<span id="lst:eigenfaces-7"><a href="#lst:eigenfaces-7" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> faces.reshape(<span class="dv">400</span>, <span class="op">-</span><span class="dv">1</span>)                   <span class="co"># (400, 4096)</span></span>
+<span id="lst:eigenfaces-8"><a href="#lst:eigenfaces-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-9"><a href="#lst:eigenfaces-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Center: subtract the mean face</span></span>
+<span id="lst:eigenfaces-10"><a href="#lst:eigenfaces-10" aria-hidden="true" tabindex="-1"></a>x_bar <span class="op">=</span> X.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="lst:eigenfaces-11"><a href="#lst:eigenfaces-11" aria-hidden="true" tabindex="-1"></a>X_centered <span class="op">=</span> X <span class="op">-</span> x_bar</span>
+<span id="lst:eigenfaces-12"><a href="#lst:eigenfaces-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-13"><a href="#lst:eigenfaces-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. SVD =&gt; eigenfaces are rows of Vt</span></span>
+<span id="lst:eigenfaces-14"><a href="#lst:eigenfaces-14" aria-hidden="true" tabindex="-1"></a>U, S, Vt <span class="op">=</span> np.linalg.svd(X_centered, full_matrices<span class="op">=</span><span class="va">False</span>)</span>
+<span id="lst:eigenfaces-15"><a href="#lst:eigenfaces-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-16"><a href="#lst:eigenfaces-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Project all faces onto top-k eigenfaces</span></span>
+<span id="lst:eigenfaces-17"><a href="#lst:eigenfaces-17" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">50</span></span>
+<span id="lst:eigenfaces-18"><a href="#lst:eigenfaces-18" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> X_centered <span class="op">@</span> Vt[:k].T                <span class="co"># (400, 50)</span></span>
+<span id="lst:eigenfaces-19"><a href="#lst:eigenfaces-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-20"><a href="#lst:eigenfaces-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Recognise: nearest neighbour in alpha-space</span></span>
+<span id="lst:eigenfaces-21"><a href="#lst:eigenfaces-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> recognise(y, k<span class="op">=</span><span class="dv">50</span>):</span>
+<span id="lst:eigenfaces-22"><a href="#lst:eigenfaces-22" aria-hidden="true" tabindex="-1"></a>    y_centered <span class="op">=</span> y.flatten() <span class="op">-</span> x_bar</span>
+<span id="lst:eigenfaces-23"><a href="#lst:eigenfaces-23" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> Vt[:k] <span class="op">@</span> y_centered</span>
+<span id="lst:eigenfaces-24"><a href="#lst:eigenfaces-24" aria-hidden="true" tabindex="-1"></a>    distances <span class="op">=</span> np.linalg.norm(alpha <span class="op">-</span> beta, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="lst:eigenfaces-25"><a href="#lst:eigenfaces-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> distances.argmin()</span>
+<span id="lst:eigenfaces-26"><a href="#lst:eigenfaces-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="lst:eigenfaces-27"><a href="#lst:eigenfaces-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Reconstruct a face from k coefficients</span></span>
+<span id="lst:eigenfaces-28"><a href="#lst:eigenfaces-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reconstruct(idx, k<span class="op">=</span><span class="dv">50</span>):</span>
+<span id="lst:eigenfaces-29"><a href="#lst:eigenfaces-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x_bar <span class="op">+</span> Vt[:k].T <span class="op">@</span> alpha[idx, :k]</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="callout callout-style-default callout-tip callout-titled" title="Это интересно">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Совет</span>Это интересно
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Метод eigenfaces — родоначальник всех современных систем распознавания лиц, включая ту, что разблокирует ваш смартфон. Современные системы заменяют SVD на свёрточную нейросеть (см.&nbsp;§ 3.3.7), но базовая идея — <em>сжать лицо в короткий вектор, в котором близкие лица оказываются рядом</em> — осталась той же. Эти короткие векторы сегодня называют <strong>эмбеддингами</strong>.</p>
+</div>
+</div>
+</div>
+</div></div></section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->
 <script>

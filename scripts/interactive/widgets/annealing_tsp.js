@@ -7,7 +7,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Отжиг идёт сам. Тяни ползунок T (или схвати точку на кривой охлаждения), кликни по полю — добавить город, «перемешать» — новая раскладка.",
+    text: "Отжиг идёт сам. Тяни ползунок T (или схвати точку на кривой охлаждения), кликни по полю, чтобы добавить город, «перемешать» даёт новую раскладку.",
   }));
 
   const stage = S.row(root);
@@ -21,7 +21,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     "Имитация отжига для коммивояжёра. При высокой температуре алгоритм охотно " +
     "принимает ухудшающие ходы (исследование, выход из локальных ловушек); по мере " +
     "остывания становится придирчивым и замораживается в найденном минимуме (эксплуатация). " +
-    "Слева — текущий тур, справа — история длины и кривая температуры.");
+    "Слева текущий тур, справа история длины и кривая температуры.");
 
   // ---- геометрия панелей (логические координаты W×H) --------------------
   const map = { x: 8, y: 28, w: 420, h: H - 44 };   // карта городов
@@ -168,7 +168,7 @@ SigmaInt.register("annealing-tsp", function (root, opts, S) {
     ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
     ctx.strokeRect(map.x + 0.5, map.y + 0.5, map.w - 1, map.h - 1);
     ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
-    ctx.fillText("Маршрут (клик — добавить город)", map.x, map.y - 8);
+    ctx.fillText("Маршрут (клик добавляет город)", map.x, map.y - 8);
 
     const n = cities.length;
     if (n >= 2) {

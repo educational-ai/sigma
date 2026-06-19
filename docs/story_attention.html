@@ -208,7 +208,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Метод Ньютона</span></a>
+ <span class="menu-text">Численные методы оптимизации</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -227,6 +227,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_langevin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шум превращает оптимизацию в генерацию</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_optimal_transport.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Оптимальный транспорт и расстояние Вассерштейна</span></a>
   </div>
 </li>
       </ul>
@@ -504,20 +516,27 @@ window.Quarto = {
 
 
 <p><em>Word2Vec показал: слова — это векторы, и близость по смыслу = близость в пространстве. Механизм внимания (attention) делает следующий шаг: каждое слово <strong>активно смотрит</strong> на остальные и собирает из них контекст — тем сильнее, чем ближе они ему по смыслу. Это сердце трансформеров, а значит и всех современных языковых моделей.</em></p>
-<section id="внимание-это-мягкий-поиск" class="level2">
+<section id="внимание-это-мягкий-поиск" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="внимание-это-мягкий-поиск">Внимание — это мягкий поиск</h2>
-<p>Представьте словарь-справочник: по точному ключу он возвращает одно значение. Внимание — это его «мягкая» версия. У каждого токена есть три вектора: <strong>запрос</strong> <span class="math inline">q</span> (что я ищу), <strong>ключ</strong> <span class="math inline">k</span> (чем я могу быть полезен) и <strong>значение</strong> <span class="math inline">v</span> (что я отдам). Чтобы собрать контекст для запроса, считаем его схожесть с каждым ключом через скалярное произведение, превращаем схожести в веса и берём взвешенную сумму значений: <span class="math display">
+<p>Представьте словарь-справочник: по точному ключу он возвращает одно значение. Внимание — это его «мягкая» версия. У каждого токена есть три вектора: <strong>запрос</strong> <span class="math inline">q</span> (что я ищу), <strong>ключ</strong> <span class="math inline">k</span> (чем я могу быть полезен) и <strong>значение</strong> <span class="math inline">v</span> (что я отдам). Чтобы собрать контекст для запроса, считаем его схожесть с каждым ключом через скалярное произведение, превращаем схожести в веса и берём взвешенную сумму значений:</p>
+<div class="column-page">
+<p><span class="math display">
 \text{score}_i = \frac{q \cdot k_i}{\sqrt{d}}, \qquad
 \alpha = \operatorname{softmax}(\text{score}), \qquad
 \text{out} = \sum_i \alpha_i\, v_i.
 </span></p>
+</div>
 <p>Деление на <span class="math inline">\sqrt{d}</span> — нормировка, чтобы при большой размерности <span class="math inline">d</span> скалярные произведения не разрастались и softmax не «схлопывался» в один токен слишком рано.</p>
 </section>
-<section id="softmax-и-температура" class="level2">
+<section id="softmax-и-температура" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="softmax-и-температура">Softmax и температура</h2>
-<p><span class="math inline">\operatorname{softmax}</span> превращает произвольные числа в распределение (положительные, в сумме 1): <span class="math display">
+<p><span class="math inline">\operatorname{softmax}</span> превращает произвольные числа в распределение (положительные, в сумме 1):</p>
+<div class="column-page">
+<p><span class="math display">
 \alpha_i = \frac{e^{\text{score}_i / \tau}}{\sum_j e^{\text{score}_j / \tau}}.
-</span> Температура <span class="math inline">\tau</span> управляет <strong>резкостью</strong> внимания. При <span class="math inline">\tau \to 0</span> всё внимание уходит на единственный самый похожий ключ (жёсткий argmax). При <span class="math inline">\tau \to \infty</span> веса выравниваются — токен смотрит на всех одинаково и контекст размывается.</p>
+</span></p>
+</div>
+<p>Температура <span class="math inline">\tau</span> управляет <strong>резкостью</strong> внимания. При <span class="math inline">\tau \to 0</span> всё внимание уходит на единственный самый похожий ключ (жёсткий argmax). При <span class="math inline">\tau \to \infty</span> веса выравниваются — токен смотрит на всех одинаково и контекст размывается.</p>
 </section>
 <section id="потрогайте-внимание" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="потрогайте-внимание">Потрогайте внимание</h2>

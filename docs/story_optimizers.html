@@ -208,7 +208,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ch02_newton.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Метод Ньютона</span></a>
+ <span class="menu-text">Численные методы оптимизации</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -227,6 +227,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./story_double_descent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Феномен двойного спуска</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_langevin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Шум превращает оптимизацию в генерацию</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./story_optimal_transport.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Оптимальный транспорт и расстояние Вассерштейна</span></a>
   </div>
 </li>
       </ul>
@@ -504,20 +516,28 @@ window.Quarto = {
 
 
 <p><em>Обучить нейросеть — значит спуститься в минимум функции потерь, у которой миллионы измерений. Но геометрия спуска видна уже в двух. Простой градиентный спуск вязнет в оврагах; импульс разгоняется вдоль дна; Adam подстраивает шаг под каждую координату. Возьмите точку старта и отпустите — посмотрите, кто доберётся до дна первым.</em></p>
-<section id="один-шаг-вниз" class="level2">
+<section id="один-шаг-вниз" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="один-шаг-вниз">Один шаг вниз</h2>
 <p>Все три метода читают в текущей точке <span class="math inline">w</span> один и тот же градиент <span class="math inline">\nabla L(w)</span> — направление наискорейшего роста. Спуск идёт против него. Разница лишь в том, <strong>как</strong> превратить градиент в шаг.</p>
 <p><strong>Градиентный спуск (GD).</strong> Самое прямое правило: шагнуть против градиента на величину, заданную скоростью обучения <span class="math inline">\eta</span>. <span class="math display">
 w_{t+1} = w_t - \eta\, \nabla L(w_t).
 </span> Просто — но в вытянутом «овраге» (когда вдоль одной оси кривизна большая, а вдоль другой малая) шаг приходится делать крошечным, иначе по крутой оси начинаются осцилляции. Спуск ползёт зигзагом и почти не движется вдоль дна.</p>
-<p><strong>Импульс (momentum).</strong> Накопим скорость, как у скатывающегося шарика: каждый шаг чуть «помнит» предыдущие. <span class="math display">
+<p><strong>Импульс (momentum).</strong> Накопим скорость, как у скатывающегося шарика: каждый шаг чуть «помнит» предыдущие.</p>
+<div class="column-page">
+<p><span class="math display">
 v_{t+1} = \beta\, v_t - \eta\, \nabla L(w_t), \qquad w_{t+1} = w_t + v_{t+1}.
-</span> Колебания поперёк оврага гасятся (градиенты разнонаправлены и взаимно сокращаются), а вдоль дна скорость накапливается. Коэффициент <span class="math inline">\beta</span> — это «память» о прошлых шагах; при <span class="math inline">\beta=0</span> это снова обычный GD.</p>
-<p><strong>Adam.</strong> Хранит две скользящие средние: первого момента градиента (как momentum) и второго (квадрата градиента). Делит шаг на корень из второго — получается <strong>свой масштаб для каждой координаты</strong>. <span class="math display">
+</span></p>
+</div>
+<p>Колебания поперёк оврага гасятся (градиенты разнонаправлены и взаимно сокращаются), а вдоль дна скорость накапливается. Коэффициент <span class="math inline">\beta</span> — это «память» о прошлых шагах; при <span class="math inline">\beta=0</span> это снова обычный GD.</p>
+<p><strong>Adam.</strong> Хранит две скользящие средние: первого момента градиента (как momentum) и второго (квадрата градиента). Делит шаг на корень из второго — получается <strong>свой масштаб для каждой координаты</strong>.</p>
+<div class="column-page">
+<p><span class="math display">
 m_t = \beta_1 m_{t-1} + (1-\beta_1)\,g_t, \quad
 v_t = \beta_2 v_{t-1} + (1-\beta_2)\,g_t^2, \quad
 w_{t+1} = w_t - \eta\,\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
-</span> По крутым осям шаг автоматически уменьшается, по пологим — растёт. Поэтому Adam устойчив даже там, где для GD пришлось бы подбирать <span class="math inline">\eta</span> вручную.</p>
+</span></p>
+</div>
+<p>По крутым осям шаг автоматически уменьшается, по пологим — растёт. Поэтому Adam устойчив даже там, где для GD пришлось бы подбирать <span class="math inline">\eta</span> вручную.</p>
 </section>
 <section id="потрогайте-спуск" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="потрогайте-спуск">Потрогайте спуск</h2>
@@ -540,7 +560,8 @@ w_{t+1} = w_t - \eta\,\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
 <p>Вытянутость оврага измеряется <strong>числом обусловленности</strong> <span class="math inline">\kappa</span> — отношением наибольшей кривизны к наименьшей. Скорость сходимости GD падает как <span class="math inline">\frac{\kappa-1}{\kappa+1}</span>: при <span class="math inline">\kappa=100</span> каждый шаг сокращает ошибку лишь на <span class="math inline">\sim 2\%</span>. Momentum улучшает зависимость до <span class="math inline">\sqrt{\kappa}</span> — отсюда его разгон вдоль дна.</p>
 </div>
 </div>
-</div></div><div class="callout callout-style-default callout-tip callout-titled" title="Главный инсайт">
+</div><div class="">
+<div class="callout callout-style-default callout-tip callout-titled" title="Главный инсайт">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -553,6 +574,7 @@ w_{t+1} = w_t - \eta\,\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}.
 <p>Все три метода видят один и тот же градиент — отличается лишь <em>обработка истории шагов</em>. GD живёт настоящим; momentum помнит, куда катился; Adam ещё и помнит, насколько резко менялась каждая координата. В миллионах измерений эта память и есть разница между «обучилось за час» и «не сошлось никогда».</p>
 </div>
 </div>
+</div></div>
 </section>
 <section id="за-пределами-картинки" class="level2">
 <h2 class="anchored" data-anchor-id="за-пределами-картинки">За пределами картинки</h2>
@@ -990,8 +1012,8 @@ document.addEventListener("DOMContentLoaded", function () {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch02_newton.html" class="pagination-link" aria-label="Метод Ньютона">
-        <span class="nav-page-text">Метод Ньютона</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./ch02_newton.html" class="pagination-link" aria-label="Численные методы оптимизации">
+        <span class="nav-page-text">Численные методы оптимизации</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

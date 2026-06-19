@@ -7,7 +7,7 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Тяни белую точку старта по карте — три метода побегут вниз из неё. Крути learning rate, β и выбирай ландшафт. Кто дойдёт до дна и за сколько шагов?",
+    text: "Тяни белую точку старта по карте, и три метода побегут вниз из неё. Крути learning rate, β и выбирай ландшафт. Кто дойдёт до дна и за сколько шагов?",
   }));
 
   const stage = S.row(root);
@@ -17,10 +17,12 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
   const controls = S.row(root, "controls");
   const out = S.readout(root);
   S.caption(root,
-    "Карта высот — поверхность потерь L(x,y) (тёмное — дно), белые изолинии = равные уровни. " +
+    "Карта высот это поверхность потерь L(x,y) (тёмное = дно), тонкие изолинии = равные уровни. " +
     "Градиентный спуск (синий) медлит в оврагах; momentum (золотой) разгоняется вдоль дна и " +
-    "проскакивает; Adam (зелёный) подстраивает шаг по координатам. Метка ⊕ — цель; галочка в " +
-    "табло — метод сошёлся (‖∇‖ мало), число рядом — за сколько шагов.");
+    "проскакивает; Adam (зелёный) подстраивает шаг по координатам. Метка ⊕ это цель; галочка в " +
+    "табло означает, что метод сошёлся (‖∇‖ мало), число рядом показывает, за сколько шагов. " +
+    "Learning rate общий для всех трёх; ползунок β меняет только momentum; " +
+    "Adam подбирает шаг сам (β₁=0.9, β₂=0.999), поэтому отдельной ручки у него нет.");
 
   // ---------- ландшафты: f(x,y), градиент, метка цели ----------
   const SURFACES = {
@@ -102,19 +104,19 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
     for (let p = 0; p < GW * GH; p++) {
       let t = (vals[p] - lo) / (hi - lo + 1e-9);
       t = Math.pow(t, 0.55);                  // подчёркиваем дно
-      // приглушённый террейн в тонах Сигмы: дно — глубокий сине-стальной,
-      // гребни — тёплый песочно-хаки (без кричащего жёлтого).
-      let r = 42 + t * 168;
-      let g = 60 + t * 146;
-      let b = 100 + (1 - t) * 66;
-      // светлые изолинии: тонкая линия там, где t пересекает равномерный уровень.
+      // светлая палитра в духе distill.pub: дно — мягкий сине-серый,
+      // гребни — почти белый, без насыщенного жёлтого.
+      let r = 169 + t * 78;
+      let g = 188 + t * 61;
+      let b = 207 + t * 45;
+      // тонкие изолинии чуть ТЕМНЕЕ фона (контурные линии как у distill).
       const fr = Math.abs(t * NL - Math.round(t * NL));   // 0 ровно на изолинии
       const iso = Math.max(0, 1 - fr / 0.07);             // 1 на линии → 0 в стороне
-      const lift = iso * 46;
-      r += lift; g += lift; b += lift * 0.7;
-      img.data[p * 4] = Math.min(255, r);
-      img.data[p * 4 + 1] = Math.min(255, g);
-      img.data[p * 4 + 2] = Math.min(255, b);
+      const dark = iso * 30;
+      r -= dark; g -= dark; b -= dark * 0.7;
+      img.data[p * 4] = Math.max(0, Math.min(255, r));
+      img.data[p * 4 + 1] = Math.max(0, Math.min(255, g));
+      img.data[p * 4 + 2] = Math.max(0, Math.min(255, b));
       img.data[p * 4 + 3] = 255;
     }
     octx.putImageData(img, 0, 0);
@@ -295,9 +297,9 @@ SigmaInt.register("optimizers-descent", function (root, opts, S) {
     label: "Ландшафт", value: surfKey,
     options: Object.keys(SURFACES).map((k) => ({ value: k, label: SURFACES[k].label })),
   }, (v) => { surfKey = v; DOM = SURFACES[surfKey].dom; field = null; reset(); });
-  S.slider(controls, { label: "Learning rate", min: 0.01, max: 0.6, step: 0.01, value: lr, fmt: (v) => v.toFixed(2) },
+  S.slider(controls, { label: "Learning rate (для всех)", min: 0.01, max: 0.6, step: 0.01, value: lr, fmt: (v) => v.toFixed(2) },
     (v) => { lr = v; reset(); });
-  S.slider(controls, { label: "Momentum β", min: 0, max: 0.97, step: 0.01, value: beta, fmt: (v) => v.toFixed(2) },
+  S.slider(controls, { label: "β (только momentum)", min: 0, max: 0.97, step: 0.01, value: beta, fmt: (v) => v.toFixed(2) },
     (v) => { beta = v; reset(); });
   S.button(controls, "Перезапустить", () => reset(), "ghost");
 

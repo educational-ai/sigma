@@ -13,9 +13,11 @@ REPO = Path(__file__).resolve().parent.parent
 DIRS = ["book", "10", "11"]
 
 # Bare opening: ``` {something}   (no language word inside braces)
-# Skip if braces start with `.lang` (already classed) or `=fmt` (raw block like {=html}).
+# Skip if braces start with `.lang` (already classed), `=fmt` (raw block like {=html})
+# or with a known Quarto engine name (mermaid, dot, ojs).
+KNOWN_ENGINES = ("mermaid", "dot", "ojs")
 BARE_FENCE_RE = re.compile(
-    r'^```\s*\{(?![=.])(?P<attrs>[^}]*)\}\s*$',
+    r'^```\s*\{(?![=.])(?!(?:' + '|'.join(KNOWN_ENGINES) + r')\b)(?P<attrs>[^}]*)\}\s*$',
     re.MULTILINE,
 )
 # Also handle bare ```\n... that's not preceded by an open fence

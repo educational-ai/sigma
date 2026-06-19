@@ -45,6 +45,75 @@ def load_rules_for(stem: str) -> tuple[dict, list[dict]]:
 
 
 # ---------------------------------------------------------------------------
+# Идемпотентность: схлопывание вложенных column-page
+# ---------------------------------------------------------------------------
+# Правила maybe_widen_eq / maybe_widen_fig не проверяют, обёрнут ли блок уже,
+# поэтому при повторном прогоне (а story_*.qmd живут на диске и мутируются
+# in-place каждый билд) каждый широкий блок получал ещё один слой
+# ::: {.column-page}. За ~230 часовых билдов глубина дошла до 230 → Pandoc
+# Lua-фильтр падал с "C stack overflow". column-page внутри column-page
+# визуально избыточен (внутренний — no-op), поэтому схлопывание cp-в-cp до
+# одного слоя loss-less и делает augment идемпотентным.
+def collapse_nested_column_page(text: str) -> str:
+    lines = text.split("\n")
+    out: list[str] = []
+    stack: list[str] = []
+    for line in lines:
+        s = line.strip()
+        if s == "::: {.column-page}":
+            if stack and stack[-1] in ("cp", "cp_skip"):
+                stack.append("cp_skip")          # избыточный вложенный — пропускаем
+                continue
+            stack.append("cp")
+            out.append(line)
+        elif s.startswith(":::") and "{" in s:
+            stack.append("other")                # column-margin / callout-* и т.п.
+            out.append(line)
+        elif s == ":::":
+            if stack and stack.pop() == "cp_skip":
+                continue                          # пропускаем парный закрывающий
+            out.append(line)
+        else:
+            out.append(line)
+    # Если fences разбалансированы — не рискуем, возвращаем как было.
+    if stack:
+        return text
+    return "\n".join(out)
+
+
+def normalize_fence_spacing(text: str) -> str:
+    """Гарантировать пустую строку перед каждым открывающим fence и после
+    закрывающего. Pandoc не распознаёт `::: {...}`, если перед ним нет пустой
+    строки — fence «прилипает» к предыдущему абзацу и рендерится как литерал
+    `:::` в тексте. maybe_widen_eq вставлял только один \\n, поэтому формулы без
+    пустой строки перед `$$` давали протёкшие `:::`. Здесь чиним этот класс.
+    """
+    lines = text.split("\n")
+    out: list[str] = []
+    for line in lines:
+        s = line.strip()
+        is_open = s.startswith(":::") and "{" in s
+        is_close = (s == ":::")
+        if is_open and out and out[-1].strip() != "":
+            out.append("")            # пустая строка перед открывающим fence
+        out.append(line)
+        if is_close:
+            out.append("")            # пустая строка после закрывающего fence
+    # схлопнуть прогоны из 2+ пустых строк в одну (косметика, безопасно для md)
+    result: list[str] = []
+    blank_run = 0
+    for l in out:
+        if l.strip() == "":
+            blank_run += 1
+            if blank_run <= 1:
+                result.append(l)
+        else:
+            blank_run = 0
+            result.append(l)
+    return "\n".join(result)
+
+
+# ---------------------------------------------------------------------------
 # Глобальные правила
 # ---------------------------------------------------------------------------
 CALLOUT_RE = re.compile(
@@ -264,6 +333,11 @@ def process_file(qmd_path: Path) -> bool:
     # figure. Так figure caption встаёт в верхнюю часть margin, не отрываясь.
     new = reorder_margin_around_figures(new, threshold_chars=250)
     new = apply_patches(new, patches)
+    # Идемпотентность: схлопнуть любую вложенность column-page-в-column-page,
+    # которую могли создать (повторно) maybe_widen_eq / maybe_widen_fig / patches.
+    new = collapse_nested_column_page(new)
+    # Починить fence-и без пустой строки перед открытием (протёкшие `:::`).
+    new = normalize_fence_spacing(new)
     if new != text:
         qmd_path.write_text(new, encoding="utf-8")
         return True

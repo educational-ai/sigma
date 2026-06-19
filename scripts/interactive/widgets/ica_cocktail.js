@@ -1,301 +1,218 @@
-// ica-cocktail — геометрия ICA vs PCA в реальном времени.
-// Облако ≈1500 точек из равномерного квадрата [-1,1]² смешивается матрицей A,
-// столбцы которой = два ДРАГ-вектора-стрелки из начала координат. Тянешь стрелку —
-// квадрат мгновенно морфится в параллелограмм. Поверх: оси PCA (аналитическое
-// собств. разложение 2×2 ковариации) и оси ICA (стороны параллелограмма = столбцы A).
-// Никаких кнопок «Запустить»: всё пересчитывается при перетаскивании.
+// ica-cocktail — коктейльная вечеринка на РЕАЛЬНОМ звуке.
+// Два голоса (клипы StarCraft) смешиваются матрицей A, как два микрофона в
+// шумной комнате. Тяни ползунок смешивания: смесь и разделение пересчитываются
+// мгновенно, FastICA (чистый JS, без библиотек) восстанавливает оба голоса.
+// Клик по строке проигрывает дорожку через Web Audio. Данные: docs/assistant/data.
 SigmaInt.register("ica-cocktail", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Тяни синюю и красную стрелки — это столбцы матрицы смешивания A. Квадрат источников превращается в параллелограмм. Сравни оси PCA (декорреляция) и ICA (восстановленные стороны).",
+    text: "Два голоса записаны вместе, как на вечеринке. Кликни по строке, чтобы её прослушать: сначала смесь (каша из двух голосов), потом то, что ICA разделил обратно. Тяни ползунок смешивания, и всё пересчитывается на лету.",
   }));
 
   const stage = S.row(root);
-  const W = 640, H = 440;
-  const cv = S.makeCanvas(stage, W, H, { maxWidth: 640, pan: false });
+  const W = 720, H = 400;
+  const cv = S.makeCanvas(stage, W, H, { maxWidth: 720, pan: false });
   const ctx = cv.ctx;
-
   const controls = S.row(root, "controls");
   const out = S.readout(root);
   S.caption(root,
-    "Слева невидимый квадрат [-1,1]² (два независимых равномерных источника). " +
-    "После смешивания x = A·s он становится параллелограммом. Оси PCA (зелёные) " +
-    "ортогональны и идут вдоль дисперсии эллипса — но не вдоль сторон. Оси ICA " +
-    "(золотые) ловят сами стороны параллелограмма, то есть исходные источники. " +
-    "Чтобы выделить отдельный источник, ICA проецирует данные вдоль направления, " +
-    "перпендикулярного ДРУГОЙ стороне, — тогда вклад второго источника обнуляется. " +
-    "Куртозис проекций показывает негауссовость: у источников он отрицателен, у смеси ближе к нулю.");
+    "Это задача разделения слепых источников. Два микрофона слышат смесь x = A·s " +
+    "двух голосов. Зная только смеси, ICA ищет такое разделение, при котором выходы " +
+    "максимально негауссовы и независимы, и так вытаскивает исходные голоса обратно. " +
+    "PCA здесь не справится: ему хватает некоррелированности, а голоса разделяет " +
+    "именно независимость. Качество в табло считается как корреляция восстановленного " +
+    "голоса с оригиналом.");
 
-  // ---- источники: равномерный квадрат [-1,1]² (фиксированы, детерминированы) ----
-  const Npts = 1500;
-  const S0 = new Float32Array(Npts * 2);
-  (function genSources() {
-    // детерминированный PRNG, чтобы облако не «дрожало» между перерисовками
-    let seed = 0x2545f491;
-    const rnd = () => {
-      seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; seed |= 0;
-      return ((seed >>> 0) / 4294967296);
-    };
-    for (let i = 0; i < Npts; i++) {
-      S0[2 * i] = rnd() * 2 - 1;
-      S0[2 * i + 1] = rnd() * 2 - 1;
-    }
-  })();
+  // ---------- данные ----------
+  let D = null, N = 0, src = null;   // src: [Float64Array, Float64Array] нормированные источники
+  let mix = 0.6;                     // сила перекрёстного смешивания
+  let A = null, X = null, Y = null;  // матрица, смеси, восстановленное
+  let qual = 0;                      // качество разделения (mean |corr|)
 
-  // ---- матрица смешивания A = [[a11,a12],[a21,a22]] ----
-  // Столбцы A — это куда отображаются базисные векторы источников e1,e2.
-  // Храним столбцы как векторы (мировые координаты, единицы источника).
-  let col1 = { x: 1.0, y: 0.3 };  // A[:,0]  (синяя стрелка)
-  let col2 = { x: 0.4, y: 1.0 };  // A[:,1]  (красная стрелка)
-
-  // ---- мировая система координат: world units → пиксели ----
-  // Диапазон мира ~[-3,3] чтобы вместить вытянутые параллелограммы
-  const WR = 2.6;
-  const cx = W / 2, cy = H / 2;
-  const px = S.scale(-WR, WR, cx - 215, cx + 215);  // x: world→px
-  const py = S.scale(-WR, WR, cy + 215, cy - 215);  // y: world→px (инверсия)
-
-  let mode = "ica"; // "mix" | "pca" | "ica"
-
-  // -------------------- математика 2×2 --------------------
-  // Смешивание точки источника s=(s1,s2): x = s1*col1 + s2*col2
-  function mix(s1, s2) {
-    return { x: s1 * col1.x + s2 * col2.x, y: s1 * col1.y + s2 * col2.y };
+  function decI8(b64) {
+    const bin = atob(b64); const u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return new Int8Array(u.buffer);
   }
 
-  // Ковариация смешанного облака (аналитически из col1,col2).
-  // Источники s1,s2 ~ U[-1,1] независимы: Var=1/3, Cov=0.
-  // Cov(x) = (1/3) (col1 col1^T + col2 col2^T).
-  function covMix() {
-    const v = 1 / 3;
-    const c11 = v * (col1.x * col1.x + col2.x * col2.x);
-    const c22 = v * (col1.y * col1.y + col2.y * col2.y);
-    const c12 = v * (col1.x * col1.y + col2.x * col2.y);
-    return { c11, c12, c22 };
-  }
-
-  // Собственное разложение симметричной 2×2 → {l1,l2 (l1≥l2), v1,v2}
-  function eig2(c11, c12, c22) {
-    const tr = c11 + c22;
-    const det = c11 * c22 - c12 * c12;
+  // ---------- FastICA на 2 источника (чистый JS) ----------
+  const mean = (a) => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s / a.length; };
+  function fastICA(x0, x1) {
+    const n = x0.length;
+    const m0 = mean(x0), m1 = mean(x1);
+    const a0 = new Float64Array(n), a1 = new Float64Array(n);
+    for (let i = 0; i < n; i++) { a0[i] = x0[i] - m0; a1[i] = x1[i] - m1; }
+    let c00 = 0, c01 = 0, c11 = 0;
+    for (let i = 0; i < n; i++) { c00 += a0[i] * a0[i]; c01 += a0[i] * a1[i]; c11 += a1[i] * a1[i]; }
+    c00 /= n; c01 /= n; c11 /= n;
+    const tr = c00 + c11, det = c00 * c11 - c01 * c01;
     const disc = Math.sqrt(Math.max(0, tr * tr / 4 - det));
-    const l1 = tr / 2 + disc;
-    const l2 = tr / 2 - disc;
-    let v1;
-    if (Math.abs(c12) > 1e-9) {
-      v1 = { x: l1 - c22, y: c12 };
-    } else {
-      v1 = c11 >= c22 ? { x: 1, y: 0 } : { x: 0, y: 1 };
+    const l1 = tr / 2 + disc, l2 = tr / 2 - disc;
+    const evec = (l) => {
+      let vx = c01, vy = l - c00;
+      if (Math.abs(vx) + Math.abs(vy) < 1e-9) { vx = l - c11; vy = c01; }
+      const nr = Math.hypot(vx, vy) || 1; return [vx / nr, vy / nr];
+    };
+    const e1 = evec(l1), e2 = evec(l2);
+    const d1 = 1 / Math.sqrt(Math.max(l1, 1e-9)), d2 = 1 / Math.sqrt(Math.max(l2, 1e-9));
+    const z0 = new Float64Array(n), z1 = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const p1 = e1[0] * a0[i] + e1[1] * a1[i], p2 = e2[0] * a0[i] + e2[1] * a1[i];
+      z0[i] = d1 * p1; z1[i] = d2 * p2;
     }
-    const n1 = Math.hypot(v1.x, v1.y) || 1;
-    v1 = { x: v1.x / n1, y: v1.y / n1 };
-    const v2 = { x: -v1.y, y: v1.x }; // ортогональ
-    return { l1: Math.max(0, l1), l2: Math.max(0, l2), v1, v2 };
+    const oneUnit = (w, orth) => {
+      for (let it = 0; it < 200; it++) {
+        let s0 = 0, s1 = 0, gp = 0;
+        for (let i = 0; i < n; i++) {
+          const u = w[0] * z0[i] + w[1] * z1[i];
+          const g = Math.tanh(u);
+          s0 += z0[i] * g; s1 += z1[i] * g; gp += 1 - g * g;
+        }
+        s0 /= n; s1 /= n; gp /= n;
+        let n0 = s0 - gp * w[0], n1 = s1 - gp * w[1];
+        if (orth) { const dp = n0 * orth[0] + n1 * orth[1]; n0 -= dp * orth[0]; n1 -= dp * orth[1]; }
+        const nr = Math.hypot(n0, n1) || 1; n0 /= nr; n1 /= nr;
+        const conv = Math.abs(Math.abs(n0 * w[0] + n1 * w[1]) - 1);
+        w = [n0, n1];
+        if (conv < 1e-10) break;
+      }
+      return w;
+    };
+    const w1 = oneUnit([1, 0], null);
+    const w2 = oneUnit([-w1[1], w1[0]], w1);
+    const y0 = new Float64Array(n), y1 = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      y0[i] = w1[0] * z0[i] + w1[1] * z1[i];
+      y1[i] = w2[0] * z0[i] + w2[1] * z1[i];
+    }
+    return [y0, y1];
   }
 
-  // Куртозис проекции облака на единичный вектор u (excess kurtosis)
-  function kurtosisOn(ux, uy) {
-    let m2 = 0, m4 = 0;
-    for (let i = 0; i < Npts; i++) {
-      const X = mix(S0[2 * i], S0[2 * i + 1]);
-      const p = X.x * ux + X.y * uy;
-      const p2 = p * p;
-      m2 += p2; m4 += p2 * p2;
-    }
-    m2 /= Npts; m4 /= Npts;
-    if (m2 < 1e-12) return 0;
-    return m4 / (m2 * m2) - 3;
+  const corr = (a, b) => {
+    const ma = mean(a), mb = mean(b); let num = 0, va = 0, vb = 0;
+    for (let i = 0; i < a.length; i++) { const da = a[i] - ma, db = b[i] - mb; num += da * db; va += da * da; vb += db * db; }
+    return Math.abs(num / (Math.sqrt(va * vb) + 1e-12));
+  };
+
+  function peakNorm(a) {
+    let m = 0; for (let i = 0; i < a.length; i++) m = Math.max(m, Math.abs(a[i]));
+    const k = 0.9 / (m || 1), o = new Float32Array(a.length);
+    for (let i = 0; i < a.length; i++) o[i] = a[i] * k;
+    return o;
   }
 
-  // -------------------- рисование --------------------
-  function arrow(x0, y0, x1, y1, color, lw) {
-    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-    const ang = Math.atan2(y1 - y0, x1 - x0), a = 9;
+  // ---------- пересчёт смеси и разделения ----------
+  function recompute() {
+    A = [[1, mix], [mix * 0.85, 1]];
+    const x0 = new Float64Array(N), x1 = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      x0[i] = A[0][0] * src[0][i] + A[0][1] * src[1][i];
+      x1[i] = A[1][0] * src[0][i] + A[1][1] * src[1][i];
+    }
+    X = [x0, x1];
+    const rec = fastICA(x0, x1);
+    const c00 = corr(rec[0], src[0]), c01 = corr(rec[0], src[1]);
+    Y = (c00 >= c01) ? [rec[0], rec[1]] : [rec[1], rec[0]];
+    qual = (corr(Y[0], src[0]) + corr(Y[1], src[1])) / 2;
+  }
+
+  // ---------- аудио ----------
+  let actx = null, curSrc = null, playingUntil = 0, activeRow = -1;
+  const now = () => (typeof performance !== "undefined" ? performance.now() : 0);
+  function audio() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); return actx; }
+  function playRow(i) {
+    const c = audio(); if (c.state === "suspended") c.resume();
+    if (curSrc) { try { curSrc.stop(); } catch (e) { } }
+    const f = peakNorm(rows[i].get());
+    const buf = c.createBuffer(1, f.length, D.rate);
+    buf.getChannelData(0).set(f);
+    const s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
+    s.start(); curSrc = s;
+    playingUntil = now() + f.length / D.rate * 1000; activeRow = i;
+  }
+
+  // ---------- строки ----------
+  const rows = [
+    { grp: "Голоса по отдельности", lab: "голос A", get: () => src[0], col: P.blue },
+    { lab: "голос B", get: () => src[1], col: P.green },
+    { grp: "Смесь: что слышат два микрофона", lab: "микрофон 1", get: () => X[0], col: P.mut },
+    { lab: "микрофон 2", get: () => X[1], col: P.mut },
+    { grp: "ICA разделил обратно", lab: "голос A", get: () => Y[0], col: P.blue },
+    { lab: "голос B", get: () => Y[1], col: P.green },
+  ];
+  const R_TOP = 30, RH = 56, GAP = 16, WFH = 30;
+  const PLAYX = 22, LABX = 42, WFX = 150, WFW = 552;
+  const rowY = (i) => R_TOP + i * RH + (i >= 2 ? GAP : 0) + (i >= 4 ? GAP : 0);
+
+  function drawWave(arr, x, y, w, h, col, active) {
+    const n = arr.length, step = n / w, yc = y + h / 2;
+    ctx.strokeStyle = active ? P.red : col; ctx.globalAlpha = active ? 1 : 0.8; ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x1 - a * Math.cos(ang - 0.45), y1 - a * Math.sin(ang - 0.45));
-    ctx.lineTo(x1 - a * Math.cos(ang + 0.45), y1 - a * Math.sin(ang + 0.45));
-    ctx.closePath(); ctx.fill();
+    for (let px = 0; px < w; px++) {
+      let mn = 1e9, mx = -1e9;
+      const i0 = Math.floor(px * step), i1 = Math.min(n, Math.floor((px + 1) * step));
+      for (let i = i0; i < i1; i++) { if (arr[i] < mn) mn = arr[i]; if (arr[i] > mx) mx = arr[i]; }
+      if (mn > mx) { mn = mx = 0; }
+      ctx.moveTo(x + px + 0.5, yc - mx * h * 0.5);
+      ctx.lineTo(x + px + 0.5, yc - mn * h * 0.5);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
   }
-
-  function line2(ux, uy, len, color, lw, dash) {
-    const x0 = px(-ux * len), y0 = py(-uy * len);
-    const x1 = px(ux * len), y1 = py(uy * len);
-    ctx.save();
-    ctx.strokeStyle = color; ctx.lineWidth = lw;
-    if (dash) ctx.setLineDash(dash);
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-    ctx.restore();
-  }
-
-  // pixel-позиции концов драг-стрелок
-  function tip1() { return { x: px(col1.x), y: py(col1.y) }; }
-  function tip2() { return { x: px(col2.x), y: py(col2.y) }; }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-
-    // сетка
-    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
-    for (let g = -2; g <= 2; g++) {
-      if (g === 0) continue;
-      ctx.beginPath(); ctx.moveTo(px(g), py(-WR)); ctx.lineTo(px(g), py(WR)); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(px(-WR), py(g)); ctx.lineTo(px(WR), py(g)); ctx.stroke();
-    }
-    // оси координат
-    ctx.strokeStyle = P.axis; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(px(-WR), py(0)); ctx.lineTo(px(WR), py(0)); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(px(0), py(-WR)); ctx.lineTo(px(0), py(WR)); ctx.stroke();
-
-    // облако смешанных точек
-    ctx.fillStyle = "rgba(31,78,121,0.40)";
-    for (let i = 0; i < Npts; i++) {
-      const X = mix(S0[2 * i], S0[2 * i + 1]);
-      ctx.fillRect(px(X.x) - 1.0, py(X.y) - 1.0, 2.0, 2.0);
-    }
-
-    // контур параллелограмма (углы квадрата (±1,±1) → смесь)
-    const corners = [mix(-1, -1), mix(1, -1), mix(1, 1), mix(-1, 1)];
-    ctx.strokeStyle = "rgba(17,17,17,0.45)"; ctx.lineWidth = 1.8;
-    ctx.setLineDash([4, 3]);
-    ctx.beginPath();
-    corners.forEach((c, i) => {
-      const X = px(c.x), Y = py(c.y);
-      i === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    const active = now() < playingUntil ? activeRow : -1;
+    rows.forEach((r, i) => {
+      const y = rowY(i);
+      if (r.grp) {
+        ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+        ctx.fillText(r.grp, 10, y - 16);
+      }
+      const on = i === active;
+      ctx.fillStyle = on ? P.red : P.ink;
+      ctx.beginPath(); ctx.moveTo(PLAYX - 5, y + 2); ctx.lineTo(PLAYX - 5, y + 18); ctx.lineTo(PLAYX + 8, y + 10); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = P.ink; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
+      ctx.fillText(r.lab, LABX, y + 14);
+      drawWave(peakNorm(r.get()), WFX, y - 4, WFW, WFH, r.col, on);
     });
-    ctx.closePath(); ctx.stroke();
-    ctx.setLineDash([]);
-
-    const cov = covMix();
-    const E = eig2(cov.c11, cov.c12, cov.c22);
-
-    // оси PCA (зелёные, ортогональные, длина ∝ √λ)
-    if (mode === "pca" || mode === "ica") {
-      const s1 = Math.sqrt(E.l1) * 1.8, s2 = Math.sqrt(E.l2) * 1.8;
-      const ghost = mode === "pca" ? 1 : 0.42;
-      ctx.globalAlpha = ghost;
-      arrow(px(0), py(0), px(E.v1.x * s1), py(E.v1.y * s1), P.green, mode === "pca" ? 2.6 : 1.8);
-      arrow(px(0), py(0), px(E.v2.x * s2), py(E.v2.y * s2), P.green, mode === "pca" ? 2.6 : 1.8);
-      // продолжение линий пунктиром
-      line2(E.v1.x, E.v1.y, WR, P.green, 1, [2, 4]);
-      line2(E.v2.x, E.v2.y, WR, P.green, 1, [2, 4]);
-      ctx.globalAlpha = 1;
-    }
-
-    // оси ICA (золотые) = направления столбцов A (стороны параллелограмма)
-    if (mode === "ica") {
-      const n1 = Math.hypot(col1.x, col1.y) || 1;
-      const n2 = Math.hypot(col2.x, col2.y) || 1;
-      line2(col1.x / n1, col1.y / n1, WR, P.gold, 1.4, [6, 4]);
-      line2(col2.x / n2, col2.y / n2, WR, P.gold, 1.4, [6, 4]);
-    }
-
-    // драг-стрелки = столбцы A (всегда видны и тянутся)
-    const t1 = tip1(), t2 = tip2();
-    arrow(px(0), py(0), t1.x, t1.y, P.blue, 3);
-    arrow(px(0), py(0), t2.x, t2.y, P.red, 3);
-    // ручки
-    [[t1, P.blue, "a₁"], [t2, P.red, "a₂"]].forEach(([t, col, lab]) => {
-      ctx.fillStyle = "#fffff8"; ctx.strokeStyle = col; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(t.x, t.y, 7, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = col; ctx.font = "bold 13px Palatino, Georgia, serif";
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(lab, t.x, t.y - 16);
-    });
-    ctx.textBaseline = "alphabetic";
-
-    // легенда осей
-    ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
-    let ly = 22;
-    const leg = (color, txt) => {
-      ctx.strokeStyle = color; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(14, ly - 4); ctx.lineTo(34, ly - 4); ctx.stroke();
-      ctx.fillStyle = P.ink; ctx.fillText(txt, 40, ly);
-      ly += 18;
-    };
-    leg(P.blue, "столбцы A (тяни)");
-    if (mode === "pca" || mode === "ica") leg(P.green, "оси PCA (декорреляция)");
-    if (mode === "ica") leg(P.gold, "оси ICA (источники)");
-
-    // -------- read-out --------
-    // негауссовость: куртозис проекции вдоль строки A⁻¹ (восстановленный источник s1)
-    // vs на ось PCA №1. Строка 1 A⁻¹ = нормаль к col2: проекция обнуляет вклад s2.
-    const ni1 = Math.hypot(col1.x, col1.y) || 1;
-    const detA = col1.x * col2.y - col1.y * col2.x;
-    let kICA;
-    if (Math.abs(detA) < 1e-6) {
-      kICA = 0; // A вырождена — направление не определено
-    } else {
-      const ux = col2.y / detA, uy = -col2.x / detA;
-      const nu = Math.hypot(ux, uy) || 1;
-      kICA = kurtosisOn(ux / nu, uy / nu);
-    }
-    const kPCA = kurtosisOn(E.v1.x, E.v1.y);
-    // угол между сторонами параллелограмма (мера «коллапса» A)
-    const dotc = (col1.x * col2.x + col1.y * col2.y) / (ni1 * (Math.hypot(col2.x, col2.y) || 1));
-    const angle = Math.acos(Math.max(-1, Math.min(1, dotc))) * 180 / Math.PI;
-    const det = col1.x * col2.y - col1.y * col2.x;
-
-    const f2 = (x) => (Math.abs(x) < 1e-3 ? "0.00" : x.toFixed(2));
     out.set([
-      { k: "A =", v: "[[" + f2(col1.x) + ", " + f2(col2.x) + "], [" + f2(col1.y) + ", " + f2(col2.y) + "]]", color: P.ink },
-      { k: "det A", v: f2(det) + (Math.abs(det) < 0.05 ? " ⚠ вырождена" : ""), color: Math.abs(det) < 0.05 ? P.red : P.mut },
-      { k: "угол сторон", v: angle.toFixed(0) + "°", color: P.gold },
-      { k: "куртозис ICA-проекции", v: kICA.toFixed(2), color: P.gold },
-      { k: "куртозис PCA-проекции", v: kPCA.toFixed(2), color: P.green },
-      { k: "(гаусс)", v: "0.00", color: P.mut },
+      { k: "смешивание", v: mix.toFixed(2), color: P.gold },
+      { k: "det A", v: (1 - mix * mix * 0.85).toFixed(2), color: P.mut },
+      { k: "качество разделения", v: qual.toFixed(3), color: P.green },
     ]);
   }
-
   const redraw = S.rafThrottle(draw);
-
-  // -------------------- перетаскивание стрелок --------------------
-  let dragging = null; // "c1" | "c2" | null
-  function pick(p) {
-    const t1 = tip1(), t2 = tip2();
-    const d1 = Math.hypot(p.x - t1.x, p.y - t1.y);
-    const d2 = Math.hypot(p.x - t2.x, p.y - t2.y);
-    if (d1 < 22 && d1 <= d2) return "c1";
-    if (d2 < 22) return "c2";
-    return null;
-  }
-  function setFrom(p) {
-    // p в логических координатах канваса (w×h) → мировые
-    let wx = px.inv(p.x), wy = py.inv(p.y);
-    wx = Math.max(-WR + 0.05, Math.min(WR - 0.05, wx));
-    wy = Math.max(-WR + 0.05, Math.min(WR - 0.05, wy));
-    if (dragging === "c1") col1 = { x: wx, y: wy };
-    else if (dragging === "c2") col2 = { x: wx, y: wy };
-    redraw();
-  }
+  const anim = S.loop(() => { if (now() < playingUntil) draw(); });
 
   S.dragify(cv.canvas, { w: W, h: H }, {
-    onDown: (p) => { dragging = pick(p); if (dragging) setFrom(p); },
-    onMove: (p) => { if (dragging) setFrom(p); },
-    onUp: () => { dragging = null; },
+    onDown: (p) => {
+      for (let i = 0; i < rows.length; i++) {
+        const y = rowY(i);
+        if (p.y >= y - 8 && p.y <= y + 24 && p.x <= WFX + WFW) { playRow(i); draw(); return; }
+      }
+    },
     onHover: (p) => {
-      cv.canvas.style.cursor = pick(p) ? "grab" : "default";
+      let onAny = false;
+      for (let i = 0; i < rows.length; i++) { const y = rowY(i); if (p.y >= y - 8 && p.y <= y + 24 && p.x <= WFX + WFW) onAny = true; }
+      cv.canvas.style.cursor = onAny ? "pointer" : "default";
     },
   });
 
-  // -------------------- контролы --------------------
-  S.segmented(controls, {
-    label: "Показать",
-    value: "ica",
-    options: [
-      { value: "mix", label: "смесь" },
-      { value: "pca", label: "PCA-оси" },
-      { value: "ica", label: "ICA-оси" },
-    ],
-  }, (v) => { mode = v; redraw(); });
-
-  S.button(controls, "Сбросить A", () => {
-    col1 = { x: 1.0, y: 0.3 };
-    col2 = { x: 0.4, y: 1.0 };
-    redraw();
+  S.loadData("ica_cocktail_audio.json").then((d) => {
+    D = d; N = d.n;
+    src = d.sources.map((s) => {
+      const q = decI8(s.b64), a = new Float64Array(q.length);
+      for (let i = 0; i < q.length; i++) a[i] = q[i] / 127 * s.scale;
+      return a;
+    });
+    recompute();
+    S.slider(controls, {
+      label: "Смешивание голосов", min: 0.1, max: 0.95, step: 0.01, value: mix, fmt: (v) => v.toFixed(2),
+    }, (v) => { mix = v; recompute(); redraw(); });
+    S.button(controls, "Сбросить", () => { mix = 0.6; recompute(); redraw(); }, "ghost");
+    draw(); anim.start();
+  }).catch((e) => {
+    root.appendChild(S.el("div", "sigma-int-err", { text: "Не загрузились аудиоданные ICA: " + e.message }));
   });
-
-  draw();
 });

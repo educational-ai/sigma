@@ -27,6 +27,10 @@
   };
 
   const MAX_STEPS = 8;             // hard cap on agent loop iterations
+  const LLM_IDLE_MS = 120000;      // abort a completion that streams NO bytes for
+  // this long — an upstream hang (e.g. an image follow-up step routed to a model
+  // that stalls) emits nothing, while a real long generation keeps streaming and
+  // resets the timer. Guarantees the loop never blocks forever on a dead call.
   const TOOL_CHAR_LIMIT = 6000;    // truncate tool results before feeding back
 
   const state = {
@@ -99,6 +103,18 @@
     refreshModelLabel();
   });
 
+  // Reveal quiz-answer spoilers (||...||) on click / Enter / Space.
+  sheet.addEventListener("click", (e) => {
+    const sp = e.target.closest?.(".sigma-spoiler");
+    if (sp) sp.classList.add("revealed");
+  });
+  sheet.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("sigma-spoiler")) {
+      e.preventDefault();
+      e.target.classList.add("revealed");
+    }
+  });
+
   // -------------------------------------------------------------------------
   // Text selection → fragment pill
   // -------------------------------------------------------------------------
@@ -153,20 +169,30 @@
   }
 
   const FRAGMENT_OPTS = ["Объясни проще", "Пример из жизни", "Задача с решением"];
+  // Native learning actions. Label ≠ sent prompt: a chip can fire a richer,
+  // grounded instruction than its short label. `accent` = bright treatment.
   const FRESH_OPTS = [
-    "Объясни эту главу за 30 секунд",
-    "Дай задачу из этой главы",
-    "Что главное здесь понять?",
+    { label: "📖 За 30 секунд", send: "Объясни эту главу за 30 секунд — только самую суть." },
+    { label: "🎯 Проверь меня", accent: true, send:
+      "Составь 4 коротких проверочных вопроса строго по ЭТОЙ главе (опирайся на её текст, при необходимости read_chapter). " +
+      "Формат: пронумерованный вопрос, сразу под ним правильный ответ, обёрнутый в ||...|| (двойные вертикальные черты), чтобы он был скрыт до клика. " +
+      "Вопросы на понимание и связи идей, не на зубрёжку. Без вступления и заключения." },
+    { label: "🧠 Глубокий вопрос", accent: true, send:
+      "Задай мне ОДИН простой по формулировке, но глубокий и нетривиальный вопрос по теме этой главы — такой, что заставляет реально подумать и связать идеи. " +
+      "Только сам вопрос, одной-двумя строками. НЕ отвечай на него." },
+    { label: "✏️ Задача", send: "Дай одну содержательную задачу из этой главы с подробным решением." },
   ];
 
   function renderSuggestions() {
     suggestions.replaceChildren();
     const opts = state.selectedFragment ? FRAGMENT_OPTS : FRESH_OPTS;
     for (const o of opts) {
+      const label = typeof o === "string" ? o : o.label;
+      const send = typeof o === "string" ? o : o.send;
       suggestions.append(el("button", {
-        class: "sigma-suggest",
-        onclick: () => { input.value = o; sendBtn.click(); },
-      }, o));
+        class: "sigma-suggest" + (o && o.accent ? " sigma-suggest-accent" : ""),
+        onclick: () => { input.value = send; sendBtn.click(); },
+      }, label));
     }
   }
 
@@ -288,11 +314,12 @@
         name: "search_textbook",
         description: "Ключевой поиск по всем главам учебника. Возвращает до 5 коротких сниппетов с указанием главы и slug. " +
           "Use when: нужен факт/имя/событие, и неизвестно в какой главе. " +
-          "Don't use when: знаешь slug главы (используй read_chapter) или нужно конкретное определение (используй find_definition).",
+          "Don't use when: знаешь slug главы (используй read_chapter) или нужно конкретное определение (используй find_definition). " +
+          "Если в сниппете релевантной главы нет искомого года/числа/имени — дочитай главу через read_chapter по её slug.",
         parameters: {
           type: "object",
           properties: {
-            query: { type: "string", description: "2-5 ключевых слов на русском, например 'Канторович Нобелевская премия'" },
+            query: { type: "string", description: "самое редкое различающее слово запроса, не вся фраза: \"Канторович\" вместо \"Канторович Нобелевская премия\". 2-4 ключевых слова, начни с редкого" },
             exclude_slug: { type: "string", description: "slug главы, которую студент сейчас читает — обычно её можно исключить" },
           },
           required: ["query"],
@@ -328,10 +355,13 @@
       function: {
         name: "find_definition",
         description: "Найти строгое определение термина в учебнике. Возвращает callout-блоки 'Определение N.M'. " +
-          "Use when: студент спрашивает 'что такое X' или нужна точная формулировка.",
+          "Use when: студент спрашивает 'что такое X' или нужна точная формулировка. " +
+          "ВСЕГДА предпочитай этот тул общему поиску для вопросов «что такое X». " +
+          "В term клади ТОЛЬКО ядро термина — 1-2 слова в основе без окончаний " +
+          "(для «сильно выпуклая функция» → term=\"выпукл\"; для «сверхлинейная сходимость» → \"сверхлин\"). Не клади вопрос или фразу целиком.",
         parameters: {
           type: "object",
-          properties: { term: { type: "string", description: "термин (1-3 слова), например 'сильно выпуклая'" } },
+          properties: { term: { type: "string", description: "ядро термина в основе, 1-2 слова без окончаний, например \"выпукл\", \"перцептрон\"" } },
           required: ["term"],
         },
       },
@@ -341,10 +371,12 @@
       function: {
         name: "find_theorem",
         description: "Найти формулировку теоремы/леммы/следствия по названию или ключевому слову. " +
-          "Use when: студент просит формулировку, доказательство, или ссылку на конкретный результат.",
+          "Use when: студент просит формулировку, доказательство, или ссылку на конкретный результат. " +
+          "Предпочитай этот тул поиску для «сформулируй теорему/лемму». В query клади ключевое имя или слово " +
+          "в основе (\"Герон\", \"квадратичн\", \"SVD\"), не весь вопрос («теорема о сходимости метода Герона» → query=\"Герон\").",
         parameters: {
           type: "object",
-          properties: { query: { type: "string", description: "имя или ключевое слово (например 'Герона', 'SVD', 'Эйлера')" } },
+          properties: { query: { type: "string", description: "имя/слово в основе без окончаний, например \"Герон\", \"квадратичн\", \"SVD\"" } },
           required: ["query"],
         },
       },
@@ -413,39 +445,29 @@
   // -------------------------------------------------------------------------
 
   const SYSTEM_PROMPT =
-    "Ты — встроенный ассистент учебника Σ (sigma.fmin.xyz) — школьно-вузовский учебник по информатике, " +
+    "Ты — встроенный ассистент учебника Σ (sigma.fmin.xyz): школьно-вузовский учебник по информатике, " +
     "оптимизации, теории чисел, ML и ИИ. Отвечай по-русски, на уровне старшего школьника. " +
-    "Markdown. Формулы только $...$ (inline) и $$...$$ (display) — не \\(...\\) и не \\[...\\]. " +
-    "Стиль: разговорный, краткий. Заголовки `##` уместны только в развёрнутых объяснениях (>5 абзацев); " +
-    "для коротких ответов — простые абзацы, списки `-`/`1.`, выделения **жирным**.\n\n" +
-    "Правила работы с инструментами:\n" +
-    "• Если вопрос про содержание учебника (факт, определение, теорема, история) — обязательно сделай " +
-    "хотя бы один поисковый/lookup-вызов прежде чем отвечать. Не выдумывай ссылки на главы — найди их.\n" +
-    "• URL'ы глав и секций НЕ выдумывай и НЕ собирай вручную. Берёшь поле `url` из результата любого " +
-    "тула — это канонический путь. Часто `url` содержит якорь конкретного раздела, например " +
-    "`/ch02_newton.html#ssec:thm-superlinear` — это ссылка ПРЯМО на нужный параграф, scroll сразу " +
-    "попадёт куда надо. Используй точный `url` из тула, не отбрасывай якорь. В тексте подписи ссылки — " +
-    "название раздела если оно известно, а не общее название главы: " +
-    "`[Сверхлинейная сходимость метода Ньютона](/ch02_newton.html#ssec:thm-superlinear)`. Если у " +
-    "результата есть поле `section` — используй его как анкорный текст. Если якоря нет — обычная " +
-    "ссылка на главу: `[Численные методы оптимизации](/ch02_newton.html)`. Никаких bare-slug вроде " +
-    "`(ch02_newton)`.\n" +
-    "• Если студент УЖЕ читает запрашиваемую главу (его текущий slug совпадает с найденным) — не делай " +
-    "лишний поиск. Скажи «ты уже на этой главе» + 2-3 буллета с разделами через `get_outline` или " +
-    "просто текстом.\n" +
-    "• Если вопрос требует расчёта, проверки формулы, или визуализации (график сходимости, разделяющая " +
-    "прямая, RSA-шифрование на маленьких числах) — ОБЯЗАТЕЛЬНО вызови `python` для ЭТОГО вопроса. " +
-    "Даже если в прошлой реплике уже был похожий график — для каждой новой просьбы строй новый. " +
-    "НЕ ОПИСЫВАЙ предполагаемый график словами без запуска кода.\n" +
-    "• Когда `python` вернул результат (stdout, числа, ответы) — ИСПОЛЬЗУЙ ЭТИ ЧИСЛА ДОСЛОВНО в финальном " +
-    "ответе. Не пересчитывай в уме, не округляй, не сокращай — питон не ошибается, ты ошибёшься.\n" +
-    "• Если `python` вернул картинки — их видишь И ТЫ (как картинку), И студент (в чате). Ты в режиме " +
-    "vision-модели: проанализируй ИЗОБРАЖЕНИЕ, а не код. Опиши форму кривой, скорость, асимптоты, точки " +
-    "пересечения, выбросы, расхождение/сходимость — то, что РЕАЛЬНО видно. Не повторяй то, что и так " +
-    "видно — добавь интерпретацию. Если картинка не получилась (пустая, ошибка) — запусти python " +
-    "снова с фиксом.\n" +
-    "• Если в учебнике этого нет (бытовой вопрос, не из программы) — вежливо откажи, не выдумывай.\n" +
-    "• Не зацикливайся: после 2-3 tool-вызовов давай финальный ответ.";
+    "Markdown. Формулы только $...$ (inline) и $$...$$ (display) — не \\(...\\), не \\[...\\]. " +
+    "Стиль разговорный, краткий. Заголовки `##` — только в развёрнутых объяснениях (>5 абзацев); иначе абзацы, списки, **жирным**.\n\n" +
+    "ПОИСК И ФАКТЫ:\n" +
+    "• Вопрос про содержание учебника (факт, год, имя, определение, теорема, история) — сделай хотя бы один поиск/lookup ПРЕЖДЕ чем отвечать. Факты, годы, имена, формулировки бери ТОЛЬКО из вывода тулов, не из памяти.\n" +
+    "• Формулируй запрос как КОРОТКОЕ ЯДРО, а не фразу целиком. Ищи по самому редкому различающему слову (имя, термин, аббревиатура), без общих слов: для «Канторович Нобелевская премия» → `Канторович`; для «кто придумал RSA» → `RSA`; для «что такое сильно выпуклая функция» → find_definition с term=`выпукл`; для «теорема о сходимости метода Герона» → find_theorem с query=`Герон`. find_definition.term и find_theorem.query = 1-2 слова основой без окончаний. search_textbook.query = 2-4 ключевых слова, начни с самого редкого. Тулы матчат буквально по словам — длинные фразы с окончаниями часто не находятся.\n" +
+    "• Выбор тула: «что такое X» → find_definition; «сформулируй теорему/лемму» → find_theorem; факт/год/имя/событие → search_textbook; полный контекст или цитата → read_chapter. Для определений и теорем ВСЕГДА предпочитай find_definition/find_theorem общему поиску.\n" +
+    "• Пустой или мимо-результат — это НЕ значит, что в учебнике этого нет. Переформулируй и поищи ещё раз: другое ядро, синоним, фамилия, год, или смени тул. Если в сниппете релевантной главы нужного факта (года/числа/имени) нет — НЕ отвечай по догадке: вызови read_chapter по slug лучшего результата и дочитай. Не повторяй один и тот же запрос дважды.\n" +
+    "• Если после 2-3 РАЗНЫХ запросов факта в учебнике нет — честно скажи «в учебнике я этого не нашёл», можешь дать общее знание с явной пометкой «вне учебника». НИКОГДА не выдумывай год, имя или ссылку.\n" +
+    "• Определение или теорему ЦИТИРУЙ из callout-блока: приведи ключевую формулировку дословно (например условие g''(x) ≥ μ, слова «квадратичная сходимость», «положительная константа μ>0») И расшифруй нотацию словами (g''(x) ≥ μ = «вторая производная не меньше положительной константы μ»). Не теряй ключевые слова в пересказе.\n" +
+    "• Ссылки бери ТОЛЬКО из поля `url` результата тула — якорь раздела уже внутри, не собирай URL вручную, без bare-slug. Текст ссылки — поле `section`, иначе название главы.\n" +
+    "• Студент уже на запрашиваемой главе (его slug = найденному) — не ищи лишний раз: «ты уже на этой главе» + 2-3 буллета разделов.\n\n" +
+    "PYTHON И ГРАФИКИ:\n" +
+    "• Расчёт, проверка формулы, визуализация (график сходимости, разделяющая прямая, RSA на малых числах) — ОБЯЗАТЕЛЬНО вызови python для ЭТОГО вопроса, даже если похожий график был раньше. НЕ описывай график словами без запуска кода.\n" +
+    "• В КАЖДОМ python-вызове сначала посчитай и print() ВСЕ ключевые числа итогового ответа с округлением до 2 знаков: print(f\"корень = {x:.2f}\"), print(\"a =\", round(a,2), \"b =\", round(b,2)). Это обязательно ДАЖЕ когда строишь график. Для графика создай matplotlib-figure (plt.figure/plot) — открытая figure автоматически уйдёт студенту как PNG.\n" +
+    "• Числа из stdout переноси в финальный ответ ДОСЛОВНО (1.41, 1.94, 0.15…), в том же формате — не пересчитывай в уме. Для задач сходимости назови предельное значение числом, а не только символом: пиши и √2, и 1.41. Нет нужного числа в stdout — запусти python снова с print, не выдумывай.\n" +
+    "• Графики смотри как vision-модель: анализируй ИЗОБРАЖЕНИЕ (форма кривой, скорость, асимптоты, пересечения, сходимость/расходимость), а не код. Добавь интерпретацию, не пересказывай очевидное.\n" +
+    "• НЕ вставляй markdown-картинку на СВОЙ python-график: открытая matplotlib-figure показывается студенту автоматически. НИКОГДА не пиши выдуманные ссылки вида ![...](png://...), ![...](media://...), ![...](sandbox:/mnt/...), ![...](attachment:...) или ![...](имя.png) — таких URL не существует, они рендерятся битой ссылкой. Просто сошлись на свой график словами («на графике видно…»). Картинку ИЗ УЧЕБНИКА вставляй ТОЛЬКО реальным путём, который вернул read_chapter, в формате ![подпись](/figures/имя.svg).\n" +
+    "• Если на графике/в числах видна РАСХОДИМОСТЬ (значения растут, уходят в бесконечность, NaN, осцилляция с ростом амплитуды) при том что задача предполагает СХОДИМОСТЬ — это НЕ финал, а результат эксперимента. Зафиксируй диагноз словами (например |2η−1|>1), затем ОБЯЗАТЕЛЬНО запусти python ВТОРОЙ раз с исправленным параметром (меньший шаг, например η=0.5) и покажи сошедшуюся траекторию. Двойной python тут — норма, а не зацикливание. Пустая/битая картинка — тоже перезапуск с фиксом.\n\n" +
+    "ОБЩЕЕ:\n" +
+    "• Не торопись с финалом. У тебя до 8 шагов с инструментами — используй их: несколько разных поисков, чтение глав, повторный python. Заканчивай только когда (а) факт реально найден в учебнике и процитирован, ИЛИ (б) расчёт выполнен и числа получены (и картинка, если просили), ИЛИ (в) ты честно проверил 2-3 разными запросами, что в учебнике этого нет. Недобор шагов и галлюцинация хуже, чем лишний шаг.\n" +
+    "• Не из учебника (бытовой вопрос, вне программы) — вежливо откажи, не выдумывай. Голое приветствие — короткий отклик без тулов.";
 
   function buildInitialUserMessage(question) {
     const parts = [`Вопрос: ${question}`];
@@ -463,30 +485,84 @@
     return s.length > n ? s.slice(0, n) + "\n…[обрезано]" : s;
   }
 
-  async function streamCompletion(messages) {
-    const r = await fetch(API.llm, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "text/event-stream" },
-      body: JSON.stringify({ messages, tools: TOOLS, tool_choice: "auto", stream: true, temperature: 0.2 }),
+  // Drop image_url parts from messages, keeping only the text. Used for the
+  // forced final answer so it routes to the TEXT model and can't re-hang on the
+  // same vision call that stalled the loop.
+  function stripImages(messages) {
+    return messages.map(m => {
+      if (Array.isArray(m.content)) {
+        const txt = m.content.filter(p => p?.type === "text").map(p => p.text).join("\n");
+        return { ...m, content: txt };
+      }
+      return m;
     });
-    if (!r.ok) throw new Error("LLM HTTP " + r.status);
+  }
+
+  async function streamCompletion(messages, { noTools = false } = {}) {
+    const ctrl = new AbortController();
+    let idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);
+    const body = { messages, stream: true, temperature: 0.2 };
+    if (!noTools) { body.tools = TOOLS; body.tool_choice = "auto"; }
+    let r;
+    try {
+      r = await fetch(API.llm, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "text/event-stream" },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      });
+    } catch (e) {
+      clearTimeout(idle);
+      throw new Error("LLM fetch failed/stalled: " + (e?.name === "AbortError" ? "idle-timeout" : (e?.message || e)));
+    }
+    if (!r.ok) { clearTimeout(idle); throw new Error("LLM HTTP " + r.status); }
     let content = "";
     const toolCalls = []; // [{id, function:{name,arguments}}]
-    for await (const chunk of sseFromResponse(r)) {
-      const d = chunk?.choices?.[0]?.delta;
-      if (!d) continue;
-      if (d.content) content += d.content;
-      if (d.tool_calls) {
-        for (const tc of d.tool_calls) {
-          const i = tc.index ?? toolCalls.length;
-          if (!toolCalls[i]) toolCalls[i] = { id: tc.id || "", type: "function", function: { name: "", arguments: "" } };
-          if (tc.id) toolCalls[i].id = tc.id;
-          if (tc.function?.name) toolCalls[i].function.name += tc.function.name;
-          if (tc.function?.arguments) toolCalls[i].function.arguments += tc.function.arguments;
+    try {
+      for await (const chunk of sseFromResponse(r)) {
+        clearTimeout(idle);
+        idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);  // reset on every byte
+        const d = chunk?.choices?.[0]?.delta;
+        if (!d) continue;
+        if (d.content) content += d.content;
+        if (d.tool_calls) {
+          for (const tc of d.tool_calls) {
+            const i = tc.index ?? toolCalls.length;
+            if (!toolCalls[i]) toolCalls[i] = { id: tc.id || "", type: "function", function: { name: "", arguments: "" } };
+            if (tc.id) toolCalls[i].id = tc.id;
+            if (tc.function?.name) toolCalls[i].function.name += tc.function.name;
+            if (tc.function?.arguments) toolCalls[i].function.arguments += tc.function.arguments;
+          }
         }
       }
+    } finally {
+      clearTimeout(idle);
     }
     return { content, tool_calls: toolCalls.filter(Boolean) };
+  }
+
+  // Guarantee a non-empty answer in every terminal path (step error/stall, or
+  // MAX_STEPS exhausted with tools still pending). Force ONE text-only completion
+  // over the stripped (image-free) context so we always capture SOMETHING the
+  // user/eval can read — never a blank bubble.
+  async function finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, reason) {
+    statusEl.textContent = "Формулирую ответ…";
+    let content = "";
+    try {
+      const forced = await streamCompletion([
+        ...stripImages(state._loopMessages || []),
+        { role: "user", content: "Достаточно сбора. Дай финальный ответ по уже собранным данным ПРЯМО СЕЙЧАС, без новых инструментов." },
+      ], { noTools: true });
+      content = (forced.content || "").trim();
+    } catch (_) { /* fall through to fallback text */ }
+    if (statusEl.isConnected) statusEl.remove();
+    answerEl.dataset.raw = content || "";
+    answerEl.innerHTML = renderMarkdown(
+      content || "Не удалось получить ответ от модели за отведённое время (" + (reason || "timeout") + "). Попробуй переформулировать или повтори вопрос.");
+    typesetMath(answerEl);
+    finalizeTrace(traceEl);
+    state.history.push({ role: "user", content: buildInitialUserMessage(userQuestion) });
+    state.history.push({ role: "assistant", content: content || "" });
   }
 
   async function agentTurn(userQuestion, bubble) {
@@ -501,16 +577,33 @@
     const answerEl = bubble.querySelector(".sigma-answer");
     const statusEl = bubble.querySelector(".sigma-status");
 
+    const seenCalls = new Set(); // dedup identical tool calls within one turn
+    state._loopMessages = messages; // expose for finishFromContext fallback
     for (let step = 0; step < MAX_STEPS; step++) {
       statusEl.textContent = `Думаю… (шаг ${step + 1})`;
-      const { content, tool_calls } = await streamCompletion(messages);
+      let content, tool_calls;
+      try {
+        ({ content, tool_calls } = await streamCompletion(messages));
+      } catch (e) {
+        // A completion stalled/failed mid-loop (e.g. an image step hung upstream).
+        // Never leave an empty bubble — force a final text-only answer instead.
+        return await finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, String(e?.message || e));
+      }
 
       const assistantMsg = { role: "assistant", content: content || "" };
       if (tool_calls.length) assistantMsg.tool_calls = tool_calls;
       messages.push(assistantMsg);
 
       if (!tool_calls.length) {
+        // The model ended the turn with no further tool calls. If it produced
+        // EMPTY content here, rendering it would leave a blank bubble (the user
+        // sees the tool trace but no answer — a real observed failure). Force a
+        // final text-only completion so the turn always yields SOMETHING.
+        if (!(content || "").trim()) {
+          return await finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, "пустой финальный ответ");
+        }
         statusEl.remove();
+        answerEl.dataset.raw = content || "";
         answerEl.innerHTML = renderMarkdown(content || "");
         typesetMath(answerEl);
         finalizeTrace(traceEl);
@@ -525,11 +618,19 @@
         const traceItem = renderTraceItem(tc.function.name, args);
         traceBody.append(traceItem);
         traceEl.hidden = false;
+        const callKey = tc.function.name + ":" + (tc.function.arguments || "");
         let toolResult;
-        try {
-          toolResult = await runTool(tc.function.name, args, traceItem);
-        } catch (e) {
-          toolResult = { error: String(e?.message || e) };
+        if (seenCalls.has(callKey)) {
+          // Same call, same args, already made — don't burn a step repeating it.
+          toolResult = { note: "Этот вызов с теми же аргументами уже делался. Смени стратегию: " +
+            "другой query/ядро, read_chapter по найденному slug, или дай ответ / честно скажи, что не нашёл." };
+        } else {
+          seenCalls.add(callKey);
+          try {
+            toolResult = await runTool(tc.function.name, args, traceItem);
+          } catch (e) {
+            toolResult = { error: String(e?.message || e) };
+          }
         }
         decorateTraceItem(traceItem, toolResult);
         const images = Array.isArray(toolResult?.images) ? toolResult.images : [];
@@ -561,9 +662,9 @@
       }
     }
 
-    statusEl.textContent = "Прервал после " + MAX_STEPS + " шагов.";
-    answerEl.innerHTML = "Не сошёлся на ответ за отведённые шаги. Попробуй переформулировать.";
-    finalizeTrace(traceEl);
+    // MAX_STEPS exhausted while still calling tools → force a final answer from
+    // what was gathered, rather than emitting a generic dead-end string.
+    return await finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, "исчерпаны " + MAX_STEPS + " шагов");
   }
 
   // -------------------------------------------------------------------------
@@ -714,7 +815,7 @@
   // directly, since Quarto loads katex.min.js but not auto-render).
   function renderMarkdown(md) {
     const stash = [];
-    const STASH = (item) => { stash.push(item); return ` S${stash.length - 1} `; };
+    const STASH = (item) => { stash.push(item); return `${stash.length - 1}`; };
 
     let s = String(md);
 
@@ -777,7 +878,19 @@
     closeList();
     s = out.join("\n");
 
-    // 6) Inline: links, bold, italic.
+    // 6) Inline: images, links, bold, italic.
+    // Images FIRST — so the leading `!` isn't orphaned and the link rule below doesn't
+    // eat the `[…](…)` part. Real images (book figures /figures/…, http(s), data:) render
+    // inline; agent-drawn figures auto-attach below the bubble, so the model's invented
+    // placeholder refs (png://…, media://…, sandbox:/…, attachment:…, bare filename.png)
+    // are shown as a small caption, never a broken link.
+    s = s.replace(/!\[([^\]\n]*)\]\(([^()\s]+)\)/g, (_, alt, u) => {
+      if (/^(https?:\/\/|data:image\/|\/)/.test(u)) {
+        const cap = alt ? `<figcaption class="sigma-figcap">${alt}</figcaption>` : "";
+        return `<figure class="sigma-figref"><img class="sigma-figure" src="${u}" loading="lazy">${cap}</figure>`;
+      }
+      return alt ? `<span class="sigma-figcap">🖼 ${alt}</span>` : "";
+    });
     s = s.replace(/\[([^\]\n]+)\]\(([^()\s]+)\)/g, (_, t, u) => {
       const external = /^https?:\/\//.test(u) && !/sigma\.fmin\.xyz/.test(u);
       const tgt = external ? ' target="_blank" rel="noopener"' : '';
@@ -785,10 +898,13 @@
     });
     s = s.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
     s = s.replace(/(?<!\w)\*([^*\n]+)\*(?!\w)/g, "<em>$1</em>");
+    // Spoiler: ||answer|| → click-to-reveal (used by the «Проверь меня» quiz).
+    s = s.replace(/\|\|([^|]+?)\|\|/g, (_, t) =>
+      `<span class="sigma-spoiler" role="button" tabindex="0" title="Показать ответ">${t}</span>`);
 
     // 7) Wrap orphan plain lines in <p>.
-    const BLOCK = /^<(h[1-6]|ul|ol|li|hr|blockquote|pre|table|tr|td|th|thead|tbody|p|div)/i;
-    const BLOCK_END = /^<\/(h[1-6]|ul|ol|li|hr|blockquote|pre|table|tr|td|th|thead|tbody|p|div)/i;
+    const BLOCK = /^<(h[1-6]|ul|ol|li|hr|blockquote|pre|table|tr|td|th|thead|tbody|p|div|figure|figcaption)/i;
+    const BLOCK_END = /^<\/(h[1-6]|ul|ol|li|hr|blockquote|pre|table|tr|td|th|thead|tbody|p|div|figure|figcaption)/i;
     const finalLines = s.split("\n");
     const result = [];
     let para = [];
@@ -803,7 +919,7 @@
     s = result.join("\n");
 
     // 8) Restore stashed math + code (math is rendered HERE via KaTeX).
-    s = s.replace(/ S(\d+) /g, (_, i) => {
+    s = s.replace(/(\d+)/g, (_, i) => {
       const it = stash[Number(i)];
       if (it.k === "mblock") return renderKatex(it.v, true);
       if (it.k === "minline") return renderKatex(it.v, false);

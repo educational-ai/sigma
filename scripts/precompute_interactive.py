@@ -85,5 +85,48 @@ def precompute_eigenfaces():
           f"{os.path.getsize(path)//1024} KB, var@K={out['var_at_k']:.1%}")
 
 
+def precompute_ica_audio():
+    """Два голоса (клипы StarCraft) → 8 кГц моно, общая длина, нормировка,
+    int8. Виджет ica-cocktail смешивает их матрицей A и разделяет FastICA
+    в браузере; здесь готовим только исходные источники."""
+    from math import gcd
+    from scipy.io import wavfile
+    from scipy.signal import resample_poly
+
+    SRC = "/root/optim_repo/assets/files"
+    TARGET = 8000
+
+    def load(name):
+        rate, x = wavfile.read(os.path.join(SRC, name))
+        if x.ndim > 1:
+            x = x.mean(axis=1)
+        x = x.astype(np.float64) / 32768.0
+        g = gcd(TARGET, rate)
+        return resample_poly(x, TARGET // g, rate // g)
+
+    s_a, s_b = load("starcraft2.wav"), load("starcraft3.wav")
+    L = min(len(s_a), len(s_b))
+
+    def norm(x):
+        x = x[:L] - x[:L].mean()
+        return x / (x.std() + 1e-9)
+
+    s_a, s_b = norm(s_a), norm(s_b)
+
+    def enc(x):
+        m = float(np.max(np.abs(x))) or 1.0
+        q = np.clip(np.round(x / m * 127), -127, 127).astype(np.int8)
+        return {"b64": b64_i8(q), "scale": round(m, 5)}
+
+    out = {"rate": TARGET, "n": int(L), "sources": [enc(s_a), enc(s_b)],
+           "labels": ["Голос A", "Голос B"]}
+    path = os.path.join(OUT, "ica_cocktail_audio.json")
+    with open(path, "w") as f:
+        json.dump(out, f, separators=(",", ":"))
+    print(f"✓ ica_cocktail_audio.json: {L/TARGET:.2f}s @ {TARGET}Hz, "
+          f"{os.path.getsize(path)//1024} KB")
+
+
 if __name__ == "__main__":
     precompute_eigenfaces()
+    precompute_ica_audio()

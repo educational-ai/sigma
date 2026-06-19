@@ -44,9 +44,11 @@ def plot_tangent_geometry():
         ax.annotate(fr"$x_{i}$", (xk, 0), textcoords="offset points",
                     xytext=(2, -14), fontsize=11, color=colors[i])
 
-    # последняя точка
+    # последняя точка: после сходимости x_{n-1} почти совпадает с x_{n-2},
+    # поэтому подпись уводим на вторую строку ниже-левее, иначе ярлыки
+    # сливаются в нечитаемое «x₃x₂» (метод сходится квадратично).
     ax.annotate(fr"$x_{len(iters)-1}$", (iters[-1], 0),
-                textcoords="offset points", xytext=(2, -14),
+                textcoords="offset points", xytext=(-13, -27),
                 fontsize=11, color="black")
     ax.set_xlabel("$x$"); ax.set_ylabel("$y$")
     ax.set_title("Геометрия метода касательных: $f(x)=x^{3}-2x-5$")
@@ -140,11 +142,14 @@ def plot_taylor_parabola():
     ax.plot(xs, f(xs), "b-", lw=2, label="$f(x)$")
     ax.plot(xs, q(xs), "r--", lw=1.6, label=r"квадр. модель $q_k(x)$")
     ax.plot(x0, f(x0), "ko", ms=6); ax.annotate(r"$x_k$", (x0, f(x0)),
-                                                xytext=(-8, 12),
+                                                xytext=(-20, 16),
                                                 textcoords="offset points")
     ax.plot(x_next, q(x_next), "rs", ms=7)
+    # подпись уводим в свободную область ниже маркера с тонкой выноской,
+    # иначе текст «x_{k+1}=arg min q_k» перечёркивается кривой f(x).
     ax.annotate(r"$x_{k+1}=\arg\min q_k$", (x_next, q(x_next)),
-                xytext=(8, 8), textcoords="offset points")
+                xytext=(26, -30), textcoords="offset points",
+                arrowprops=dict(arrowstyle="-", lw=0.7, color="0.4"))
     ax.set_xlabel("$x$"); ax.set_ylabel("$y$")
     ax.set_title("Метод Ньютона как минимизация квадратичной модели")
     ax.legend(loc="upper center")

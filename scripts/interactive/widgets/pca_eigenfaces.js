@@ -4,7 +4,7 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Двигай k — лицо собирается из собственных лиц в реальном времени. Кликни по кривой справа, чтобы задать k.",
+    text: "Двигай k: лицо собирается из собственных лиц в реальном времени. Кликни по кривой справа, чтобы задать k.",
   }));
 
   const stage = S.row(root);
@@ -14,11 +14,12 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
   const controls = S.row(root, "controls");
   const out = S.readout(root);
   S.caption(root,
-    "Слева — настоящая фотография из датасета Olivetti. В центре — её приближение " +
-    "первыми k главными компонентами (eigenfaces). Справа — среднее лицо, точка отсчёта. " +
-    "Внизу — сами собственные лица; подсвечены те, что уже вошли в сумму. " +
-    "Виджет показывает первые 60 компонент (≈89% дисперсии); чтобы добраться до 95%, " +
-    "нужно ~123 компоненты — но и 60 уже сжимают 4096 чисел почти на порядок.");
+    "Слева настоящая фотография из датасета Olivetti. В центре её приближение " +
+    "первыми k главными компонентами (eigenfaces). Справа среднее лицо, точка отсчёта. " +
+    "Внизу сами собственные лица; подсвечены те, что уже вошли в сумму. " +
+    "Виджет показывает первые 60 компонент (≈89% объяснённой дисперсии); чтобы добраться до 95%, " +
+    "нужно ~123 компоненты. Каждое лицо при этом задаётся 60 коэффициентами вместо 4096 пикселей, " +
+    "если общий базис из этих собственных лиц хранить один раз на всю коллекцию.");
 
   let D = null, N = 0, faceIdx = 0, k = 10, basis = null;
 
@@ -125,7 +126,7 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
     ctx.setLineDash([]);
     ctx.fillStyle = P.red; ctx.beginPath(); ctx.arc(mk, my, 4, 0, 2 * Math.PI); ctx.fill();
     ctx.fillStyle = P.ink; ctx.font = "12px Palatino, serif"; ctx.textAlign = "center";
-    ctx.fillText("дисперсия", curveBox.x + curveBox.w / 2, curveBox.y - 8);
+    ctx.fillText("доля объяснённой дисперсии", curveBox.x + curveBox.w / 2, curveBox.y - 8);
 
     // --- полоса собственных лиц ---
     ctx.fillStyle = P.mut; ctx.font = "11px Palatino, serif"; ctx.textAlign = "left";
@@ -147,7 +148,7 @@ SigmaInt.register("pca-eigenfaces", function (root, opts, S) {
       { k: "k =", v: String(k), color: P.blue },
       { k: "объяснено", v: (D.cumvar[k - 1] * 100).toFixed(1) + "%", color: P.green },
       { k: "ошибка MSE", v: mse.toFixed(4), color: P.red },
-      { k: "сжатие", v: "4096→" + k + " чисел", color: P.mut },
+      { k: "на лицо", v: k + " чисел вместо 4096", color: P.mut },
     ]);
   }
 

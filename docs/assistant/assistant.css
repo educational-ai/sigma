@@ -277,6 +277,13 @@ body.sigma-sheet-open { overflow: hidden; }
   max-width: 100%; height: auto; border-radius: 8px;
   border: 1px solid var(--sigma-border); background: white;
 }
+/* Inline ![alt](url) image embedded by the model (book figures, http, data:). */
+.sigma-figref { margin: 8px 0; display: flex; flex-direction: column; gap: 4px; }
+.sigma-figcap {
+  font-size: 12.5px; color: var(--sigma-muted, #6b7280); line-height: 1.4;
+}
+/* When a figure ref couldn't resolve to a real image, the caption stands alone. */
+span.sigma-figcap { display: inline-block; }
 
 /* Markdown rendering */
 .sigma-answer p { margin: 0 0 8px 0; }
@@ -488,3 +495,39 @@ select.sigma-algo-input {
 @media (prefers-color-scheme: dark) {
   .sigma-algo-stdout[data-has-err="1"] { background: #341515; color: #ffb4b4; }
 }
+
+/* Native learning-action chips (🎯 Проверь меня, 🧠 Глубокий вопрос) — bright,
+   accent-tinted, distinct from neutral suggestions without crowding the row. */
+.sigma-suggest-accent {
+  border-color: color-mix(in srgb, var(--sigma-accent) 45%, var(--sigma-border));
+  background: color-mix(in srgb, var(--sigma-accent) 9%, transparent);
+  color: var(--sigma-accent);
+  font-weight: 600;
+}
+.sigma-suggest-accent:hover {
+  background: var(--sigma-accent);
+  color: var(--sigma-accent-fg, #fff);
+  border-color: var(--sigma-accent);
+}
+
+/* Quiz answer spoiler: ||...|| renders hidden (blurred) until clicked. */
+.sigma-spoiler {
+  background: color-mix(in srgb, var(--sigma-accent) 12%, var(--sigma-card));
+  color: transparent;
+  border-radius: 5px;
+  padding: 0 4px;
+  cursor: pointer;
+  filter: blur(4px);
+  user-select: none;
+  transition: filter .15s ease, color .15s ease, background .15s ease;
+  box-decoration-break: clone;
+}
+.sigma-spoiler::after { content: "  показать"; color: var(--sigma-accent); filter: none; font-size: .82em; }
+.sigma-spoiler.revealed {
+  color: var(--sigma-fg);
+  background: transparent;
+  filter: none;
+  cursor: default;
+  user-select: text;
+}
+.sigma-spoiler.revealed::after { content: ""; }

@@ -6,7 +6,7 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Тяни ползунки f₁ и f₂ — слева сумма двух синусоид, справа её спектр |X_k|. " +
+    text: "Тяни ползунки f₁ и f₂: слева сумма двух синусоид, справа её спектр |X_k|. " +
           "Два тона дают ровно два пика. Меняй N и fs, чтобы увидеть разрешение по частоте.",
   }));
 
@@ -17,8 +17,8 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
   const controls = S.row(root, "controls");
   const out = S.readout(root);
   S.caption(root,
-    "Слева — первые отсчёты сигнала во времени; справа — амплитуда |X_k| по нижней " +
-    "половине частот. Строка k матрицы Фурье F_N — это «камертон», настроенный на " +
+    "Слева первые отсчёты сигнала во времени; справа амплитуда |X_k| по нижней " +
+    "половине частот. Строка k матрицы Фурье F_N. Это «камертон», настроенный на " +
     "частоту k·fs/N; тон отзывается там, где камертон совпал с ним, давая пик. " +
     "Частоты притягиваются к ближайшей строке (шаг Δf = fs/N), поэтому пики всегда чистые.");
 
@@ -161,7 +161,7 @@ SigmaInt.register("fft-spectrum", function (root, opts, S) {
     });
 
     ctx.fillStyle = P.ink; ctx.font = "13px Palatino, Georgia, serif"; ctx.textAlign = "center";
-    ctx.fillText("|X_k| — амплитудный спектр", specBox.x + specBox.w / 2, specBox.y - 10);
+    ctx.fillText("|X_k|: амплитудный спектр", specBox.x + specBox.w / 2, specBox.y - 10);
 
     // ось частот: 0, середина, верхняя граница (по новому пределу kMax)
     ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif";

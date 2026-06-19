@@ -29,6 +29,10 @@ Thumbs.db
 .idea/
 *.swp
 
+# Backups
+*.bak
+*.bak.*
+
 # Local logs
 logs/
 *.log
