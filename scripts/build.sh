@@ -43,6 +43,18 @@ echo "[1/5] PDF → SVG (figures)"
 PDF_DIR="${REPO_ROOT}/overleaf_export/figures"
 SVG_DIR="${REPO_ROOT}/book/figures"
 mkdir -p "${SVG_DIR}"
+# make_figures.py авторитетен в git (sync.sh его не затирает); перегенерируем
+# его PDF, иначе устаревшие копии из Overleaf-ZIP возвращают уже починенные
+# дефекты подписей на live (инцидент 2026-06-27).
+MAKE_FIGS="${REPO_ROOT}/overleaf_export/make_figures.py"
+if [ -f "${MAKE_FIGS}" ]; then
+    if (cd "${REPO_ROOT}/overleaf_export" && \
+        FIGURES_OUT="${PDF_DIR}" /root/.venv/bin/python make_figures.py >/dev/null); then
+        echo "  ↻ make_figures.py: PDF перегенерированы из git-версии"
+    else
+        echo "  ⚠ make_figures.py упал — остаются PDF из Overleaf-экспорта"
+    fi
+fi
 if command -v pdftocairo >/dev/null 2>&1 && [ -d "${PDF_DIR}" ]; then
     converted=0
     for pdf in "${PDF_DIR}"/*.pdf; do

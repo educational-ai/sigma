@@ -90,10 +90,14 @@ log "content changed, rebuilding (content $CONTENT_HASH)"
 
 # 5. Заменяем overleaf_export/ (rsync поверх, сохраняя артефакты latexmk).
 EXPORT_DIR="${REPO_ROOT}/overleaf_export"
+# make_figures.py: source of truth — git-копия, НЕ Overleaf. Копия в Overleaf
+# устарела и каждый синк откатывала закоммиченные фиксы подписей фигур
+# (инцидент 2026-06-27: на live вернулись починенные дефекты newton/taylor).
 rsync -a --delete \
   --exclude='main.pdf' --exclude='main.aux' --exclude='main.log' \
   --exclude='main.out' --exclude='main.toc' --exclude='main.fls' \
   --exclude='main.fdb_latexmk' --exclude='main.xdv' --exclude='main.synctex.gz' \
+  --exclude='make_figures.py' \
   "$WORK_DIR/" "$EXPORT_DIR/"
 rm -rf "$WORK_DIR"
 log "overleaf_export updated"

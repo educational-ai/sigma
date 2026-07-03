@@ -1,4 +1,11 @@
-"""Генерация графиков сходимости для параграфа про метод Ньютона."""
+"""Генерация графиков сходимости для параграфа про метод Ньютона.
+
+Source of truth — git-копия (sync.sh исключает файл из rsync с Overleaf):
+копия в Overleaf устарела и затирала фиксы подписей при каждом синке
+(инцидент 2026-06-27). build.sh запускает скрипт с FIGURES_OUT.
+"""
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -9,7 +16,7 @@ rcParams["axes.grid"] = True
 rcParams["grid.alpha"] = 0.3
 rcParams["mathtext.fontset"] = "cm"
 
-OUT = "/home/claude/textbook/figures"
+OUT = os.environ.get("FIGURES_OUT", "/home/claude/textbook/figures")
 
 
 # ----------- 1. Геометрия метода Ньютона: касательные ---------------
