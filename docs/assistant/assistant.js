@@ -542,6 +542,49 @@
     return { content, tool_calls: toolCalls.filter(Boolean) };
   }
 
+  // Некоторые слабые модели эмитят вызов инструмента как ТЕКСТ в content
+  // (XML-теги <tool_call>/<function=...>) вместо нативного tool_calls. Ловим это,
+  // чтобы такой «леса»-текст не утёк студенту как финальный ответ.
+  const TOOL_NAMES = ["search_textbook","read_chapter","get_outline","find_definition","find_theorem","python"];
+  function looksLikeTextToolCall(text) {
+    if (!text) return false;
+    if (/<\s*tool_call\s*>/i.test(text)) return true;
+    if (/<\s*function\s*=\s*[a-z_]+/i.test(text)) return true;
+    if (/<\s*\|?\s*(tool_call|function_call)\s*\|?\s*>/i.test(text)) return true;
+    return false;
+  }
+  function parseTextToolCall(text) {
+    const fn = text.match(/<\s*function\s*=\s*([a-z_]+)\s*>/i);
+    if (fn && TOOL_NAMES.includes(fn[1])) {
+      const args = {};
+      const paramRe = /<\s*parameter\s*=\s*([a-z_]+)\s*>\s*([\s\S]*?)\s*<\s*\/\s*parameter\s*>/gi;
+      let m;
+      while ((m = paramRe.exec(text)) !== null) args[m[1]] = m[2];
+      return { id: "text-" + Date.now().toString(36), type: "function",
+               function: { name: fn[1], arguments: JSON.stringify(args) } };
+    }
+    try {
+      const j = JSON.parse(text.trim().replace(/^```(?:json)?/, "").replace(/```$/, "").trim());
+      const name = j.name || j.function?.name || j.tool;
+      if (TOOL_NAMES.includes(name)) {
+        const a = j.arguments ?? j.parameters ?? j.args ?? {};
+        return { id: "text-" + Date.now().toString(36), type: "function",
+                 function: { name, arguments: typeof a === "string" ? a : JSON.stringify(a) } };
+      }
+    } catch (_) {}
+    return null;
+  }
+  const SCAFFOLD_PHRASE=/^(запрос выполнен(?: успешно)?|перехожу к ответу|приступаю(?: к ответу)?|сейчас я .{0,40}?|вызываю инструмент.*?|я вызову .{0,40}?|готово|понял|хорошо|секунду|минуту|подождите.*?|ищу.*?|сейчас найду.*?)$/i;
+  function stripScaffolding(text){
+    if(!text) return "";
+    const parts = text.split(/(?<=[.!?])\s+|\n+/);
+    const kept = parts.filter(p=>{
+      const s=p.trim().replace(/[.!?]+$/,"").trim();
+      return s.length>0 && !SCAFFOLD_PHRASE.test(s);
+    });
+    return kept.join(" ").trim();
+  }
+
   // Guarantee a non-empty answer in every terminal path (step error/stall, or
   // MAX_STEPS exhausted with tools still pending). Force ONE text-only completion
   // over the stripped (image-free) context so we always capture SOMETHING the
@@ -595,21 +638,34 @@
       if (tool_calls.length) assistantMsg.tool_calls = tool_calls;
       messages.push(assistantMsg);
 
+      // Модель может эмитить вызов инструмента ТЕКСТОМ (XML/JSON в content) вместо
+      // нативного tool_calls — тогда tool_calls пуст, но content — это НЕ ответ, а леса.
+      if (!tool_calls.length && looksLikeTextToolCall(content)) {
+        const recovered = parseTextToolCall(content);
+        if (recovered) {
+          tool_calls = [recovered];
+          assistantMsg.tool_calls = tool_calls;
+          assistantMsg.content = "";
+        } else {
+          messages.push({ role: "user", content:
+            "Не пиши вызовы инструментов текстом. Либо верни нативный tool_call, либо дай финальный текстовый ответ." });
+          continue;
+        }
+      }
+
       if (!tool_calls.length) {
-        // The model ended the turn with no further tool calls. If it produced
-        // EMPTY content here, rendering it would leave a blank bubble (the user
-        // sees the tool trace but no answer — a real observed failure). Force a
-        // final text-only completion so the turn always yields SOMETHING.
-        if (!(content || "").trim()) {
-          return await finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, "пустой финальный ответ");
+        // Срезаем чисто служебные фразы-леса перед рендером.
+        const clean = stripScaffolding(content);
+        if (!clean) {
+          return await finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, "пустой/служебный финальный ответ");
         }
         statusEl.remove();
-        answerEl.dataset.raw = content || "";
-        answerEl.innerHTML = renderMarkdown(content || "");
+        answerEl.dataset.raw = clean;
+        answerEl.innerHTML = renderMarkdown(clean);
         typesetMath(answerEl);
         finalizeTrace(traceEl);
         state.history.push({ role: "user", content: buildInitialUserMessage(userQuestion) });
-        state.history.push(assistantMsg);
+        state.history.push({ role: "assistant", content: clean });
         return;
       }
 
