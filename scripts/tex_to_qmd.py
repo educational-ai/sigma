@@ -816,6 +816,11 @@ def convert_one(tex_text: str, base_dir: Path, chap_num: int, global_ch_refs: di
     md = strip_cross_refs(md, registry, global_ch_refs)
     md = resolve_bare_refs(md, registry, global_ch_refs)
     md = blockify_display_math(md)
+    # Подстраховка: strip_labels_in_math ходит по парам $$…$$ и на нечётном
+    # числе разделителей (например, после restore_callouts) сбивается с фазы —
+    # так \label{eq:nn-lip} утёк в живую формулу на странице про липшицевость.
+    # В .qmd \label не значит ничего: ссылки уже разрешены registry в текст.
+    md = ANY_LABEL_RE.sub("", md)
     title, body = extract_title(md)
     if title:
         title = clean_title(title)

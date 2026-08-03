@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -739,7 +739,7 @@ window.Quarto = {
 <section id="почему-это-работает-геометрия" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="почему-это-работает-геометрия">Почему это работает: геометрия</h2>
 <p>Levy и Goldberg<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали, что Word2Vec с negative sampling неявно факторизует матрицу поточечной взаимной информации (PMI):</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Levy, Goldberg. <a href="https://papers.nips.cc/paper/5477">Neural Word Embedding as Implicit Matrix Factorization</a>, NeurIPS 2014.</p></div></div><p><span class="math display">
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Levy, Goldberg. <a href="https://papers.nips.cc/paper_files/paper/2014/hash/b78666971ceae55a8e87efb7cbfd9ad4-Abstract.html">Neural Word Embedding as Implicit Matrix Factorization</a>, NeurIPS 2014.</p></div></div><p><span class="math display">
 \vec{v}_w \cdot \vec{v}_c \approx \text{PMI}(w, c) - \log k,
 </span></p>
 <p>где <span class="math inline">\text{PMI}(w, c) = \log \frac{P(w, c)}{P(w)P(c)}</span>.</p>
@@ -795,7 +795,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Не все аналогии работают одинаково хорошо. Mikolov et al. предложили тест из 19 544 вопросов в 14 категориях (семантических и синтаксических). Accuracy на этом тесте — около 60–75% для лучших моделей. Аналогии типа «муж − жена + бабушка = ?» часто дают неправильный ответ, потому что отношения не всегда линейны.</p>
+<p>Не все аналогии работают одинаково хорошо. Mikolov et al. предложили тест из 19 544 вопросов в 14 категориях (семантических и синтаксических). Accuracy на этом тесте — около 60—75% для лучших моделей. Аналогии типа «муж − жена + бабушка = ?» часто дают неправильный ответ, потому что отношения не всегда линейны.</p>
 </div>
 </div>
 </div></div></section>
@@ -1278,14 +1278,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

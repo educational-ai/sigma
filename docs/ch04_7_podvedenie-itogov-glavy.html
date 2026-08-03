@@ -72,7 +72,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -87,7 +87,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -515,7 +515,7 @@ window.Quarto = {
 
 
 <div class="tcolorbox">
-<p><strong>Теория чисел.</strong> Простые числа, остатки от деления, сравнения по модулю — основы модулярной арифметики. Алгоритм Евклида и его расширенная версия позволяют не только находить НОД, но и решать модулярные линейные уравнения. Быстрое возведение в степень за <span class="math inline">O(\log k)</span> операций позволяет работать с гигантскими числами; та же идея даёт логарифмический алгоритм для чисел Фибоначчи через возведение матрицы <span class="math inline">2{\times}2</span> в степень. Малая теорема Ферма <span class="math inline">a^{p-1} \equiv 1 \pmod p</span> — ключевое утверждение, обеспечивающее корректность RSA. Простых чисел много (закон <span class="math inline">\pi(N) \sim N/\ln N</span>), и проверка простоты быстра (тест Миллера–Рабина, AKS), но <em>факторизация</em> составного числа на множители — задача экспоненциальной сложности.</p>
+<p><strong>Теория чисел.</strong> Простые числа, остатки от деления, сравнения по модулю — основы модулярной арифметики. Алгоритм Евклида и его расширенная версия позволяют не только находить НОД, но и решать модулярные линейные уравнения. Быстрое возведение в степень за <span class="math inline">O(\log k)</span> операций позволяет работать с гигантскими числами; та же идея даёт логарифмический алгоритм для чисел Фибоначчи через возведение матрицы <span class="math inline">2{\times}2</span> в степень. Малая теорема Ферма <span class="math inline">a^{p-1} \equiv 1 \pmod p</span> — ключевое утверждение, обеспечивающее корректность RSA. Простых чисел много (закон <span class="math inline">\pi(N) \sim N/\ln N</span>), и проверка простоты быстра (тест Миллера–Рабина, AKS), но для <em>факторизации</em> больших составных чисел не известно классического полиномиального алгоритма: лучшие общие методы (решето числового поля) работают субэкспоненциально — существенно медленнее любого полиномиального.</p>
 <p><strong>История криптографии.</strong> От шифра Цезаря — к симметричным шифрам с одним общим ключом — к проблеме доставки ключа. Идея <strong>односторонней функции</strong> (легко в одну сторону, очень сложно в обратную) и <strong>функции с секретом</strong> (трапдор) даёт возможность строить асимметричные шифры с открытым и закрытым ключами.</p>
 <p><strong>RSA и Диффи–Хеллман.</strong> RSA опирается на сложность факторизации <span class="math inline">n = pq</span>: открытый ключ <span class="math inline">(n, e)</span> позволяет шифровать, закрытый <span class="math inline">d = e^{-1} \bmod \varphi(n)</span> — расшифровывать. Корректность доказывается малой теоремой Ферма. Диффи–Хеллман — протокол выработки общего ключа по открытому каналу: его стойкость основана на сложности задачи дискретного логарифма. Обе схемы уязвимы к атаке «человек посередине» без аутентификации.</p>
 <p><strong>Применения RSA.</strong> Та же конструкция, применённая в разных порядках, решает четыре задачи: шифрование сообщения, аутентификация пользователя через challenge-response, электронная цифровая подпись (подпись закрытым ключом, проверка открытым) и слепая подпись (основа протоколов электронного голосования).</p>
@@ -540,7 +540,7 @@ window.Quarto = {
 <li><p><strong>Атака на «слабый» RSA.</strong> Возьмите малое <span class="math inline">n</span> (50–100 битов) и попытайтесь его факторизовать. Сравните скорость наивного перебора и метода Полларда <span class="math inline">\rho</span>. Подумайте, при каких размерах <span class="math inline">n</span> ваш ноутбук «сдаётся».</p></li>
 <li><p><strong>Симуляция «малого мира».</strong> Сгенерируйте случайный граф из 1000–10000 вершин по модели Уоттса–Строгаца. Вычислите средние длины кратчайших путей. Сравните с предсказанием теории.</p></li>
 <li><p><strong>Свой HyperLogLog.</strong> Реализуйте упрощённый вариант HyperLogLog (<span class="math inline">b = 8</span> или <span class="math inline">10</span>). Сгенерируйте поток из миллиона случайных идентификаторов с заранее известным числом уникальных. Оцените точность алгоритма.</p></li>
-<li><p><strong>Стойкость хеш-функции.</strong> Возьмите криптографическую хеш-функцию (например, SHA-1 уже взломан) и реализуйте поиск коллизий простым перебором. Сравните с теоретической оценкой «парадокса дней рождения».</p></li>
+<li><p><strong>Стойкость хеш-функции.</strong> Возьмите криптографическую хеш-функцию (например, SHA-256 или SHA-1), но сравнивайте лишь первые <span class="math inline">24</span>–<span class="math inline">40</span> битов хеша. Реализуйте поиск коллизий простым перебором и сравните число попыток с теоретической оценкой «парадокса дней рождения». Полный SHA-1 так не взломать: наивный поиск коллизии по парадоксу дней рождения потребовал бы порядка <span class="math inline">2^{80}</span> операций — это неподъёмно для учебного проекта.</p></li>
 </ul>
 
 
@@ -973,14 +973,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

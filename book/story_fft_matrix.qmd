@@ -198,7 +198,7 @@ $$
 
 Wang^[Wang, Avery Li-Chun. [An Industrial-Strength Audio Search Algorithm](https://www.ee.columbia.edu/~dpwe/papers/Wang03-shazam.pdf), ISMIR 2003.] описал алгоритм Shazam в 2003 году:
 
-**1. Спектрограмма.** Записанный фрагмент (4–10 секунд)
+**1. Спектрограмма.** Записанный фрагмент (4—10 секунд)
 преобразуется в спектрограмму через STFT.
 
 **2. Выделение пиков.** На спектрограмме находятся локальные

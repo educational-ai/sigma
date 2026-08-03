@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -758,7 +758,7 @@ window.Quarto = {
 </section>
 <section id="применения-хеширования" class="level2">
 <h2 class="anchored" data-anchor-id="применения-хеширования">Применения хеширования</h2>
-<p>Универсальное хеширование — одна из самых востребованных конструкций в современной информатике. Вот лишь несколько мест, где оно работает:</p>
+<p>Хеширование — одна из самых востребованных идей в современной информатике. <em>Универсальное</em> хеширование особенно важно для хеш-таблиц и быстрого поиска, а <em>криптографические</em> хеш-функции — для проверки целостности, цифровой подписи и блокчейна. Вот несколько мест, где работают эти идеи:</p>
 <ul>
 <li><p><strong>Поиск дубликатов и быстрая выборка.</strong> Все базы данных, все таблицы соответствий в операционных системах, все словари в языках программирования (Python: <code>dict</code>, JavaScript: <code>Map</code>, Java: <code>HashMap</code>) построены на хешировании.</p></li>
 <li><p><strong>Проверка целостности файлов.</strong> Контрольные суммы при скачивании файла (CRC, MD5, SHA) — по сути, хеш-функции. Если хеш скачанного файла не совпадает с заявленным, файл повреждён.</p></li>
@@ -1239,14 +1239,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

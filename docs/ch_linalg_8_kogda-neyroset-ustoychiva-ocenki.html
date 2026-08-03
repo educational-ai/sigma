@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -614,8 +614,8 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="применение-к-нейросети">Применение к нейросети</h2>
 <p>Возьмём типичную нейросеть глубины <span class="math inline">K</span>:</p>
 <p><span class="math display">f(x)\;=\;\sigma\bigl(W_K\,\sigma(W_{K-1}\,\sigma(\cdots\sigma(W_1 x))\bigr),</span></p>
-<p>где <span class="math inline">W_i</span> — матрицы весов, <span class="math inline">\sigma</span> — поэлементная активация (ReLU, сигмоида, и т.п.). Для большинства активаций <span class="math inline">\mathrm{Lip}(\sigma)\leq 1</span> (для ReLU и сигмоиды это равно <span class="math inline">1</span>). По теореме&nbsp;0.6:</p>
-<p><span class="math display">\label{eq:nn-lip}
+<p>где <span class="math inline">W_i</span> — матрицы весов, <span class="math inline">\sigma</span> — поэлементная активация (ReLU, сигмоида, и т.п.). Для большинства активаций <span class="math inline">\mathrm{Lip}(\sigma)\leq 1</span> (для ReLU и <span class="math inline">\tanh</span> она равна <span class="math inline">1</span>, а для логистической сигмоиды — <span class="math inline">1/4</span>). По теореме&nbsp;0.6:</p>
+<p><span class="math display">
 \;\mathrm{Lip}(f)\;\leq\;\prod_{i=1}^{K}\left\lVert W_i \right\rVert_2\;</span></p>
 <p>Это и есть тот «лишний рычаг», который объясняет уязвимость нейросетей. Если <span class="math inline">\left\lVert W_i \right\rVert_2 \approx 2</span> для каждого слоя из <span class="math inline">K=20</span> слоёв, то возмущение на входе <em>потенциально</em> усиливается в <span class="math inline">2^{20}\approx 10^{6}</span> раз. Невидимая поправка <span class="math inline">\delta</span> с <span class="math inline">\left\lVert \delta \right\rVert=10^{-3}</span> может вызвать изменение выхода до <span class="math inline">10^{3}</span> — этого хватит, чтобы перебросить классификатор из одного класса в другой.</p>
 </section>
@@ -1083,14 +1083,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

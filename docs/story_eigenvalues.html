@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -602,7 +602,7 @@ M \pi = \pi.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Чтобы гарантировать связность, Пейдж добавил «телепортацию»: с вероятностью <span class="math inline">\alpha = 0.85</span> сёрфер идёт по ссылке, с вероятностью <span class="math inline">1 - \alpha</span> — переходит на случайную страницу:</p>
+<p>Чтобы гарантировать связность, Пейдж добавил «телепортацию»: с вероятностью <span class="math inline">\alpha = 0{,}85</span> сёрфер идёт по ссылке, с вероятностью <span class="math inline">1 - \alpha</span> — переходит на случайную страницу:</p>
 <p><span class="math display">
 M' = \alpha M + (1 - \alpha) \frac{1}{n} \mathbf{1}\mathbf{1}^T.
 </span></p>
@@ -660,7 +660,7 @@ M' = \alpha M + (1 - \alpha) \frac{1}{n} \mathbf{1}\mathbf{1}^T.
 <p><span class="math display">
 \pi^{(k+1)} = M' \pi^{(k)}.
 </span></p>
-<p>Он сходится к главному собственному вектору со скоростью <span class="math inline">|\lambda_2 / \lambda_1|^k</span>, где <span class="math inline">\lambda_2</span> — второе по величине собственное значение. При <span class="math inline">\alpha = 0.85</span> гарантировано <span class="math inline">|\lambda_2| \leq 0.85</span>, и для сходимости до 4 знаков достаточно <span class="math inline">\approx 50</span>–60 итераций: <span class="math inline">\log(10^{-4}) / \log(0.85) \approx 57</span>.</p>
+<p>Он сходится к главному собственному вектору со скоростью <span class="math inline">|\lambda_2 / \lambda_1|^k</span>, где <span class="math inline">\lambda_2</span> — второе по величине собственное значение. При <span class="math inline">\alpha = 0{,}85</span> гарантировано <span class="math inline">|\lambda_2| \leq 0{,}85</span>, и для сходимости до 4 знаков достаточно <span class="math inline">\approx 50</span>—60 итераций: <span class="math inline">\log(10^{-4}) / \log(0{,}85) \approx 57</span>.</p>
 </section>
 </section>
 <section id="история-2-вибрации-и-шатающиеся-мосты" class="level2 page-columns page-full">
@@ -691,7 +691,7 @@ K v = \omega^2 M v.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Если внешняя сила колеблется с частотой, близкой к собственной частоте <span class="math inline">\omega_i</span> системы, амплитуда колебаний растёт. В отсутствие демпфирования — до бесконечности. С демпфированием — до <span class="math inline">1/(2\zeta)</span>, где <span class="math inline">\zeta</span> — коэффициент демпфирования. Мост Такома имел <span class="math inline">\zeta \approx 0.002</span> для крутильной моды.</p>
+<p>Если внешняя сила колеблется с частотой, близкой к собственной частоте <span class="math inline">\omega_i</span> системы, амплитуда колебаний растёт. В отсутствие демпфирования — до бесконечности. С демпфированием — до <span class="math inline">1/(2\zeta)</span>, где <span class="math inline">\zeta</span> — коэффициент демпфирования. Мост Такома имел <span class="math inline">\zeta \approx 0{,}002</span> для крутильной моды.</p>
 </div>
 </div>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
@@ -933,7 +933,7 @@ K v = \omega^2 M v.
 <section id="современные-мосты" class="level2">
 <h2 class="anchored" data-anchor-id="современные-мосты">Современные мосты</h2>
 <p>После Такомы инженеры обязательно вычисляют собственные частоты конструкции и проверяют их удалённость от частот ветровой нагрузки. Метод конечных элементов (FEM) дискретизирует мост в матрицу <span class="math inline">K</span> и <span class="math inline">M</span> размером в миллионы, а алгоритмы Ланцоша и Арнольди эффективно находят несколько наименьших собственных значений.</p>
-<p>Лондонский Millennium Bridge (2000) — другой пример: при открытии тысячи пешеходов синхронизировали шаг, возбудив боковую моду с <span class="math inline">f \approx 0.5</span> Гц. Мост закрыли на 2 года для установки демпферов.</p>
+<p>Лондонский Millennium Bridge (2000) — другой пример: при открытии тысячи пешеходов синхронизировали шаг, возбудив боковую моду с <span class="math inline">f \approx 0{,}5</span> Гц. Мост закрыли на 2 года для установки демпферов.</p>
 </section>
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
@@ -1378,14 +1378,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

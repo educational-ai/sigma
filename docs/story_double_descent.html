@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -550,7 +550,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Классическая статистика учит: увеличивай сложность модели — и ошибка на тесте сначала падает (модель учится), потом растёт (переобучение). Это U-образная кривая bias-variance tradeoff. Но в 2019 году Белкин показал, а Наккиран с коллегами подтвердили на нейросетях, что если продолжить увеличивать сложность дальше «точки переобучения», ошибка снова падает — и опускается <strong>ниже</strong> классического оптимума. Например, ResNet-18 на CIFAR-10 при критическом числе параметров выдаёт test error 25%, а при вдвое большей модели — ~8–10% (в зависимости от условий обучения). Это <strong>двойной спуск</strong> (double descent) — феномен, который ломает учебники.</em></p>
+<p><em>Классическая статистика учит: увеличивай сложность модели — и ошибка на тесте сначала падает (модель учится), потом растёт (переобучение). Это U-образная кривая bias-variance tradeoff. Но в 2019 году Белкин показал, а Наккиран с коллегами подтвердили на нейросетях, что если продолжить увеличивать сложность дальше «точки переобучения», ошибка снова падает — и опускается <strong>ниже</strong> классического оптимума. Например, ResNet-18 на CIFAR-10 при критическом числе параметров выдаёт test error 25%, а при вдвое большей модели — ~8—10% (в зависимости от условий обучения). Это <strong>двойной спуск</strong> (double descent) — феномен, который ломает учебники.</em></p>
 <section id="классический-взгляд-bias-variance-tradeoff" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="классический-взгляд-bias-variance-tradeoff">Классический взгляд: bias-variance tradeoff</h2>
 <p>Для модели с параметрами <span class="math inline">\theta</span> и тестовой ошибкой:</p>
@@ -717,7 +717,7 @@ window.Quarto = {
 <p>Двойной спуск проще всего наблюдать в задаче <strong>переопределённой аппроксимации</strong> — полиномиальной регрессии со степенью выше числа точек.</p>
 <section id="зашумлённая-интерполяция" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="зашумлённая-интерполяция">Зашумлённая интерполяция</h3>
-<p>Пусть <span class="math inline">f(x) = \sin(\pi x)</span>, <span class="math inline">n = 30</span> точек, шум <span class="math inline">\sigma = 0.3</span>. При сильной регуляризации модель гладкая, но промахивается. При слабой — проходит через все точки, но дико осциллирует между ними. При оптимальной — интерполирует <strong>гладко</strong>, выбирая решение с минимальной нормой.</p>
+<p>Пусть <span class="math inline">f(x) = \sin(\pi x)</span>, <span class="math inline">n = 30</span> точек, шум <span class="math inline">\sigma = 0{,}3</span>. При сильной регуляризации модель гладкая, но промахивается. При слабой — проходит через все точки, но дико осциллирует между ними. При оптимальной — интерполирует <strong>гладко</strong>, выбирая решение с минимальной нормой.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/dd_fits.svg" class="img-fluid figure-img"></p>
@@ -728,7 +728,7 @@ window.Quarto = {
 </section>
 <section id="почему-это-важно" class="level2">
 <h2 class="anchored" data-anchor-id="почему-это-важно">Почему это важно</h2>
-<p>Двойной спуск объясняет, почему современные нейросети с миллиардами параметров (GPT-4: ~1.8 трлн, по оценкам) обучаются на данных, через которые они могут точно интерполировать, — и при этом обобщают:</p>
+<p>Двойной спуск объясняет, почему современные нейросети с миллиардами параметров (GPT-4: ~1,8 трлн, по оценкам) обучаются на данных, через которые они могут точно интерполировать, — и при этом обобщают:</p>
 <ol type="1">
 <li><p><strong>Больше параметров = лучше</strong> (при правильном обучении), вопреки классической интуиции.</p></li>
 <li><p><strong>Early stopping</strong> может быть вредным, если останавливаться в зоне «первого подъёма» test loss.</p></li>
@@ -1180,14 +1180,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -566,7 +566,7 @@ L(\pi) = \sum_{i=1}^{n-1} D_{\pi(i), \pi(i+1)} + D_{\pi(n), \pi(1)}.
 <p><strong>2. Fitness.</strong> <span class="math inline">f(\pi) = 1 / L(\pi)</span> — чем короче тур, тем выше приспособленность.</p>
 <p><strong>3. Селекция.</strong> Турнирный отбор: из случайной пары выбираем лучшего.</p>
 <p><strong>4. Кроссовер</strong> (Order Crossover, OX). Берём подстроку из родителя A, оставшиеся позиции заполняем из родителя B в порядке появления.</p>
-<p><strong>5. Мутация.</strong> С малой вероятностью <span class="math inline">p_m \approx 0.01</span> меняем местами два случайных города.</p>
+<p><strong>5. Мутация.</strong> С малой вероятностью <span class="math inline">p_m \approx 0{,}01</span> меняем местами два случайных города.</p>
 <p><strong>6. Следующее поколение.</strong> Лучшие потомки заменяют худших.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: генетический алгоритм для TSP">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
@@ -662,7 +662,7 @@ v_i \leftarrow \underbrace{w \cdot v_i}_{\text{инерция}}
 <p><span class="math display">
 x_i \leftarrow x_i + v_i,
 </span></p>
-<p>где <span class="math inline">w \approx 0.7</span> — коэффициент инерции, <span class="math inline">c_1, c_2 \approx 1.5</span> — коэффициенты «доверия» к себе и стае, <span class="math inline">r_1, r_2 \sim U(0,1)</span> — случайные числа.</p>
+<p>где <span class="math inline">w \approx 0{,}7</span> — коэффициент инерции, <span class="math inline">c_1, c_2 \approx 1{,}5</span> — коэффициенты «доверия» к себе и стае, <span class="math inline">r_1, r_2 \sim U(0,1)</span> — случайные числа.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Три силы PSO">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -776,7 +776,7 @@ P(\text{принять}) = \begin{cases}
 <section id="расписание-охлаждения" class="level3">
 <h3 class="anchored" data-anchor-id="расписание-охлаждения">Расписание охлаждения</h3>
 <p><span class="math display">
-T(t) = T_0 \cdot \alpha^t, \quad \alpha \in [0.95, 0.999].
+T(t) = T_0 \cdot \alpha^t, \quad \alpha \in [0{,}95, 0{,}999].
 </span></p>
 </section>
 </section>
@@ -817,7 +817,7 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/optim_temperature.svg" class="img-fluid figure-img"></p>
-<figcaption class="margin-caption">Температура в softmax LLM: от детерминированного выбора (T=0.1) до равномерного (T=5)</figcaption>
+<figcaption class="margin-caption">Температура в softmax LLM: от детерминированного выбора (T=0,1) до равномерного (T=5)</figcaption>
 </figure>
 </div>
 <div class="callout callout-style-default callout-important callout-titled" title="Единая идея: exploration vs exploitation">
@@ -1376,14 +1376,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

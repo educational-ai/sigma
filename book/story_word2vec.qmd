@@ -177,7 +177,7 @@ for word, score in result:
 
 ## Почему это работает: геометрия
 
-Levy и Goldberg^[Levy, Goldberg. [Neural Word Embedding as Implicit Matrix Factorization](https://papers.nips.cc/paper/5477), NeurIPS 2014.]
+Levy и Goldberg^[Levy, Goldberg. [Neural Word Embedding as Implicit Matrix Factorization](https://papers.nips.cc/paper_files/paper/2014/hash/b78666971ceae55a8e87efb7cbfd9ad4-Abstract.html), NeurIPS 2014.]
 показали, что Word2Vec с negative sampling неявно факторизует
 матрицу поточечной взаимной информации (PMI):
 
@@ -244,7 +244,7 @@ plt.axis("off")
 Не все аналогии работают одинаково хорошо. Mikolov et al.
 предложили тест из 19 544 вопросов в 14 категориях
 (семантических и синтаксических). Accuracy на этом тесте —
-около 60–75% для лучших моделей. Аналогии типа
+около 60—75% для лучших моделей. Аналогии типа
 «муж − жена + бабушка = ?» часто дают неправильный ответ,
 потому что отношения не всегда линейны.
 :::

@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -594,9 +594,9 @@ A_k \;=\; \sum_{i=1}^{k}\sigma_i\,u_i v_i^{\!\top}.</span></p>
 </section>
 <section id="пример-сжатие-изображения" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="пример-сжатие-изображения">Пример: сжатие изображения</h2>
-<p>Возьмём фотографию <span class="math inline">1024\times 768</span> в градациях серого. Хранение «в лоб» — это <span class="math inline">1024\cdot 768 = 786\,432</span> чисел. Применим к матрице фото SVD и оставим только <span class="math inline">k</span> старших компонент: придётся хранить</p>
-<p><span class="math display">k\cdot(1024+768)+k\;=\;k\cdot 1793</span></p>
-<p>чисел — по одному столбцу <span class="math inline">u_i</span>, одной строке <span class="math inline">v_i^{\!\top}</span> и одному числу <span class="math inline">\sigma_i</span> на каждое слагаемое. Уже при <span class="math inline">k=50</span> это <span class="math inline">\sim 90\,000</span> чисел — в <em>восемь</em> раз меньше исходного, а визуально потеря почти незаметна (рис.&nbsp;0.3).</p>
+<p>Возьмём фотографию <span class="math inline">512\times 512</span> в градациях серого. Хранение «в лоб» — это <span class="math inline">512\cdot 512 = 262\,144</span> числа. Применим к матрице фото SVD и оставим только <span class="math inline">k</span> старших компонент: придётся хранить</p>
+<p><span class="math display">k\cdot(512+512)+k\;=\;k\cdot 1025</span></p>
+<p>чисел — по одному столбцу <span class="math inline">u_i</span>, одной строке <span class="math inline">v_i^{\!\top}</span> и одному числу <span class="math inline">\sigma_i</span> на каждое слагаемое. Уже при <span class="math inline">k=50</span> это <span class="math inline">\sim 51\,250</span> чисел — в <em>пять</em> раз меньше исходного, а визуально потеря почти незаметна (рис.&nbsp;0.3).</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="lst:svd-compress" data-label="lst:svd-compress"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="lst:svd-compress-1"><a href="#lst:svd-compress-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="lst:svd-compress-2"><a href="#lst:svd-compress-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="lst:svd-compress-3"><a href="#lst:svd-compress-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> skimage <span class="im">import</span> data, color</span>
@@ -1073,14 +1073,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

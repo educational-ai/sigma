@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -517,6 +517,7 @@ window.Quarto = {
 
 <p><strong>Постройте свою рекомендательную систему для фильмов.</strong></p>
 <p>Возьмите датасет MovieLens-100K (открытый, <span class="math inline">100\,000</span> оценок, <span class="math inline">\sim 1000</span> пользователей <span class="math inline">\times</span> <span class="math inline">\sim 1700</span> фильмов). Постройте матрицу «пользователь–фильм» <span class="math inline">R</span>, где <span class="math inline">R_{ij}\in\{1,\ldots,5\}</span> — оценка, поставленная пользователем <span class="math inline">i</span> фильму <span class="math inline">j</span>, а <span class="math inline">0</span> — «не смотрел».</p>
+<p><strong>Важно:</strong> нули в матрице <span class="math inline">R</span> означают <em>пропущенные</em> оценки, а не настоящие нулевые рейтинги. Прямое SVD по матрице с нулями — лишь грубый учебный baseline: непросмотренные фильмы тогда воспринимаются как фильмы с очень низкой оценкой. Более корректный вариант — обучать малоранговую модель только на известных оценках либо предварительно заполнить пропуски средними значениями пользователя/фильма и затем сравнить результат.</p>
 <ol type="1">
 <li><p>Постройте малоранговое приближение <span class="math inline">R\approx U\Sigma V^{\!\top}</span> с <span class="math inline">k=20</span> компонентами через SVD.</p></li>
 <li><p>Объясните содержательно, что такое строки <span class="math inline">U</span> (профили пользователей) и столбцы <span class="math inline">V</span> (профили фильмов) в этом приближении. Сколько чисел теперь хранит модель вместо <span class="math inline">1000\cdot 1700</span>?</p></li>
@@ -981,14 +982,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

@@ -37,6 +37,12 @@
   const registry = new Map();
   const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
 
+  // Русская десятичная запятая. Виджеты пишут числа через toFixed() в двух
+  // десятках мест, и ревьюер справедливо ловил «0.087 Гц» вместо «0,087 Гц».
+  // Чинится один раз здесь — на выходе: подписи ползунков, readout и всё,
+  // что рисуется на канвасе через fillText.
+  const ru = (s) => String(s).replace(/(\d)\.(\d)/g, "$1,$2");
+
   // ---------------------------------------------------------------- helpers
   function el(tag, cls, attrs) {
     const n = document.createElement(tag);
@@ -59,6 +65,9 @@
     canvas.style.touchAction = opts.pan === false ? "none" : "manipulation";
     parent.appendChild(canvas);
     const ctx = canvas.getContext("2d");
+    const rawFillText = ctx.fillText.bind(ctx);
+    ctx.fillText = (text, x, y, mw) =>
+      mw === undefined ? rawFillText(ru(text), x, y) : rawFillText(ru(text), x, y, mw);
     const state = { canvas, ctx, w, h };
     function resize() {
       const cssW = canvas.clientWidth || w;
@@ -121,7 +130,7 @@
       step: cfg.step == null ? "any" : cfg.step,
       value: cfg.value,
     });
-    const render = () => { val.textContent = fmt(+input.value) + (cfg.unit || ""); };
+    const render = () => { val.textContent = ru(fmt(+input.value) + (cfg.unit || "")); };
     input.addEventListener("input", () => { render(); onInput(+input.value); });
     wrap.appendChild(lab); wrap.appendChild(input);
     parent.appendChild(wrap);
@@ -233,8 +242,8 @@
         r.innerHTML = "";
         items.forEach((it) => {
           const span = el("span", "sigma-int-metric");
-          span.appendChild(el("b", null, { text: it.k + " " }));
-          const v = el("span", null, { text: it.v });
+          span.appendChild(el("b", null, { text: ru(it.k) + " " }));
+          const v = el("span", null, { text: ru(it.v) });
           if (it.color) v.style.color = it.color;
           span.appendChild(v);
           r.appendChild(span);

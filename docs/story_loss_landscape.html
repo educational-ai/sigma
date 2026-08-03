@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -643,7 +643,7 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 <p><span class="math display">
 V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 </span></p>
-<p>При <span class="math inline">d = 2</span> это <span class="math inline">\pi \approx 3.14</span>. При <span class="math inline">d = 10</span> — уже <span class="math inline">2.55</span>. При <span class="math inline">d = 100</span> — число <span class="math inline">V_{100} \approx 2.37 \times 10^{-40}</span> — это <span class="math inline">\approx 2.6 \times 10^{39}</span> раз меньше объёма атома водорода (<span class="math inline">\approx 0.62\,\text{Å}^3</span> при радиусе Бора <span class="math inline">\approx 0.53\,\text{Å}</span>). <strong>Единичный шар в высоких измерениях пуст.</strong></p>
+<p>При <span class="math inline">d = 2</span> это <span class="math inline">\pi \approx 3{,}14</span>. При <span class="math inline">d = 10</span> — уже <span class="math inline">2{,}55</span>. При <span class="math inline">d = 100</span> — число <span class="math inline">V_{100} \approx 2{,}37 \times 10^{-40}</span> — это <span class="math inline">\approx 2{,}6 \times 10^{39}</span> раз меньше объёма атома водорода (<span class="math inline">\approx 0{,}62\,\text{Å}^3</span> при радиусе Бора <span class="math inline">\approx 0{,}53\,\text{Å}</span>). <strong>Единичный шар в высоких измерениях пуст.</strong></p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/loss_volume.svg" class="img-fluid figure-img"></p>
@@ -660,7 +660,7 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 = 1 - (1-\varepsilon)^d.
 </span></p>
 </div>
-<p>При <span class="math inline">d = 100</span> и <span class="math inline">\varepsilon = 0.05</span> корка содержит <span class="math inline">1 - 0.95^{100} \approx 99.4\%</span> всего объёма. В пространстве параметров нейросети «внутренность» шара фактически пуста — все точки прижаты к границе.</p>
+<p>При <span class="math inline">d = 100</span> и <span class="math inline">\varepsilon = 0{,}05</span> корка содержит <span class="math inline">1 - 0{,}95^{100} \approx 99{,}4\%</span> всего объёма. В пространстве параметров нейросети «внутренность» шара фактически пуста — все точки прижаты к границе.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/loss_shell.svg" class="img-fluid figure-img"></p>
@@ -725,7 +725,7 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 </section>
 <section id="что-показывают-проекции" class="level2">
 <h2 class="anchored" data-anchor-id="что-показывают-проекции">Что показывают проекции</h2>
-<p>Когда мы проецируем <span class="math inline">L(\theta)</span> на случайную прямую или плоскость, мы видим <strong>типичное</strong> сечение, а не специально выбранное. Теорема Джонсона–Линденштраусса гарантирует, что случайная проекция из <span class="math inline">\mathbb{R}^d</span> в <span class="math inline">\mathbb{R}^k</span> сохраняет попарные расстояния <span class="math inline">N</span> точек с точностью <span class="math inline">\varepsilon</span> при <span class="math inline">k = O(\log N / \varepsilon^2)</span> измерениях — для <span class="math inline">N = 10\,000</span> и <span class="math inline">\varepsilon = 0.1</span> достаточно <span class="math inline">k \approx 1\,900</span> измерений (константа в оценке зависит от формулировки теоремы, <span class="math inline">k \approx 2\!-\!4\,\ln N / \varepsilon^2</span>) — вместо исходных тысяч; при <span class="math inline">d \sim 10^6</span> это сжатие в сотни раз.</p>
+<p>Когда мы проецируем <span class="math inline">L(\theta)</span> на случайную прямую или плоскость, мы видим <strong>типичное</strong> сечение, а не специально выбранное. Теорема Джонсона–Линденштраусса гарантирует, что случайная проекция из <span class="math inline">\mathbb{R}^d</span> в <span class="math inline">\mathbb{R}^k</span> сохраняет попарные расстояния <span class="math inline">N</span> точек с точностью <span class="math inline">\varepsilon</span> при <span class="math inline">k = O(\log N / \varepsilon^2)</span> измерениях — для <span class="math inline">N = 10\,000</span> и <span class="math inline">\varepsilon = 0{,}1</span> достаточно <span class="math inline">k \approx 1\,900</span> измерений (константа в оценке зависит от формулировки теоремы, <span class="math inline">k \approx 2\!-\!4\,\ln N / \varepsilon^2</span>) — вместо исходных тысяч; при <span class="math inline">d \sim 10^6</span> это сжатие в сотни раз.</p>
 <p>Но одномерный срез показывает только одно из миллиона направлений. Гладкость среза не означает гладкости ландшафта: может существовать узкое «ущелье» в ортогональном направлении.</p>
 <section id="что-видно-на-практике" class="level3">
 <h3 class="anchored" data-anchor-id="что-видно-на-практике">Что видно на практике</h3>
@@ -1242,14 +1242,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

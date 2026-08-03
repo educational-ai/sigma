@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -629,7 +629,7 @@ V=\begin{pmatrix}2{,}6 &amp; 0{,}5\\2{,}3 &amp; 0{,}3\\2{,}5 &amp; 0{,}5\\0{,}6 
 <p><span class="math display">UV^{\top}\approx\begin{pmatrix}5{,}0 &amp; 4{,}4 &amp; 4{,}8 &amp; 1{,}4 &amp; 1{,}1\\
                                 5{,}1 &amp; 4{,}4 &amp; 4{,}9 &amp; 1{,}7 &amp; 1{,}4\\
                                 1{,}1 &amp; 0{,}7 &amp; 1{,}1 &amp; 4{,}8 &amp; 5{,}1\\
-                                0{,}9 &amp; 0{,}5 &amp; 0{,}9 &amp; 4{,}8 &amp; 5{,}1\end{pmatrix}.</span></p>
+                                0{,}0 &amp; 0{,}5 &amp; 0{,}9 &amp; 4{,}8 &amp; 5{,}1\end{pmatrix}.</span></p>
 <p>Обведены восстановленные элементы. Видно: пользователи 1 и 2 в этой модели&nbsp;— любители «жанра 1» (первая координата пристрастий велика); пользователи 3 и 4&nbsp;— любители «жанра 2». А столбцы <span class="math inline">V</span> показывают, какому жанру какие фильмы соответствуют.</p>
 </div>
 </div>
@@ -749,7 +749,7 @@ V=\begin{pmatrix}2{,}6 &amp; 0{,}5\\2{,}3 &amp; 0{,}3\\2{,}5 &amp; 0{,}5\\0{,}6 
 <p>Это заставляет сеть «активировать» лишь несколько координат эмбеддинга для каждого входа&nbsp;— получается интерпретируемое представление, в котором за каждым активным нейроном «закрепляется» свой признак.</p>
 <p><strong>Шумоподавляющий автокодировщик.</strong> Берём <span class="math inline">\mathbf x_i</span>, портим его шумом <span class="math inline">\tilde{\mathbf x}_i=\mathbf x_i+\boldsymbol\eta</span>, а сеть учим восстанавливать <em>чистое</em> <span class="math inline">\mathbf x_i</span> по <em>шумному</em> <span class="math inline">\tilde{\mathbf x}_i</span>:</p>
 <p><span class="math display">\mathcal L_{\text{denoise}}\;=\;\frac{1}{N}\sum_{i=1}^{N}\left\lVert \mathbf x_i-g(f(\tilde{\mathbf x}_i)) \right\rVert^{2}.</span></p>
-<p>Это вариант, предложенный П.&nbsp;Венсаном и Й.&nbsp;Бенжио в 2008&nbsp;г.,&nbsp;— очень полезен на этапе предобучения глубоких сетей. Эта идея является концептуальным прародителем современных <em>диффузионных моделей</em> (Stable Diffusion, DALL-E&nbsp;— 2022 г.&nbsp;и позднее): они обучаются шаг за шагом удалять гауссов шум из изображения и таким образом порождают совершенно новые картинки из «случайной соли и перца».</p>
+<p>Это вариант, предложенный П.&nbsp;Венсаном и Й.&nbsp;Бенжио в 2008&nbsp;г.,&nbsp;— очень полезен на этапе предобучения глубоких сетей. Эта идея является концептуальным прародителем современных <em>диффузионных моделей</em> (Stable Diffusion, DALL-E&nbsp;— 2022 г.&nbsp;и позднее): они обучаются шаг за шагом удалять гауссов шум из изображения и таким образом порождают совершенно новые картинки из случайного гауссова шума.</p>
 <p><strong>Вариационный автокодировщик (VAE).</strong> Самая глубокая идейная модификация автокодировщика&nbsp;— <strong>вариационный автокодировщик</strong> (Кингма, Веллинг, 2013). Энкодер выдаёт не сам эмбеддинг, а параметры <em>распределения</em> над эмбеддингами:</p>
 <p><span class="math display">f(\mathbf x)\;=\;\bigl(\boldsymbol\mu(\mathbf x),\,\boldsymbol\sigma(\mathbf x)\bigr),</span></p>
 <p>после чего сам вектор <span class="math inline">\mathbf z</span> выбирается случайно из нормального распределения <span class="math inline">\mathcal N\!\bigl(\boldsymbol\mu(\mathbf x),\boldsymbol\sigma(\mathbf x)^{2}\bigr)</span> и подаётся в декодер. Обучаемая функция потерь складывается из двух слагаемых:</p>
@@ -811,7 +811,7 @@ V=\begin{pmatrix}2{,}6 &amp; 0{,}5\\2{,}3 &amp; 0{,}3\\2{,}5 &amp; 0{,}5\\0{,}6 
 \mathcal L\;=\;\sum_{i}\Bigl[\,t_i\cdot d_i^{2}\;+\;(1-t_i)\cdot\bigl(\max(0,\,m-d_i)\bigr)^{2}\,\Bigr],</span></p>
 <p>где <span class="math inline">d_i=\left\lVert f(\mathbf x_i)-f(\mathbf y_i) \right\rVert</span>, а <span class="math inline">m&gt;0</span>&nbsp;— <em>отступ</em> (<em>margin</em>), гиперпараметр. Смысл: для похожих пар (<span class="math inline">t_i=1</span>) минимизируется <span class="math inline">d_i^{2}</span>&nbsp;— расстояние «прижимается» к нулю; для непохожих (<span class="math inline">t_i=0</span>) штрафуется только то, что <span class="math inline">d_i</span> <em>меньше</em> <span class="math inline">m</span>&nbsp;— то есть от непохожих пар требуется минимальное расстояние&nbsp;<span class="math inline">m</span>, а дальше уже всё равно.</p>
 <p><strong>Применения.</strong></p>
-<p><strong>Распознавание лиц.</strong> Сиамская сеть <strong>FaceNet</strong> (Google, 2015) обучается на миллионах фотографий: эмбеддинг каждого лица&nbsp;— вектор в <span class="math inline">\mathbb{R}^{128}</span>. Положительные пары&nbsp;— два снимка одного человека (часто в разных условиях); отрицательные&nbsp;— разных. После обучения по тестовому снимку можно определить личность простым поиском ближайшего эмбеддинга в базе. Точность&nbsp;— более <span class="math inline">99{,}6\,\%</span> на стандартном бенчмарке LFW. Такая система&nbsp;— основа всех современных систем распознавания лиц.</p>
+<p><strong>Распознавание лиц.</strong> Сиамская сеть <strong>FaceNet</strong> (Google, 2015) обучается на миллионах фотографий: эмбеддинг каждого лица&nbsp;— вектор в <span class="math inline">\mathbb{R}^{128}</span>. Обучение идёт не на парах, а на <em>тройках</em> изображений (<em>triplet loss</em>): «якорь», положительный снимок (тот же человек) и отрицательный (другой человек); сеть учится делать расстояние от якоря до положительного меньше, чем до отрицательного, на заданный отступ&nbsp;<span class="math inline">m</span>. После обучения по тестовому снимку можно определить личность простым поиском ближайшего эмбеддинга в базе. Точность&nbsp;— более <span class="math inline">99{,}6\,\%</span> на стандартном бенчмарке LFW. Такая система&nbsp;— основа всех современных систем распознавания лиц.</p>
 <p><strong>Поиск изображений по тексту (и обратно).</strong> Модель <strong>CLIP</strong> (OpenAI, 2021) обучает <em>два</em> энкодера: один&nbsp;— для изображений (свёрточная или трансформерная сеть), другой&nbsp;— для текстов (трансформер). Положительные пары&nbsp;— картинка и её настоящая подпись; отрицательные&nbsp;— картинка и случайная подпись из батча. После обучения эмбеддинги изображения и эмбеддинги его осмысленного текстового описания оказываются близкими в общем многомерном пространстве. Это даёт колоссальные возможности: искать картинки по произвольным описаниям («рыжий кот на пианино»), классифицировать изображения в произвольные классы, не имея размеченной выборки (<em>zero-shot classification</em>), и многое другое.</p>
 <p><strong>Дубликаты в поиске.</strong> Тот же контрастивный подход используют поисковые системы (Яндекс, Google) для дедупликации страниц, рекомендательные системы&nbsp;— для поиска похожих товаров, антивирусы&nbsp;— для группировки похожих образцов вредоносного кода.</p>
 </section>
@@ -1369,14 +1369,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

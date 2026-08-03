@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -577,7 +577,8 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p><strong>Доказательство.</strong> По построению <span class="math inline">e\cdot d \equiv 1 \,(\mathrm{mod}\,\varphi(n))</span>, значит, найдётся целое <span class="math inline">k</span>, такое что <span class="math inline">e\cdot d = 1 + k\cdot \varphi(n)</span>. Подставим:</p>
+<p><strong>Доказательство.</strong> Случай <span class="math inline">m = 0</span> тривиален: тогда <span class="math inline">0^{ed} \equiv 0 \,(\mathrm{mod}\,n)</span>. Далее считаем <span class="math inline">1 \le m \le n-1</span>.</p>
+<p>По построению <span class="math inline">e\cdot d \equiv 1 \,(\mathrm{mod}\,\varphi(n))</span>, значит, найдётся целое <span class="math inline">k</span>, такое что <span class="math inline">e\cdot d = 1 + k\cdot \varphi(n)</span>. Подставим:</p>
 <p><span class="math display">m^{ed} = m^{1 + k\varphi(n)} = m\cdot \bigl(m^{\varphi(n)}\bigr)^k.</span></p>
 <p><strong>Случай 1.</strong> <span class="math inline">\gcd(m, n) = 1</span>. Тогда по теореме Эйлера <span class="math inline">m^{\varphi(n)} \equiv 1 \,(\mathrm{mod}\,n)</span>, и</p>
 <p><span class="math display">m^{ed} \equiv m\cdot 1^k = m \,(\mathrm{mod}\,n).</span></p>
@@ -702,7 +703,7 @@ window.Quarto = {
 </div>
 <div id="callout-7" class="callout-7-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p><strong>Подготовка (общедоступно):</strong> большое простое число <span class="math inline">p</span> и целое <span class="math inline">g</span>, <span class="math inline">1 &lt; g &lt; p</span>.</p>
+<p><strong>Подготовка (общедоступно):</strong> большое простое число <span class="math inline">p</span> и целое <span class="math inline">g</span>, <span class="math inline">1 &lt; g &lt; p</span>, выбранное так, чтобы его степени давали много различных остатков по модулю <span class="math inline">p</span> (то есть <span class="math inline">g</span> порождает большую подгруппу в <span class="math inline">\mathbb{Z}_{p}^*</span>).</p>
 <ol type="1">
 <li><p>Алиса выбирает случайный секрет <span class="math inline">a \in [1, p-2]</span> и посылает Бобу <span class="math inline">A = g^a \bmod p</span>.</p></li>
 <li><p>Боб выбирает случайный секрет <span class="math inline">b \in [1, p-2]</span> и посылает Алисе <span class="math inline">B = g^b \bmod p</span>.</p></li>
@@ -1239,14 +1240,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

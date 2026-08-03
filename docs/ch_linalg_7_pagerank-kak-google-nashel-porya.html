@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -591,7 +591,7 @@ r\;=\;P r.</span></p>
 </section>
 <section id="демпфирующий-множитель-и-формула-бринапейджа" class="level2">
 <h2 class="anchored" data-anchor-id="демпфирующий-множитель-и-формула-бринапейджа">Демпфирующий множитель и формула Брина–Пейджа</h2>
-<p>В реальной матрице Интернета у некоторых страниц нет исходящих ссылок (<em>dangling pages</em>), а в других группах — циклы. Чтобы гарантировать применимость теоремы Перрона–Фробениуса, Пейдж и Брин ввели <strong>демпфирующий множитель</strong> <span class="math inline">\beta\in(0,1)</span> (обычно <span class="math inline">\beta=0{,}85</span>):</p>
+<p>В реальной матрице Интернета у некоторых страниц нет исходящих ссылок (<em>dangling pages</em>), а в других группах — циклы. Для таких страниц соответствующий столбец матрицы переходов заранее заменяют равномерным распределением по всем страницам: иначе формула <span class="math inline">1/c_j</span> при <span class="math inline">c_j=0</span> не определена, а масса случайного блуждания «исчезала» бы в dangling pages. Чтобы гарантировать применимость теоремы Перрона–Фробениуса, Пейдж и Брин ввели <strong>демпфирующий множитель</strong> <span class="math inline">\beta\in(0,1)</span> (обычно <span class="math inline">\beta=0{,}85</span>):</p>
 <p><span class="math display">\tag{0.8}
 \;r\;=\;\beta P r + \dfrac{1-\beta}{N}\,\mathbf{1}.\;</span></p>
 <p>Здесь <span class="math inline">\mathbf{1}=(1,1,\ldots,1)^{\!\top}</span>. Содержательно: с вероятностью <span class="math inline">\beta\approx 0{,}85</span> случайный сёрфер кликает по ссылке, а с вероятностью <span class="math inline">1-\beta\approx 0{,}15</span> — телепортируется на случайную страницу Интернета.</p>
@@ -656,13 +656,13 @@ r\;=\;P r.</span></p>
 <span id="lst:pagerank-22"><a href="#lst:pagerank-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p, ri <span class="kw">in</span> <span class="bu">sorted</span>(<span class="bu">zip</span>(pages, r), key<span class="op">=</span><span class="kw">lambda</span> t: <span class="op">-</span>t[<span class="dv">1</span>]):</span>
 <span id="lst:pagerank-23"><a href="#lst:pagerank-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>ri<span class="sc">:.4f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Скопировать текст" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Выдача программы:</p>
-<p><span class="math display">\text{C: }0{,}351,\quad
-\text{A: }0{,}339,\quad
-\text{B: }0{,}196,\quad
-\text{E: }0{,}041,\quad
-\text{D: }0{,}037,\quad
-\text{F: }0{,}037.</span></p>
-<p>Лидер — <code>C</code>. На <code>C</code> и <code>B</code> ссылается одинаковое число страниц&nbsp;— по три, но <code>C</code> набирает <span class="math inline">0{,}351</span>, а <code>B</code>&nbsp;— лишь <span class="math inline">0{,}196</span>: PageRank учитывает не количество ссылок, а их «вес»&nbsp;— ссылки на <code>C</code> приходят с более важных страниц.</p>
+<p><span class="math display">\text{C: }0{,}295,\quad
+\text{A: }0{,}252,\quad
+\text{B: }0{,}175,\quad
+\text{E: }0{,}098,\quad
+\text{F: }0{,}092,\quad
+\text{D: }0{,}087.</span></p>
+<p>Лидер — <code>C</code>, хотя на неё формально ссылаются столько же страниц, сколько на <code>A</code>: PageRank учёл, что одна из ссылок на <code>C</code> приходит с уже-важной страницы <code>B</code>.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Историческая справка">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1114,14 +1114,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

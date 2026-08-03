@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -711,11 +711,11 @@ e^{-t^{2}/2}\,dt</span></p>
 \;=\;\frac{1{,}118}{\sqrt n},
 \qquad
 \varepsilon_\text{ЦПТ}=\frac{1{,}96}{2\sqrt n}\;=\;\frac{0{,}98}{\sqrt n}.</span></p>
-<p>Отношение <span class="math inline">\varepsilon_\text{Чеб.}/\varepsilon_\text{ЦПТ}\approx 2{,}28</span>&nbsp;— интервал Чебышёва шире более чем вдвое (рис.&nbsp;3.2). Этим проиллюстрирована важная мысль: <em>неравенство Чебышёва — это универсальная, но очень консервативная оценка</em>; знание формы распределения (в нашем случае&nbsp;— асимптотической нормальности) позволяет её существенно улучшить.</p>
+<p>Отношение <span class="math inline">\varepsilon_\text{Чеб.}/\varepsilon_\text{ЦПТ}\approx 1{,}14</span>&nbsp;— интервал Чебышёва примерно на <span class="math inline">14\,\%</span> шире (рис.&nbsp;3.2). Этим проиллюстрирована важная мысль: <em>неравенство Чебышёва — это универсальная, но очень консервативная оценка</em>; знание формы распределения (в нашем случае&nbsp;— асимптотической нормальности) позволяет её существенно улучшить.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="./figures/ci_width_cheb_vs_clt.svg" class="img-fluid figure-img"></p>
-<figcaption class="margin-caption">Рис. 3.2. Полуширина <span class="math inline">95\,\%</span> доверительного интервала как функция размера выборки <span class="math inline">n</span>. Обе кривые убывают как <span class="math inline">1/\sqrt n</span>, но ЦПТ-интервал примерно вдвое уже интервала Чебышёва: ЦПТ учитывает форму распределения, тогда как Чебышёв использует лишь дисперсию.</figcaption>
+<figcaption class="margin-caption">Рис. 3.2. Полуширина <span class="math inline">95\,\%</span> доверительного интервала как функция размера выборки <span class="math inline">n</span>. Обе кривые убывают как <span class="math inline">1/\sqrt n</span>, но ЦПТ-интервал немного уже интервала Чебышёва: ЦПТ учитывает форму распределения, тогда как Чебышёв использует лишь дисперсию.</figcaption>
 </figure>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Пример 3.4. Числовой пример">
@@ -1435,14 +1435,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

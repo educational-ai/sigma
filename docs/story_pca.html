@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -550,7 +550,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Фотография лица — это вектор из 4096 пикселей. Но лица не занимают всё это пространство: они лежат на тонком многообразии значительно меньшей размерности. Метод главных компонент (PCA) находит это многообразие — и оказывается, что для узнавания лица достаточно 50–100 «собственных лиц» (eigenfaces).</em></p>
+<p><em>Фотография лица — это вектор из 4096 пикселей. Но лица не занимают всё это пространство: они лежат на тонком многообразии значительно меньшей размерности. Метод главных компонент (PCA) находит это многообразие — и оказывается, что для узнавания лица достаточно 50—100 «собственных лиц» (eigenfaces).</em></p>
 <section id="идея-pca" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="идея-pca">Идея PCA</h2>
 <p>Дана матрица данных <span class="math inline">X \in \mathbb{R}^{n \times d}</span> — <span class="math inline">n</span> объектов, каждый описан <span class="math inline">d</span> признаками. PCA ищет линейную проекцию в пространство меньшей размерности <span class="math inline">k \ll d</span>, сохраняющую максимум информации (дисперсии).</p>
@@ -619,7 +619,7 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 <figcaption class="margin-caption">Восстановление лица из 1, 5, 10, 25, 50, 100, 200 eigenfaces — уже при k=25 лицо узнаваемо</figcaption>
 </figure>
 </div>
-<p>Покрутите сами на <strong>настоящих</strong> лицах из датасета Olivetti: двигайте число компонент <span class="math inline">k</span> — лицо пересобирается из собственных лиц в реальном времени. Уже при <span class="math inline">k=10</span>–<span class="math inline">15</span> лицо узнаваемо, хотя вместо 4096 пикселей хранится лишь <span class="math inline">k</span> чисел.</p>
+<p>Покрутите сами на <strong>настоящих</strong> лицах из датасета Olivetti: двигайте число компонент <span class="math inline">k</span> — лицо пересобирается из собственных лиц в реальном времени. Уже при <span class="math inline">k=10</span>—<span class="math inline">15</span> лицо узнаваемо, хотя вместо 4096 пикселей хранится лишь <span class="math inline">k</span> чисел.</p>
 <div class="column-page">
 <div data-sigma-widget="pca-eigenfaces"></div>
 </div>
@@ -648,7 +648,7 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Лицо — это вектор из 4096 пикселей, но <em>реальное</em> разнообразие лиц укладывается примерно в 123 числа: именно столько компонент PCA описывают 95% дисперсии датасета Olivetti. Данные с внутренней структурой занимают ничтожную долю доступного пространства — <strong>PCA находит это многообразие</strong>. Турк и Пентланд в 1991 году показали: для распознавания лица достаточно тех же ~50–100 чисел — и метод лёг в основу практических систем той эпохи.</p>
+<p>Лицо — это вектор из 4096 пикселей, но <em>реальное</em> разнообразие лиц укладывается примерно в 123 числа: именно столько компонент PCA описывают 95% дисперсии датасета Olivetti. Данные с внутренней структурой занимают ничтожную долю доступного пространства — <strong>PCA находит это многообразие</strong>. Турк и Пентланд в 1991 году показали: для распознавания лица достаточно тех же ~50—100 чисел — и метод лёг в основу практических систем той эпохи.</p>
 </div>
 </div>
 </section>
@@ -1154,14 +1154,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

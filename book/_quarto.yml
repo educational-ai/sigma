@@ -1,6 +1,11 @@
 project:
   type: website
   output-dir: ../docs
+  # Только страницы сайта. Внутренние заметки (INTERACTIVE_REVIEW.md,
+  # NARRATIVE_SPINE.md) лежат рядом в book/, и без этого фильтра quarto
+  # публиковал их на sigma.fmin.xyz как обычные страницы.
+  render:
+    - "*.qmd"
 
 lang: ru
 language: _language.yml
@@ -94,7 +99,10 @@ website:
           - ch04_7_podvedenie-itogov-glavy.qmd
   page-footer:
     background: "#fffff8"
-    center: "Σ Сигма · [GitHub](https://github.com/MerkulovDaniil)"
+    left: "Σ Сигма"
+    center: |
+      [Презентация](/presentation/) · [Бенчмарк ассистента](/benchmark/) · [PDF](/book.pdf)
+    right: "[GitHub](https://github.com/MerkulovDaniil)"
 
 format:
   html:
@@ -109,7 +117,12 @@ format:
     highlight-style: github
     css: [sigma-tufte.css, mobile-safe.css]
     include-after-body: sigma-rename-typst.html
-    html-math-method: katex
+    # Пин версии: по умолчанию Quarto тянет katex@latest с jsdelivr — мажорный
+    # апдейт наверху ломает формулы на всём сайте без единого коммита у нас.
+    html-math-method:
+      method: katex
+      # ВАЖНО: слеш в конце обязателен — quarto клеит имя файла встык.
+      url: "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/"
     number-sections: false
     # Tufte: footnote/citation/figure caption в правую margin-колонку (только HTML)
     reference-location: margin

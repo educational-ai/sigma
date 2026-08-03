@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -573,6 +573,22 @@ window.Quarto = {
 <li><p>Каждый раз <span class="math inline">r</span> <em>случайное и новое</em>. Поэтому даже если злоумышленник перехватит весь сеанс и услышит пару <span class="math inline">(r, s)</span>, в следующий раз банк пришлёт другое <span class="math inline">r</span>, и старый ответ <span class="math inline">s</span> не подойдёт. Атака повторного воспроизведения (replay attack) исключена.</p></li>
 <li><p>Банк <em>не хранит секретов клиента</em>: у него лишь открытый ключ, утечка которого ничем не страшна.</p></li>
 </ul>
+<div class="callout callout-style-default callout-caution callout-titled" title="Важно: это учебная иллюстрация">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Осторожность</span>Важно: это учебная иллюстрация
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Описанная схема передаёт <em>идею</em> challenge-response, но не является полноценным протоколом с нулевым разглашением. В реальных системах нельзя позволять кому угодно получать <span class="math inline">r^{d} \bmod n</span> для произвольного <span class="math inline">r</span>: устройство фактически превращается в «оракул» RSA-подписи. Поэтому на практике запрос специально кодируют, а ключи для подписи и аутентификации разделяют.</p>
+</div>
+</div>
+</div>
 <p>Схему этого протокола в графическом виде даёт рис.&nbsp;4.13.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
@@ -581,7 +597,7 @@ window.Quarto = {
 </figure>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Это интересно: «запомни всё, чтобы ничего не помнить»">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -590,7 +606,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>В современных смартфонах закрытый ключ <span class="math inline">d</span> хранится в специальном чипе — <em>защищённом анклаве</em> (Secure Enclave у Apple, Trusted Execution Environment на Android). Этот чип <em>физически не позволяет считать</em> закрытый ключ извне. На него можно лишь «передать» число и попросить выполнить с ним операцию <span class="math inline">\cdot^d \bmod n</span>. Так устроены, например, биометрические разблокировки — отпечаток пальца «разрешает» чипу применить ключ, но не извлекает его.</p>
 </div>
@@ -602,7 +618,7 @@ window.Quarto = {
 <p>Аутентификация решает задачу «докажи, что ты — это ты». Теперь рассмотрим родственную, но другую: «докажи, что <em>именно ты</em> отправил <em>именно это</em> сообщение». Эта задача стоит особенно остро при подписании документов: договоров, заявлений, налоговых деклараций.</p>
 <p>Бумажная подпись от руки выполняет сразу две функции: <em>идентифицирует</em> автора и <em>связывает</em> его с конкретным документом. К сожалению, при простом копировании в электронном виде это свойство теряется: цифровое изображение подписи легко вырезать и приклеить к любому документу. Нужна принципиально иная конструкция.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Определение 4.24. электронная цифровая подпись">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -611,7 +627,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p><strong>Электронная цифровая подпись</strong> (ЭЦП) — это короткий блок данных <span class="math inline">\sigma</span>, привязываемый к документу <span class="math inline">m</span>, обладающий двумя свойствами:</p>
 <ul>
@@ -623,7 +639,7 @@ window.Quarto = {
 </div>
 <p>Идея конструкции на основе RSA удивительно проста и красива: достаточно поменять местами роли ключей в шифровании.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Алгоритм: цифровая подпись RSA">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -632,7 +648,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
+<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Алиса имеет открытый ключ <span class="math inline">(e, n)</span> и закрытый <span class="math inline">d</span>. Хочет подписать документ <span class="math inline">m</span> (<span class="math inline">0 &lt; m &lt; n</span>).</p>
 <ol type="1">
@@ -658,8 +674,24 @@ window.Quarto = {
 <li><p>подписывают именно хеш: <span class="math inline">\sigma = h^{d} \bmod n</span>.</p></li>
 </ol>
 <p>При проверке вычисляют <span class="math inline">h' = H(m)</span> заново и сравнивают <span class="math inline">\sigma^{e} \bmod n</span> с <span class="math inline">h'</span>. О хеш-функциях и их математическом устройстве пойдёт речь в §4.5.</p>
+<div class="callout callout-style-default callout-caution callout-titled" title="Важно: это учебная схема">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Осторожность</span>Важно: это учебная схема
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Здесь показано лишь математическое ядро RSA-подписи. В реальных стандартах подписывают не «голый» хеш, а специально закодированное значение: применяются схемы дополнения (padding) вроде RSASSA-PSS или RSASSA-PKCS1-v1_5. Без такого кодирования «наивная» подпись <span class="math inline">\sigma = h^{d} \bmod n</span> уязвима для ряда атак.</p>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Это интересно: ЭЦП в России">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -668,7 +700,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>В Российской Федерации электронная цифровая подпись юридически приравнена к собственноручной с 2002 года (закон № 1-ФЗ «Об электронной цифровой подписи», заменён в 2011 году на № 63-ФЗ «Об электронной подписи»). С помощью ЭЦП сегодня сдают налоговую отчётность, регистрируют недвижимость, участвуют в государственных закупках — всё это без бумажных носителей. Криптографические алгоритмы, используемые в российских ЭЦП, описаны в стандарте ГОСТ Р 34.10–2012; математически они близки к описанной RSA-схеме, но используют не модулярное возведение в степень, а операции на так называемых <em>эллиптических кривых</em>.</p>
 </div>
@@ -679,7 +711,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="subsec:voting">Электронное голосование</h2>
 <p>С распространением Интернета возникает естественный вопрос: можно ли перевести голосование — например, выборы или опросы — в цифровой формат? На первый взгляд, это просто: создать сайт, попросить каждого выбрать вариант, посчитать голоса. На деле возникает несколько противоречивых требований, и решить их одновременно — содержательная криптографическая задача.</p>
 <div class="callout callout-style-default callout-caution callout-titled" title="Важно: требования к электронному голосованию">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -688,7 +720,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Хорошая система электронного голосования должна одновременно обеспечивать:</p>
 <ol type="1">
@@ -703,7 +735,7 @@ window.Quarto = {
 <p>Заметим противоречие между пунктами 1 и 2: чтобы убедиться, что Алиса голосует не дважды, надо как-то её опознать; но если её опознали, как сохранить анонимность? На бумажных выборах эта задача решается <em>физически</em> (список явки и тайная урна разделены), а в цифровом мире — математически. Ключевой инструмент — <strong>слепая цифровая подпись</strong>, предложенная Дэвидом Чаумом ещё в 1982 году.</p>
 <p><strong>Слепая подпись.</strong> Идея слепой подписи: можно подписать документ, <em>не зная его содержания</em>. Этот странный, казалось бы, инструмент имеет естественный аналог в офлайне.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Это интересно: аналогия с конвертом и копиркой">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -712,7 +744,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
+<div id="callout-10" class="callout-10-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Представьте: вы кладёте лист бумаги в конверт, внутри которого вложена копирка. Затем просите начальника поставить подпись <em>на конверте</em>. Подпись через копирку переходит и на лист внутри. Раскрыв конверт, вы получаете подписанный документ, причём начальник никогда не видел его содержания.</p>
 <p>Слепая RSA-подпись — это математическая реализация той же идеи: «копирка» — модулярное умножение на случайный множитель.</p>
@@ -721,7 +753,7 @@ window.Quarto = {
 </div>
 <p>Формально схема устроена так. Пусть у центра голосования есть RSA-ключи <span class="math inline">(e, n)</span> (открытый) и <span class="math inline">d</span> (закрытый).</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Алгоритм: слепая подпись RSA">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -730,7 +762,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
+<div id="callout-11" class="callout-11-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Алиса хочет получить подпись центра под её бюллетенем <span class="math inline">m</span>, не раскрывая центру содержимое.</p>
 <ol type="1">
@@ -750,7 +782,7 @@ window.Quarto = {
 <p><strong>Где здесь теория чисел.</strong> Заметим, что на шаге 3 Алиса делит на <span class="math inline">k</span>, точнее — умножает на <span class="math inline">k^{-1} \bmod n</span>. Существование <em>обратного</em> по модулю <span class="math inline">n</span> обеспечивается тем, что <span class="math inline">\gcd(k, n) = 1</span>, и его можно эффективно вычислить расширенным алгоритмом Евклида (§4.1). Кроме того, в выкладке использовалось <span class="math inline">k^{ed} \equiv k \pmod n</span> — следствие малой теоремы Ферма (точнее, её обобщения — теоремы Эйлера, гласящей, что <span class="math inline">k^{\varphi(n)} \equiv 1 \pmod n</span> для <span class="math inline">\gcd(k, n) = 1</span>).</p>
 <p><strong>Сам протокол голосования.</strong> На базе слепой подписи строится следующая схема (в упрощённом виде; подробности — в книге Музыкантского и Фурина).</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Алгоритм: электронное голосование">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -759,7 +791,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse show">
+<div id="callout-12" class="callout-12-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <ol type="1">
 <li><p><em>Подготовка.</em> Алиса формирует бюллетень <span class="math inline">m</span> — например, число, кодирующее её выбор, плюс случайный «уникальный идентификатор» <span class="math inline">r</span>, чтобы исключить совпадение бюллетеней.</p></li>
@@ -785,7 +817,7 @@ window.Quarto = {
 </figure>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Это интересно: голосование в реальности">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -794,7 +826,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-11" class="callout-11-contents callout-collapse collapse show">
+<div id="callout-13" class="callout-13-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>Системы электронного голосования на основе слепой подписи (и более сложных схем) уже применялись на практике: например, в Эстонии часть выборов проходит через интернет с 2005 года, в России на муниципальных выборах в Москве с 2019 года использовалась система на базе криптографических конструкций (правда, на основе не только RSA, но и других схем — с гомоморфным шифрованием и блокчейном). Подробное обсуждение разных схем электронного голосования можно найти в книге Музыкантского и Фурина «Лекции по криптографии».</p>
 </div>
@@ -810,7 +842,7 @@ window.Quarto = {
   \;\text{слепая подпись}\;</span></p>
 <p>Различие лишь в том, <em>в каком порядке</em> применяются операции <span class="math inline">\cdot^{e}</span> и <span class="math inline">\cdot^{d}</span> и какие именно числа подставляются на вход. В этом одна из главных красот современной криптографии: глубокая математическая идея даёт целый каскад прикладных решений.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Задачи для самостоятельной работы">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -819,7 +851,7 @@ window.Quarto = {
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-12" class="callout-12-contents callout-collapse collapse show">
+<div id="callout-14" class="callout-14-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <ol type="1">
 <li><p>Объясните своими словами, в чём принципиальная разница между «шифрованием с открытым ключом» и «цифровой подписью», если в обеих схемах используются одни и те же ключи и одна и та же формула.</p></li>
@@ -1266,14 +1298,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

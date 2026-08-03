@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -529,7 +529,7 @@ window.Quarto = {
 <section id="ssec:mnist" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="ssec:mnist">Задача классификации MNIST и UCI Digits</h2>
 <p>Самый знаменитый «учебный» датасет для классификации&nbsp;— это <strong>MNIST</strong> (Modified National Institute of Standards and Technology database): 70 000 чёрно-белых изображений рукописных цифр размера <span class="math inline">28\times 28</span> пикселей. Его собрал в 1998&nbsp;г. Янн ЛеКун, который позже получил премию Тьюринга за работы по глубокому обучению. Все обсуждения и итоговые выводы этой главы относятся именно к MNIST как к каноническому ориентиру&nbsp;— именно его читатель встретит во всех профессиональных курсах и публикациях по машинному обучению.</p>
-<p><strong>Почему в численных экспериментах книги&nbsp;— не MNIST.</strong> Чтобы все приводимые ниже эксперименты можно было <em>полностью воспроизвести на школьном ноутбуке за несколько секунд</em>, мы используем <strong>UCI Optical Digits</strong>&nbsp;— меньший близкий по структуре датасет: те же 10 классов цифр (0–9), но изображения <span class="math inline">8\times 8</span> (всего 1 797 примеров вместо 70 000). На полном MNIST обучение глубокой сети занимает минуты или десятки минут даже на современном железе и плохо ложится в формат «прочитал страницу учебника&nbsp;— запустил код&nbsp;— получил картинку». Качественные эффекты&nbsp;— переобучение, U-образная кривая ошибки, преимущество свёрточных сетей перед полносвязными&nbsp;— проявляются и на «миниатюре» точно так же; в подписях к рисункам сравнения с полноразмерным MNIST и ImageNet будут приведены отдельно (рис.&nbsp;3.13).</p>
+<p><strong>Почему в численных экспериментах книги&nbsp;— не MNIST.</strong> Чтобы все приводимые ниже эксперименты можно было <em>полностью воспроизвести на школьном ноутбуке за несколько секунд</em>, мы используем <strong>UCI Optical Digits</strong>&nbsp;— меньший близкий по структуре датасет: те же 10 классов цифр (0–9), но изображения <span class="math inline">8\times 8</span> (всего 1 797 примеров вместо 70 000). На полном MNIST обучение глубокой сети занимает минуты или десятки минут даже на современном железе и плохо ложится в формат «прочитал страницу учебника&nbsp;— запустил код&nbsp;— получил картинку». Качественные эффекты&nbsp;— переобучение, U-образная кривая ошибки, преимущество свёрточных сетей перед полносвязными&nbsp;— проявляются и на «миниатюре» точно так же; сравнения с полноразмерным MNIST и ImageNet будут приведены ниже, в подписях к соответствующим рисункам.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="./figures/digits_grid.svg" class="img-fluid figure-img"></p>
@@ -937,7 +937,7 @@ Y_{r,c}\;=\;\sum_{u=1}^{k}\sum_{v=1}^{k}K_{u,v}\,X_{r+u-1,\,c+v-1}.</span></p>
 \qquad
 \widehat{\nabla\mathcal L}=\frac{1}{m}\sum_{i\in B_k}\nabla\ell_i.</span></p>
 <p>Здесь <span class="math inline">B_k</span>&nbsp;— случайное подмножество индексов («мини-батч» на шаге <span class="math inline">k</span>), <span class="math inline">|B_k|=m</span>, обычно <span class="math inline">m\in\{32,64,128,256\}</span>. Такой приближённый градиент&nbsp;— несмещённая оценка истинного градиента (в духе ОМП!), но вычисляется в <span class="math inline">N/m</span> раз быстрее.</p>
-<p>Дополнительный бонус: «шум» от случайного выбора батча помогает итерациям выбираться из неглубоких локальных минимумов и седловых точек. Поэтому SGD&nbsp;— де-факто стандартный оптимизатор глубоких сетей.</p>
+<p>Дополнительный бонус: «шум» от случайного выбора батча помогает итерациям выбираться из неглубоких локальных минимумов и седловых точек. Поэтому мини-батчевый стохастический спуск лежит в основе большинства современных методов обучения глубоких сетей; на практике, впрочем, чаще применяют не «ванильный» SGD, а его варианты с моментом или адаптивные оптимизаторы (Adam, AdamW).</p>
 </section>
 </section>
 <section id="ssec:backprop" class="level2">
@@ -1491,14 +1491,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

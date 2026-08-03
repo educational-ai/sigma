@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -640,8 +640,8 @@ a\sum_{i=1}^{n}x_i+b\,n
 <p>Возьмём шесть точек: <span class="math inline">(1,2{,}1)</span>, <span class="math inline">(2,3{,}9)</span>, <span class="math inline">(3,5{,}8)</span>, <span class="math inline">(4,8{,}3)</span>, <span class="math inline">(5,10{,}0)</span>, <span class="math inline">(6,11{,}9)</span>. Считаем по&nbsp;(3.21), (3.22):</p>
 <p><span class="math display">\bar x=3{,}5,\quad \bar y=7{,}0,\quad
 \sum(x_i-\bar x)^{2}=17{,}5,\quad
-\sum(x_i-\bar x)(y_i-\bar y)=34{,}90.</span></p>
-<p>Откуда <span class="math inline">\hat a=34{,}90/17{,}5\approx 1{,}99</span> и <span class="math inline">\hat b=7{,}0-1{,}99\cdot 3{,}5\approx 0{,}02</span>. Регрессионная прямая: <span class="math inline">\hat y\approx 1{,}99\,x+0{,}02</span>&nbsp;— то есть данные «выложены вдоль» зависимости <span class="math inline">y\approx 2x</span>.</p>
+\sum(x_i-\bar x)(y_i-\bar y)=34{,}65.</span></p>
+<p>Откуда <span class="math inline">\hat a=34{,}65/17{,}5\approx 1{,}980</span> и <span class="math inline">\hat b=7{,}0-1{,}98\cdot 3{,}5\approx 0{,}07</span>. Регрессионная прямая: <span class="math inline">\hat y\approx 1{,}98\,x+0{,}07</span>&nbsp;— то есть данные «выложены вдоль» зависимости <span class="math inline">y\approx 2x</span>.</p>
 </div>
 </div>
 </div>
@@ -666,7 +666,7 @@ a\sum_{i=1}^{n}x_i+b\,n
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p>Тихо Браге&nbsp;— величайший астроном-наблюдатель домикроскопной эпохи. Точность его измерений угловых положений планет составляла <span class="math inline">\sim\!1'</span> (угловая минута)&nbsp;— предел для невооружённого глаза. К концу жизни он накопил каталог из почти тысячи звёзд и подробнейшие записи о движении пяти видимых планет за 21&nbsp;год.</p>
+<p>Тихо Браге&nbsp;— величайший астроном-наблюдатель дотелескопной эпохи. Точность его измерений угловых положений планет составляла <span class="math inline">\sim\!1'</span> (угловая минута)&nbsp;— предел для невооружённого глаза. К концу жизни он накопил каталог из почти тысячи звёзд и подробнейшие записи о движении пяти видимых планет за 21&nbsp;год.</p>
 <p>Кеплер унаследовал эти таблицы и в 1605&nbsp;г.&nbsp;открыл <em>первый</em> закон движения планет: каждая планета движется по эллипсу, в одном из фокусов которого находится Солнце. В 1609&nbsp;г. он добавил <em>второй</em>: радиус-вектор планеты заметает равные площади за равные времена. А в 1619&nbsp;г.&nbsp;(в трактате <em>Harmonices Mundi</em>, «Гармонии мира») он опубликовал <em>третий</em> закон: квадраты периодов обращения относятся как кубы больших полуосей. Сам Кеплер выписал этот закон в форме <span class="math inline">T^{2}\sim a^{3}</span>, не зная ни логарифмов в общеупотребительном виде, ни тем более понятия регрессии. Но именно на «эпохе Браге–Кеплера» данные впервые позволили установить количественный закон одного астрономического параметра как функции другого.</p>
 </div>
 </div>
@@ -910,9 +910,9 @@ i &amp; x_{i,1} &amp; x_{i,2} &amp; y_i \\ \hline
 4 &amp; 75 &amp; 3  &amp; 17{,}0 \\
 5 &amp; 50 &amp; 20 &amp; 9{,}8
 \end{array}</span></p>
-<p>Подставим <span class="math inline">X\in\mathbb{R}^{5\times 3}</span> (последний столбец из единиц) в формулу&nbsp;(3.28) и численно решим систему. Получим <span class="math inline">\hat{\mathbf w}\approx(0{,}181,\,-0{,}161,\,3{,}92)</span>, то есть</p>
-<p><span class="math display">\hat y\;=\;0{,}181\,x_{1}\;-\;0{,}161\,x_{2}\;+\;3{,}92.</span></p>
-<p>Содержательно: каждый дополнительный квадратный метр прибавляет к цене <span class="math inline">\approx\!181</span>&nbsp;тыс.&nbsp;руб., каждая дополнительная минута до метро <em>уменьшает</em> цену на <span class="math inline">\approx\!161</span>&nbsp;тыс.&nbsp;руб., а свободный член <span class="math inline">3{,}92</span>&nbsp;млн&nbsp;— это «базовая стоимость», когда оба признака равны нулю.</p>
+<p>Подставим <span class="math inline">X\in\mathbb{R}^{5\times 3}</span> (последний столбец из единиц) в формулу&nbsp;(3.28) и численно решим систему. Получим <span class="math inline">\hat{\mathbf w}\approx(0{,}183,\,-0{,}142,\,2{,}74)</span>, то есть</p>
+<p><span class="math display">\hat y\;=\;0{,}183\,x_{1}\;-\;0{,}142\,x_{2}\;+\;2{,}74.</span></p>
+<p>Содержательно: каждый дополнительный квадратный метр прибавляет к цене <span class="math inline">\approx\!183</span>&nbsp;тыс.&nbsp;руб., каждая дополнительная минута до метро <em>уменьшает</em> цену на <span class="math inline">\approx\!142</span>&nbsp;тыс.&nbsp;руб., а свободный член <span class="math inline">2{,}74</span>&nbsp;млн&nbsp;— это «базовая стоимость», когда оба признака равны нулю.</p>
 </div>
 </div>
 </div>
@@ -1387,14 +1387,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

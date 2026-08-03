@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -88,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
    });
 }}});
   </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -654,7 +654,7 @@ window.Quarto = {
 <p><strong>Удивительный результат.</strong> Большинство писем, дошедших до адресата, преодолевали путь <em>в среднем за 5–6 пересылок</em>. Так родилась знаменитая гипотеза «шести рукопожатий»: между любыми двумя людьми на Земле в среднем стоит лишь шесть посредников.</p>
 <p><strong>Современная проверка.</strong> Эксперимент Мильграма страдал серьёзными методологическими дефектами: 1/ подавляющее большинство писем (около 80%) до адресата так и не дошли; 2/ выборка была очень ограниченной (всего около 300 писем); 3/ «знакомые» отбирались не случайно, а с предположением о близости к получателю.</p>
 <p>В современную эпоху, когда подавляющая часть знакомств и контактов перешла в цифровой формат, задачу можно проверить иначе: <em>построить граф знакомств целиком</em> и измерить кратчайшие расстояния. Именно это в 2011 году проделали исследователи в рамках одной известной социальной сети — они проанализировали данные <em>всех</em> её пользователей (на тот момент — около 720 миллионов человек) и более 69 миллиардов «дружеских связей».</p>
-<p><strong>Что они обнаружили.</strong> Средняя длина кратчайшего пути между двумя случайно выбранными пользователями оказалась равной <em>4,74 рукопожатия</em>. Иначе говоря, в современных социальных сетях гипотеза Мильграма не просто подтверждается, а даже <em>улучшается</em>: между двумя пользователями стоит в среднем менее пяти промежуточных знакомых, а не шесть. Принято округлять это число до 4 — отсюда выражение «четыре рукопожатия» (рис.&nbsp;4.19).</p>
+<p><strong>Что они обнаружили.</strong> Средняя длина кратчайшего пути между двумя случайно выбранными пользователями оказалась равной <em>4,74 рукопожатия</em> (то есть ребра в графе знакомств). Промежуточных же знакомых между двумя людьми — на единицу меньше, в среднем около <span class="math inline">3{,}74</span>: ведь самих этих двоих посредниками не считают. В любом случае это заметно меньше шести из гипотезы Мильграма — в современных социальных сетях она не просто подтверждается, а даже <em>улучшается</em>. Отсюда и распространённое выражение «четыре рукопожатия» (рис.&nbsp;4.19).</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="./figures/tikz_fig_p6-3.svg" class="img-fluid figure-img"></p>
@@ -1217,14 +1217,14 @@ document.addEventListener("DOMContentLoaded", function () {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
+<p>Σ Сигма</p>
+</div>   
     <div class="nav-footer-center">
-<p>Σ Сигма · <a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+<p><a href="./presentation/">Презентация</a> · <a href="./benchmark/">Бенчмарк ассистента</a> · <a href="./book.pdf">PDF</a></p>
 </div>
     <div class="nav-footer-right">
-      &nbsp;
-    </div>
+<p><a href="https://github.com/MerkulovDaniil">GitHub</a></p>
+</div>
   </div>
 </footer>
 

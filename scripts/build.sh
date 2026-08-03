@@ -101,9 +101,12 @@ echo "  augment .qmd (margin callouts, column-page for wide блок)"
 /root/.venv/bin/python "${REPO_ROOT}/scripts/augment.py" 2>&1 | head -10
 
 # -----------------------------------------------------------------
-echo "[3.5/5] regen book/index.qmd карты глав из overleaf_export/"
+echo "[3.5/5] regen дерева страниц на главной из book/_quarto.yml"
 # -----------------------------------------------------------------
-/root/.venv/bin/python "${REPO_ROOT}/scripts/generate_index_map.py"
+# Единственный источник состава и порядка — sidebar в _quarto.yml. Раньше
+# дерево на лендинге правили руками, и оно разъехалось: 7 сюжетов отсутствовали,
+# «Часть III» вела на удалённый ch_linalg.html (404 с главной страницы сайта).
+/root/.venv/bin/python "${REPO_ROOT}/scripts/generate_landing_tree.py"
 
 # -----------------------------------------------------------------
 echo "[4/4] render book/ → docs/ (HTML + per-page typst PDF)"
