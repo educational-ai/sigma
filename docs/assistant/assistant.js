@@ -39,6 +39,7 @@
     selectedFragment: "",
     chapterSlug: detectChapterSlug(),
     chapterTitle: document.title || "",
+    chapterText: "",        // текст открытой страницы, если уже подтянут
     model: "",
     pyodide: null,                 // Pyodide worker bridge
     busy: false,
@@ -173,9 +174,12 @@
   // Native learning actions. Label ≠ sent prompt: a chip can fire a richer,
   // grounded instruction than its short label. `accent` = bright treatment.
   const FRESH_OPTS = [
-    { label: "📖 За 30 секунд", send: "Объясни эту главу за 30 секунд — только самую суть." },
-    { label: "🎯 Проверь меня", accent: true, send:
-      "Составь 4 коротких проверочных вопроса строго по ЭТОЙ главе (опирайся на её текст, при необходимости read_chapter). " +
+    { label: "📖 За 30 секунд", withChapter: true, send:
+      "Объясни эту главу за 30 секунд — только самую суть. Текст главы уже приложен выше: " +
+      "инструменты не нужны, отвечай сразу." },
+    { label: "🎯 Проверь меня", accent: true, withChapter: true, send:
+      "Составь 4 коротких проверочных вопроса строго по этой главе. Текст главы уже приложен выше — " +
+      "НЕ вызывай инструменты, не ищи по сайту и не читай главу повторно, отвечай сразу. " +
       "Формат: пронумерованный вопрос, сразу под ним правильный ответ, обёрнутый в ||...|| (двойные вертикальные черты), чтобы он был скрыт до клика. " +
       "Вопросы на понимание и связи идей, не на зубрёжку. Без вступления и заключения." },
     { label: "🧠 Глубокий вопрос", accent: true, send:
@@ -192,7 +196,21 @@
       const send = typeof o === "string" ? o : o.send;
       suggestions.append(el("button", {
         class: "sigma-suggest" + (o && o.accent ? " sigma-suggest-accent" : ""),
-        onclick: () => { input.value = send; sendBtn.click(); },
+        onclick: async () => {
+          // Кнопки про ТЕКУЩУЮ главу: текст берём сами одним запросом к своему же
+          // API и кладём в контекст. Иначе модель тратит три-четыре обращения —
+          // прочитать главу, зачем-то поискать по сайту, прочитать главу снова,
+          // и всё это время читатель смотрит на «Думаю…».
+          if (o && o.withChapter && state.chapterSlug && !state.chapterText) {
+            try {
+              const r = await jpost(API.read, { slug: state.chapterSlug });
+              const txt = r && (r.text || r.content);
+              if (txt) state.chapterText = truncate(String(txt), 9000);
+            } catch (_) { /* не вышло — модель прочитает сама */ }
+          }
+          input.value = send;
+          sendBtn.click();
+        },
       }, label));
     }
   }
@@ -516,6 +534,9 @@
 
   function buildInitialUserMessage(question) {
     const parts = [`Вопрос: ${question}`];
+    if (state.chapterText) {
+      parts.unshift(`Текст открытой страницы (используй его, читать её инструментом не нужно):\n${state.chapterText}`);
+    }
     if (state.chapterSlug) {
       parts.unshift(`Студент сейчас читает главу slug="${state.chapterSlug}" ("${state.chapterTitle}").`);
     }
@@ -543,7 +564,7 @@
     });
   }
 
-  async function streamCompletion(messages, { noTools = false, onProgress } = {}) {
+  async function streamCompletion(messages, { noTools = false, onProgress, onReasoning } = {}) {
     const ctrl = new AbortController();
     let idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);
     const body = { messages, stream: true, temperature: 0.2 };
@@ -569,6 +590,7 @@
         idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);  // reset on every byte
         const d = chunk?.choices?.[0]?.delta;
         if (!d) continue;
+        if (d.reasoning && onReasoning) onReasoning(d.reasoning);
         if (d.content) { content += d.content; if (onProgress) onProgress(content); }
         if (d.tool_calls) {
           for (const tc of d.tool_calls) {
@@ -655,7 +677,7 @@
         ...stripImages(state._loopMessages || []),
         { role: "user", content: "Достаточно сбора. Дай финальный ответ по уже собранным данным ПРЯМО СЕЙЧАС, без новых инструментов." },
       ], { noTools: true });
-      content = (forced.content || "").trim();
+      content = stripThinking(forced.content || "").trim();
     } catch (_) { /* fall through to fallback text */ }
     if (statusEl.isConnected) statusEl.remove();
     answerEl.dataset.raw = content || "";
@@ -686,15 +708,31 @@
       let content, tool_calls;
       try {
         let lastPaint = 0;
+        // Рассуждения приходят в поток СРАЗУ, а первый текст ответа — секунд
+        // через восемь. Без этого блока читатель всё это время смотрит на
+        // неподвижное «Думаю…» и решает, что всё зависло.
+        let think = "", thinkPaint = 0;
+        const thinkEl = el("div", { class: "sigma-thinking-live" });
         ({ content, tool_calls } = await streamCompletion(messages, {
+          onReasoning: (chunk) => {
+            think += chunk;
+            if (!thinkEl.isConnected && statusEl.isConnected) statusEl.after(thinkEl);
+            const now = performance.now();
+            if (now - thinkPaint < 150) return;
+            thinkPaint = now;
+            // показываем хвост размышления — видно, что модель работает
+            thinkEl.textContent = think.replace(/\s+/g, " ").slice(-220);
+            sheetBody.scrollTop = sheetBody.scrollHeight;
+          },
           onProgress: (partial) => {
             // Дельты приходят десятками в секунду; рендер с KaTeX на каждой
             // выжигает кадр, поэтому перерисовываем не чаще, чем раз в 120 мс.
             const now = performance.now();
             if (now - lastPaint < 120) return;
             lastPaint = now;
+            if (thinkEl.isConnected) thinkEl.remove();
             if (statusEl.isConnected) statusEl.remove();
-            answerEl.innerHTML = renderMarkdown(trimUnfinished(partial));
+            answerEl.innerHTML = renderMarkdown(trimUnfinished(stripThinking(partial)));
             sheetBody.scrollTop = sheetBody.scrollHeight;
           },
         }));
@@ -725,7 +763,7 @@
 
       if (!tool_calls.length) {
         // Срезаем чисто служебные фразы-леса перед рендером.
-        const clean = stripScaffolding(content);
+        const clean = stripScaffolding(stripThinking(content));
         if (!clean) {
           return await finishFromContext(userQuestion, bubble, traceEl, statusEl, answerEl, "пустой/служебный финальный ответ");
         }
@@ -949,6 +987,20 @@
   // Пока ответ ещё течёт, его хвост обрывается на полуслове: «||ответ.|» или
   // «$\frac{a}{b» — незакрытая конструкция рендерится сырым текстом, и читатель
   // видит палки и доллары. Прячем незавершённый хвост до его закрытия.
+  // Рассуждающие модели (qwen3.6-flash в том числе) кладут ход мысли прямо
+  // в content, обёрнутый в <think>…</think>. Тег доезжал до читателя: в ответе
+  // висело голое «</think>», а пока модель думала внутри блока, на экране был
+  // пустой «Думаю…» — текста не появлялось, и это читалось как зависание.
+  function stripThinking(text) {
+    let s = String(text || "");
+    s = s.replace(/<think>[\s\S]*?<\/think>/gi, "");   // закрытый блок целиком
+    const close = s.lastIndexOf("</think>");
+    if (close !== -1) s = s.slice(close + 8);            // остался только хвост
+    const open = s.indexOf("<think>");
+    if (open !== -1) s = s.slice(0, open);               // блок ещё не закрыт
+    return s.replace(/^\s+/, "");
+  }
+
   function trimUnfinished(text) {
     let s = String(text || "");
     const cutFromLast = (marker) => {
