@@ -982,36 +982,51 @@
     const lines = s.split("\n");
     const out = [];
     let listKind = null;
+    let pendingBlank = 0;   // пустые строки, судьба которых ещё не решена
     const closeList = () => { if (listKind) { out.push(`</${listKind}>`); listKind = null; } };
+    const flushBlank = () => { while (pendingBlank > 0) { out.push(""); pendingBlank--; } };
     for (const raw of lines) {
       const line = raw.replace(/\s+$/, "");
       let m;
+      if (!line.trim()) {
+        // Пустая строка внутри списка НЕ рвёт его: в markdown это обычный
+        // «разреженный» список, а разрыв начинал новый <ol> с единицы.
+        if (listKind) pendingBlank++; else out.push("");
+        continue;
+      }
       if ((m = /^(#{1,6})\s+(.+)$/.exec(line))) {
-        closeList();
+        closeList(); flushBlank();
         // Demote: chat bubble is small, h1 should not dwarf paragraphs.
         const lvl = Math.min(6, m[1].length + 2);
         out.push(`<h${lvl}>${m[2]}</h${lvl}>`);
       } else if (/^[-*_]{3,}\s*$/.test(line)) {
-        closeList();
+        closeList(); flushBlank();
         out.push("<hr>");
       } else if ((m = /^\s*[-*]\s+(.+)$/.exec(line))) {
-        if (listKind !== "ul") { closeList(); out.push("<ul>"); listKind = "ul"; }
+        pendingBlank = 0;
+        if (listKind !== "ul") { closeList(); flushBlank(); out.push("<ul>"); listKind = "ul"; }
         out.push(`<li>${m[1]}</li>`);
-      } else if ((m = /^\s*\d+\.\s+(.+)$/.exec(line))) {
-        if (listKind !== "ol") { closeList(); out.push("<ol>"); listKind = "ol"; }
-        out.push(`<li>${m[1]}</li>`);
+      } else if ((m = /^\s*(\d+)\.\s+(.+)$/.exec(line))) {
+        pendingBlank = 0;
+        if (listKind !== "ol") {
+          closeList(); flushBlank();
+          // Продолжаем нумерацию с номера, который написала модель. Без start
+          // список, прерванный абзацем или спойлером «Проверь меня», начинался
+          // заново с единицы — на экране шли два пункта «1.».
+          const from = parseInt(m[1], 10);
+          out.push(from > 1 ? `<ol start="${from}">` : "<ol>");
+          listKind = "ol";
+        }
+        out.push(`<li>${m[2]}</li>`);
       } else if ((m = /^&gt;\s*(.+)$/.exec(line))) {
-        closeList();
+        closeList(); flushBlank();
         out.push(`<blockquote>${m[1]}</blockquote>`);
-      } else if (!line.trim()) {
-        closeList();
-        out.push("");
       } else {
-        closeList();
+        closeList(); flushBlank();
         out.push(line);
       }
     }
-    closeList();
+    closeList(); flushBlank();
     s = out.join("\n");
 
     // 6) Inline: images, links, bold, italic.
