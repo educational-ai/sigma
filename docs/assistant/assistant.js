@@ -593,14 +593,28 @@
     return null;
   }
   const SCAFFOLD_PHRASE=/^(запрос выполнен(?: успешно)?|перехожу к ответу|приступаю(?: к ответу)?|сейчас я .{0,40}?|вызываю инструмент.*?|я вызову .{0,40}?|готово|понял|хорошо|секунду|минуту|подождите.*?|ищу.*?|сейчас найду.*?)$/i;
+  // Срезает служебные фразы-леса («Запрос выполнен», «Перехожу к ответу»),
+  // НЕ ломая разметку. Прежняя версия резала текст по /\n+/ и склеивала всё
+  // пробелом — вместе с лесами схлопывались списки, заголовки и абзацы, и
+  // читатель получал ответ одной простынёй. Теперь строка остаётся строкой:
+  // предложения фильтруются внутри неё, а переводы строк сохраняются.
   function stripScaffolding(text){
     if(!text) return "";
-    const parts = text.split(/(?<=[.!?])\s+|\n+/);
-    const kept = parts.filter(p=>{
-      const s=p.trim().replace(/[.!?]+$/,"").trim();
-      return s.length>0 && !SCAFFOLD_PHRASE.test(s);
-    });
-    return kept.join(" ").trim();
+    const out = [];
+    let inCode = false;
+    for (const line of String(text).split("\n")) {
+      if (/^\s*```/.test(line)) { inCode = !inCode; out.push(line); continue; }
+      if (inCode) { out.push(line); continue; }      // код не трогаем вовсе
+      if (!line.trim()) { out.push(""); continue; }  // пустые строки — разделители блоков
+      const indent = line.match(/^\s*/)[0];
+      const kept = line.split(/(?<=[.!?])\s+/).filter(p=>{
+        const s=p.trim().replace(/[.!?]+$/,"").trim();
+        return s.length>0 && !SCAFFOLD_PHRASE.test(s);
+      });
+      const joined = kept.join(" ").trim();
+      if (joined) out.push(indent + joined);         // строку из одних лесов выбрасываем
+    }
+    return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
   }
 
   // Guarantee a non-empty answer in every terminal path (step error/stall, or
