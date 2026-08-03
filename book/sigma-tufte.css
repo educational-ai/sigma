@@ -214,3 +214,20 @@ table th, table td { padding: 0.3em 0.8em; border: none; }
 
 /* Скрываем шапки code chunks, оставляем самих код */
 .cell-output-display { margin-top: 0.4em; }
+
+/* ── Логотип «Σ Сигма»: везде одна гарнитура ───────────────────────────
+   Герой на главной наследовал et-book из body, а заголовок сайдбара и
+   подвал — bootstrap-овый sans: одно и то же лого выглядело двумя разными.
+   Явно закрепляем засечки во всех трёх местах. */
+.sidebar-title,
+.sidebar-title a,
+.quarto-secondary-nav-title,
+.nav-footer .nav-footer-left,
+.sigma-hero-title,
+.sigma-hero-sigma {
+  font-family: et-book, Palatino, "Palatino Linotype", Georgia, serif !important;
+}
+.sidebar-title a {
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}

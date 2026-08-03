@@ -178,7 +178,7 @@ format:
 <a onclick="document.querySelectorAll('.sigma-tree details').forEach(d=>d.open=false)">свернуть всё</a>
 </p>
 <details>
-<summary><a href="story_loss_landscape.html">Часть II. Оптимизация</a></summary>
+<summary><a href="story_loss_landscape.html">Часть I. Оптимизация</a></summary>
 
 <details>
 <summary><a href="story_loss_landscape.html">Ландшафт функции потерь и парадоксы высокой размерности <span class="tag new">сюжет</span></a></summary>
@@ -223,7 +223,7 @@ format:
 </details>
 
 <details>
-<summary><a href="ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html">Часть III. Линейная алгебра и данные</a></summary>
+<summary><a href="ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html">Часть II. Линейная алгебра и данные</a></summary>
 
 <details>
 <summary><a href="ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html">Когда арифметика лжёт: числа с плавающей точкой</a></summary>
@@ -288,7 +288,7 @@ format:
 </details>
 
 <details>
-<summary><a href="ch03_1_prosteyshie-primery-zadach-anali.html">Часть IV. Анализ данных и ИИ</a></summary>
+<summary><a href="ch03_1_prosteyshie-primery-zadach-anali.html">Часть III. Анализ данных и ИИ</a></summary>
 
 <details>
 <summary><a href="ch03_1_prosteyshie-primery-zadach-anali.html">Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</a></summary>
@@ -338,7 +338,7 @@ format:
 </details>
 
 <details>
-<summary><a href="ch04_1_elementy-teorii-chisel.html">Часть V. Дискретная математика и криптография</a></summary>
+<summary><a href="ch04_1_elementy-teorii-chisel.html">Часть IV. Дискретная математика и криптография</a></summary>
 
 <details>
 <summary><a href="ch04_1_elementy-teorii-chisel.html">Элементы теории чисел</a></summary>
