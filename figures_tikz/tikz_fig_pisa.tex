@@ -1,0 +1,84 @@
+
+\documentclass[border=4pt]{standalone}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{\setmainfont{Liberation Serif}}
+\IfFontExistsTF{CMU Sans Serif}{\setsansfont{CMU Sans Serif}}{\setsansfont{Liberation Sans}}
+\IfFontExistsTF{CMU Typewriter Text}{\setmonofont{CMU Typewriter Text}}{\setmonofont{DejaVu Sans Mono}}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{accent2}{HTML}{B85450}
+\definecolor{shade}{HTML}{F4F1EA}
+\colorlet{prosvBlue}{accent}
+\colorlet{prosvRed}{accent2}
+\colorlet{prosvLight}{accent!12}
+\colorlet{prosvCream}{shade}
+\definecolor{prosvGold}{HTML}{E8B647}
+\definecolor{prosvGreen}{HTML}{6A9F58}
+\colorlet{prosvGray}{black!55}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows.meta, decorations.pathreplacing,
+                positioning, shapes.geometric, shapes.misc, fit,
+                backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\NOD}{\gcd}
+\newcommand{\Eul}{\varphi}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\modn}[1]{\,(\mathrm{mod}\,#1)}
+\newcommand{\term}[1]{\textcolor{accent2}{\textbf{#1}}}
+\newcommand{\engterm}[1]{\textit{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\begin{document}
+
+\begin{tikzpicture}[scale=0.6, line cap=round]
+  
+  \fill[shade]   (-2,-0.3) rectangle (2,0.2);
+  
+  \def\tilt{0.10}
+  \foreach \k/\h in {1/0,2/1.0,3/2.0,4/3.0,5/4.0,6/5.0,7/6.0,8/7.0}{
+     \pgfmathsetmacro{\xshift}{\h*\tilt}
+     \draw[accent, line width=0.7pt, fill=white]
+       ({-1.5+\xshift},\h) rectangle ({1.5+\xshift},\h+0.9);
+     \node[accent!80!black, font=\tiny] at ({1.5+\xshift+0.4},\h+0.45)
+       {\k};
+  }
+  
+  \pgfmathsetmacro{\xshift}{8.0*\tilt}
+  \draw[accent, line width=0.7pt, fill=shade]
+    ({-1.1+\xshift},8.0) rectangle ({1.1+\xshift},8.6);
+  \node[accent!80!black] at ({\xshift},8.85) {\scriptsize колокольня};
+  
+  \pgfmathsetmacro{\gx}{7*\tilt+0.3}
+  \draw[fill=accent2] ({\gx},6.55) circle (0.12);  
+  \draw[accent2, line width=0.8pt] ({\gx},6.43)--({\gx},6.05); 
+  \draw[accent2, line width=0.6pt] ({\gx},6.3)--({\gx+0.35},6.25); 
+  
+  \pgfmathsetmacro{\sx}{7*\tilt+0.5}
+  \foreach \k/\y in {0/6.25,1/5.6,2/4.7,3/3.5,4/2.0,5/0.3}{
+     \fill[accent2] ({\sx},\y) circle (0.10);
+     \ifnum\k>0
+        \draw[accent2!60, line width=0.5pt, dotted] ({\sx},\y+0.18)--({\sx},\y+0.5);
+     \fi
+  }
+  
+  \draw[gray!50, dashed, line width=0.4pt] ({\sx},6.25)--({\sx},-0.2);
+  
+  \draw[<->,>=stealth, accent!70!black, line width=0.5pt]
+    (-3.2,0) -- (-3.2,7);
+  \node[accent!70!black, rotate=90] at (-3.6,3.5) {\small высота $h$};
+  
+  \draw[line width=0.8pt] (-4,-0.3) -- (4.2,-0.3);
+  \node[font=\scriptsize, gray] at (3.5,-0.55) {земля};
+\end{tikzpicture}
+\end{document}

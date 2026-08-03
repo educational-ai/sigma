@@ -1,0 +1,70 @@
+
+\documentclass[border=4pt]{standalone}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{\setmainfont{Liberation Serif}}
+\IfFontExistsTF{CMU Sans Serif}{\setsansfont{CMU Sans Serif}}{\setsansfont{Liberation Sans}}
+\IfFontExistsTF{CMU Typewriter Text}{\setmonofont{CMU Typewriter Text}}{\setmonofont{DejaVu Sans Mono}}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{accent2}{HTML}{B85450}
+\definecolor{shade}{HTML}{F4F1EA}
+\colorlet{prosvBlue}{accent}
+\colorlet{prosvRed}{accent2}
+\colorlet{prosvLight}{accent!12}
+\colorlet{prosvCream}{shade}
+\definecolor{prosvGold}{HTML}{E8B647}
+\definecolor{prosvGreen}{HTML}{6A9F58}
+\colorlet{prosvGray}{black!55}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows.meta, decorations.pathreplacing,
+                positioning, shapes.geometric, shapes.misc, fit,
+                backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\NOD}{\gcd}
+\newcommand{\Eul}{\varphi}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\modn}[1]{\,(\mathrm{mod}\,#1)}
+\newcommand{\term}[1]{\textcolor{accent2}{\textbf{#1}}}
+\newcommand{\engterm}[1]{\textit{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\begin{document}
+
+\begin{tikzpicture}[
+  >=Stealth, every node/.style={font=\footnotesize},
+  uni/.style={draw=prosvBlue, fill=prosvLight, rounded corners, minimum height=0.5cm, minimum width=2.2cm},
+  cell/.style={draw=prosvRed!70, fill=prosvCream, minimum height=0.6cm, minimum width=0.7cm},
+]
+  \node[uni] (k1) at (0, 2)   {ivan@mail};
+  \node[uni] (k2) at (0, 1.3) {olga@mail};
+  \node[uni] (k3) at (0, 0.6) {petr@yand};
+  \node[uni] (k4) at (0, -0.1){anna@bk};
+  \node[uni] (k5) at (0, -0.8){vova@mail};
+
+  \node[font=\footnotesize, prosvBlue] at (0, 2.7) {ключи $x$ (вселенная $U$)};
+
+  \foreach \i in {0,1,2,3,4,5,6,7} {
+    \node[cell] (c\i) at (5 + 0.75*\i, 0.5) {\i};
+  }
+  \node[font=\footnotesize, prosvBlue] at (7.5, 1.3) {хеш-таблица $T$ (размер $m=8$)};
+
+  \draw[->, prosvGreen!60!black] (k1.east) -- (c3.west);
+  \draw[->, prosvGreen!60!black] (k2.east) -- (c0.west);
+  \draw[->, prosvGreen!60!black] (k3.east) -- (c5.west);
+  \draw[->, prosvGreen!60!black] (k4.east) -- (c1.west);
+  \draw[->, prosvRed!80, very thick] (k5.east) -- (c3.west);
+
+  \node[font=\footnotesize, prosvRed, align=center] at (4, -1.2) {две стрелки в одну\\ ячейку $=$ коллизия};
+\end{tikzpicture}
+\end{document}

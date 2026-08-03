@@ -1,0 +1,66 @@
+
+\documentclass[border=4pt]{standalone}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{\setmainfont{Liberation Serif}}
+\IfFontExistsTF{CMU Sans Serif}{\setsansfont{CMU Sans Serif}}{\setsansfont{Liberation Sans}}
+\IfFontExistsTF{CMU Typewriter Text}{\setmonofont{CMU Typewriter Text}}{\setmonofont{DejaVu Sans Mono}}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{accent2}{HTML}{B85450}
+\definecolor{shade}{HTML}{F4F1EA}
+\colorlet{prosvBlue}{accent}
+\colorlet{prosvRed}{accent2}
+\colorlet{prosvLight}{accent!12}
+\colorlet{prosvCream}{shade}
+\definecolor{prosvGold}{HTML}{E8B647}
+\definecolor{prosvGreen}{HTML}{6A9F58}
+\colorlet{prosvGray}{black!55}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows.meta, decorations.pathreplacing,
+                positioning, shapes.geometric, shapes.misc, fit,
+                backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\NOD}{\gcd}
+\newcommand{\Eul}{\varphi}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\modn}[1]{\,(\mathrm{mod}\,#1)}
+\newcommand{\term}[1]{\textcolor{accent2}{\textbf{#1}}}
+\newcommand{\engterm}[1]{\textit{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\begin{document}
+
+\begin{tikzpicture}[scale=0.85, every node/.style={font=\small\ttfamily}]
+  
+  \foreach \i/\ch in {0/V,1/E,2/N,3/I,4/V,5/I,6/D,7/I,8/V,9/I,10/C,11/I}{
+    \draw[prosvBlue] (\i*0.6, 1.2) rectangle (\i*0.6+0.55, 1.7);
+    \node at (\i*0.6+0.275, 1.45) {\ch};
+  }
+  \node[left, font=\small\rmfamily] at (0,1.45) {Открытый текст:};
+  
+  
+  \foreach \i in {0,...,11}{
+    \draw[->,>=stealth, prosvGray] (\i*0.6+0.275, 1.15) -- (\i*0.6+0.275, 0.75);
+  }
+  
+  
+  \foreach \i/\ch in {0/Y,1/H,2/Q,3/L,4/Y,5/L,6/G,7/L,8/Y,9/L,10/F,11/L}{
+    \draw[prosvRed] (\i*0.6, 0.2) rectangle (\i*0.6+0.55, 0.7);
+    \node at (\i*0.6+0.275, 0.45) {\ch};
+  }
+  \node[left, font=\small\rmfamily] at (0,0.45) {Шифр-текст:};
+  
+  \node[right, font=\small\rmfamily] at (7.5,1.0) {\itshape\color{prosvGray}«пришёл, увидел, победил»};
+\end{tikzpicture}
+\end{document}

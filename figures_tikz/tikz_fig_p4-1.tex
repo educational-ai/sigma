@@ -1,0 +1,57 @@
+
+\documentclass[border=4pt]{standalone}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{\setmainfont{Liberation Serif}}
+\IfFontExistsTF{CMU Sans Serif}{\setsansfont{CMU Sans Serif}}{\setsansfont{Liberation Sans}}
+\IfFontExistsTF{CMU Typewriter Text}{\setmonofont{CMU Typewriter Text}}{\setmonofont{DejaVu Sans Mono}}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{accent2}{HTML}{B85450}
+\definecolor{shade}{HTML}{F4F1EA}
+\colorlet{prosvBlue}{accent}
+\colorlet{prosvRed}{accent2}
+\colorlet{prosvLight}{accent!12}
+\colorlet{prosvCream}{shade}
+\definecolor{prosvGold}{HTML}{E8B647}
+\definecolor{prosvGreen}{HTML}{6A9F58}
+\colorlet{prosvGray}{black!55}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows.meta, decorations.pathreplacing,
+                positioning, shapes.geometric, shapes.misc, fit,
+                backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\NOD}{\gcd}
+\newcommand{\Eul}{\varphi}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\modn}[1]{\,(\mathrm{mod}\,#1)}
+\newcommand{\term}[1]{\textcolor{accent2}{\textbf{#1}}}
+\newcommand{\engterm}[1]{\textit{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\begin{document}
+
+\begin{tikzpicture}[
+  >=Stealth,
+  every node/.style={font=\small},
+  party/.style={draw=prosvBlue, rounded corners, fill=prosvLight, minimum width=2.2cm, minimum height=1.1cm, align=center, thick}
+]
+  \node[party] (a) at (0,0) {\textbf{Алиса}\\ ключ $d$};
+  \node[party] (b) at (8,0) {\textbf{Банк}\\ ключ $e$};
+
+  \draw[->, thick, prosvRed] ([yshift=15pt]b.west) -- node[above, font=\footnotesize]{случайный $r$} ([yshift=15pt]a.east);
+  \draw[<-, thick, prosvGreen!70!black] ([yshift=-5pt]b.west) -- node[below, font=\footnotesize]{$s = r^d \bmod n$} ([yshift=-5pt]a.east);
+
+  \node[align=center, font=\footnotesize] at (4, -1.4) {Банк проверяет: $s^e \bmod n \stackrel{?}{=} r$};
+\end{tikzpicture}
+\end{document}

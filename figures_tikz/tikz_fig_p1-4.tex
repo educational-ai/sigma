@@ -1,0 +1,69 @@
+
+\documentclass[border=4pt]{standalone}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{\setmainfont{Liberation Serif}}
+\IfFontExistsTF{CMU Sans Serif}{\setsansfont{CMU Sans Serif}}{\setsansfont{Liberation Sans}}
+\IfFontExistsTF{CMU Typewriter Text}{\setmonofont{CMU Typewriter Text}}{\setmonofont{DejaVu Sans Mono}}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{accent2}{HTML}{B85450}
+\definecolor{shade}{HTML}{F4F1EA}
+\colorlet{prosvBlue}{accent}
+\colorlet{prosvRed}{accent2}
+\colorlet{prosvLight}{accent!12}
+\colorlet{prosvCream}{shade}
+\definecolor{prosvGold}{HTML}{E8B647}
+\definecolor{prosvGreen}{HTML}{6A9F58}
+\colorlet{prosvGray}{black!55}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows.meta, decorations.pathreplacing,
+                positioning, shapes.geometric, shapes.misc, fit,
+                backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\NOD}{\gcd}
+\newcommand{\Eul}{\varphi}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\modn}[1]{\,(\mathrm{mod}\,#1)}
+\newcommand{\term}[1]{\textcolor{accent2}{\textbf{#1}}}
+\newcommand{\engterm}[1]{\textit{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\begin{document}
+
+\begin{tikzpicture}
+\begin{axis}[
+  width=11cm, height=6cm,
+  xlabel={$N$}, ylabel={число простых $\le N$},
+  xmin=1, xmax=1000, ymin=0, ymax=200,
+  axis lines=left,
+  grid=major, grid style={prosvGray!30},
+  legend pos=north west, legend cell align=left,
+  xlabel style={font=\small}, ylabel style={font=\small},
+  tick label style={font=\scriptsize},
+  every axis plot/.append style={very thick}
+]
+
+\addplot[prosvRed, domain=2:1000, samples=80] {x/ln(x)};
+\addlegendentry{$\dfrac{N}{\ln N}$ (приближение)};
+
+\addplot+[
+  only marks, mark=*, prosvBlue, mark size=1.4pt
+] coordinates {
+  (10,4) (50,15) (100,25) (200,46) (300,62) (400,78) (500,95)
+  (600,109) (700,125) (800,139) (900,154) (1000,168)
+};
+\addlegendentry{точное значение $\pi(N)$};
+\end{axis}
+\end{tikzpicture}
+\end{document}

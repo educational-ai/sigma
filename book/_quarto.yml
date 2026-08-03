@@ -12,7 +12,7 @@ language: _language.yml
 
 website:
   title: "Σ Сигма"
-  description: "Учебник по продвинутым сюжетам ИИ"
+  description: "Математика современного ИИ — сюжетами"
   favicon: ../favicon.svg
   back-to-top-navigation: true
   page-navigation: true
@@ -26,10 +26,6 @@ website:
     contents:
       - text: "Σ Главная"
         href: index.qmd
-      - preface.qmd
-      - section: "Часть I. Введение в ИИ"
-        contents:
-          - ch01_intro.qmd
       - section: "Часть II. Оптимизация"
         contents:
           - text: "Ландшафт функции потерь и парадоксы высокой размерности"
@@ -49,15 +45,12 @@ website:
             href: story_optimal_transport.qmd
       - section: "Часть III. Линейная алгебра и данные"
         contents:
-          - ch_linalg_0_intro.qmd
-          - ch_linalg_1_zachem-lineynoy-algebre-otdelnay.qmd
           - ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.qmd
           - ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.qmd
           - ch_linalg_4_luchshee-malorangovoe-priblizhen.qmd
           - ch_linalg_5_eigenfaces-kak-algoritm-uznaet-l.qmd
           - text: "PCA и Eigenfaces"
             href: story_pca.qmd
-          - ch_linalg_6_eigencats-to-zhe-samoe-dlya-koti.qmd
           - ch_linalg_7_pagerank-kak-google-nashel-porya.qmd
           - text: "Собственные значения: от PageRank до шатающихся мостов"
             href: story_eigenvalues.qmd
@@ -70,12 +63,8 @@ website:
           - text: "БПФ как умножение на матрицу: от спектра звука до Shazam"
             href: story_fft_matrix.qmd
           - ch_linalg_8_kogda-neyroset-ustoychiva-ocenki.qmd
-          - ch_linalg_9_podvedenie-itogov-glavy.qmd
-          - ch_linalg_10_chto-pochitat-dalshe.qmd
-          - ch_linalg_11_bolshoy-itogovyy-proekt.qmd
       - section: "Часть IV. Анализ данных и ИИ"
         contents:
-          - ch03_0_intro.qmd
           - ch03_1_prosteyshie-primery-zadach-anali.qmd
           - ch03_2_lineynaya-regressiya-i-metod-nai.qmd
           - text: "Тяжёлые хвосты"
@@ -89,19 +78,17 @@ website:
           - ch03_5_kak-iskusstvennyy-intellekt-meny.qmd
       - section: "Часть V. Дискретная математика и криптография"
         contents:
-          - ch04_0_intro.qmd
           - ch04_1_elementy-teorii-chisel.qmd
           - ch04_2_shifrovanie-ot-taynopisi-k-matem.qmd
           - ch04_3_kriptosistemy-rsa-i-diffi-hellma.qmd
           - ch04_4_primeneniya-rsa-autentifikaciya.qmd
           - ch04_5_heshirovanie-teoriya-chisel-vstr.qmd
           - ch04_6_schetchiki-s-korotkoy-pamyatyu-h.qmd
-          - ch04_7_podvedenie-itogov-glavy.qmd
   page-footer:
     background: "#fffff8"
     left: "Σ Сигма"
     center: |
-      [Презентация](/presentation/) · [Бенчмарк ассистента](/benchmark/) · [PDF](/book.pdf)
+      [Презентация](/presentation/) · [Бенчмарк ассистента](/benchmark/)
     right: "[GitHub](https://github.com/MerkulovDaniil)"
 
 format:

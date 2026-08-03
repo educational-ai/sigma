@@ -1,0 +1,57 @@
+
+\documentclass[border=4pt]{standalone}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{\setmainfont{Liberation Serif}}
+\IfFontExistsTF{CMU Sans Serif}{\setsansfont{CMU Sans Serif}}{\setsansfont{Liberation Sans}}
+\IfFontExistsTF{CMU Typewriter Text}{\setmonofont{CMU Typewriter Text}}{\setmonofont{DejaVu Sans Mono}}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{accent2}{HTML}{B85450}
+\definecolor{shade}{HTML}{F4F1EA}
+\colorlet{prosvBlue}{accent}
+\colorlet{prosvRed}{accent2}
+\colorlet{prosvLight}{accent!12}
+\colorlet{prosvCream}{shade}
+\definecolor{prosvGold}{HTML}{E8B647}
+\definecolor{prosvGreen}{HTML}{6A9F58}
+\colorlet{prosvGray}{black!55}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows.meta, decorations.pathreplacing,
+                positioning, shapes.geometric, shapes.misc, fit,
+                backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\NOD}{\gcd}
+\newcommand{\Eul}{\varphi}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\modn}[1]{\,(\mathrm{mod}\,#1)}
+\newcommand{\term}[1]{\textcolor{accent2}{\textbf{#1}}}
+\newcommand{\engterm}[1]{\textit{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\begin{document}
+
+\begin{tikzpicture}[
+  >=Stealth, every node/.style={font=\footnotesize},
+  voter/.style={draw=prosvBlue, fill=prosvLight, rounded corners, minimum width=2.4cm, minimum height=1cm, align=center, thick},
+  server/.style={draw=prosvRed, fill=prosvCream, rounded corners, minimum width=2.4cm, minimum height=1cm, align=center, thick},
+]
+  \node[voter] (alice) at (0, 0) {Алиса};
+  \node[server] (reg) at (5, 1.5) {Регистратор\\ {\scriptsize ключ $d$}};
+  \node[server] (count) at (5, -1.5) {Счётчик};
+
+  \draw[->, thick, prosvRed!80] (alice.north east) -- node[above, sloped]{$m' = m \cdot k^e$} (reg.west);
+  \draw[<-, thick, prosvRed!80] ([yshift=-15pt]alice.east) -- node[below, sloped]{$\sigma' = (m')^d$} ([yshift=-15pt]reg.west);
+  \draw[->, thick, prosvGreen!60!black] (alice.south east) -- node[below, sloped]{анонимно: $(m, \sigma)$} (count.west);
+\end{tikzpicture}
+\end{document}

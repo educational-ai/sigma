@@ -38,3 +38,6 @@ logs/
 *.log
 
 /.quarto/
+
+# TikZ-рендер: промежуточные .aux/.log/.pdf и штампы хэшей
+figures_tikz/.build/
