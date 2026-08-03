@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Классическая статистика учит: увеличивай сложность модели — и ошибка на тесте сначала падает (модель учится), потом растёт (переобучение). Это U-образная кривая bias-variance tradeoff. Но в 2019 году Белкин показал, а Наккиран с коллегами подтвердили на нейросетях, что если продолжить увеличивать сложность дальше «точки переобучения», ошибка снова падает — и опускается <strong>ниже</strong> классического оптимума. Например, ResNet-18 на CIFAR-10 при критическом числе параметров выдаёт test error 25%, а при вдвое большей модели — ~8—10% (в зависимости от условий обучения). Это <strong>двойной спуск</strong> (double descent) — феномен, который ломает учебники.</em></p>
+<p><em>Классическая статистика учит: увеличивай сложность модели — и ошибка на тесте сначала падает (модель учится), потом растёт (переобучение). Это U-образная кривая bias-variance tradeoff. Но в 2019 году Белкин показал, а Наккиран с коллегами подтвердили на нейросетях, что если продолжить увеличивать сложность дальше «точки переобучения», ошибка снова падает — и опускается <strong>ниже</strong> классического оптимума. Например, ResNet-18 на CIFAR-10 при критическом числе параметров даёт ошибку на тесте 25%, а при вдвое большей модели — ~8—10% (в зависимости от условий обучения). Это <strong>двойной спуск</strong> (double descent) — феномен, который не укладывается в учебники.</em></p>
 <section id="классический-взгляд-bias-variance-tradeoff" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="классический-взгляд-bias-variance-tradeoff">Классический взгляд: bias-variance tradeoff</h2>
 <p>Для модели с параметрами <span class="math inline">\theta</span> и тестовой ошибкой:</p>
@@ -423,7 +423,7 @@ window.Quarto = {
 <section id="что-происходит-за-порогом-интерполяции" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="что-происходит-за-порогом-интерполяции">Что происходит за порогом интерполяции</h2>
 <p>Порог интерполяции — это момент, когда число параметров <span class="math inline">p</span> равно числу обучающих примеров <span class="math inline">n</span>. При <span class="math inline">p = n</span> модель <strong>точно проходит</strong> через все обучающие точки, но делает это «самым шумным» способом.</p>
-<p>Belkin et al.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> показали, что если <span class="math inline">p &gt; n</span> (overparameterized regime), ошибка <strong>снова падает</strong>:</p>
+<p>Belkin et al.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> показали, что если <span class="math inline">p &gt; n</span> (сверхпараметризация), ошибка <strong>снова падает</strong>:</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Belkin, Hsu, Ma, Mandal. <a href="https://doi.org/10.1073/pnas.1903070116">Reconciling modern machine-learning practice and the classical bias–variance trade-off</a>, PNAS, 2019.</p></div></div><div class="column-page">
 <p><span class="math display">
 \text{Test error} = \begin{cases}
@@ -492,10 +492,10 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="что-видно-на-графике">Что видно на графике</h3>
 <ol type="1">
 <li><p><strong>Классическая зона</strong> (<span class="math inline">d &lt; n</span>): ошибка сначала падает, потом растёт — U-образная кривая.</p></li>
-<li><p><strong>Пик при <span class="math inline">d = n</span></strong>: модель точно проходит через все точки, но с огромными коэффициентами — «шпиль» переобучения. Это <strong>interpolation threshold</strong>.</p></li>
-<li><p><strong>Сверхпараметризация</strong> (<span class="math inline">d &gt; n</span>): из всех полиномов степени <span class="math inline">d</span>, точно проходящих через данные, выбирается тот, у которого <strong>минимальная норма коэффициентов</strong>. Этот implicit regularization приводит к гладким решениям и падению ошибки.</p></li>
+<li><p><strong>Пик при <span class="math inline">d = n</span></strong>: модель точно проходит через все точки, но с огромными коэффициентами — «шпиль» переобучения. Это и есть <strong>порог интерполяции</strong> (interpolation threshold).</p></li>
+<li><p><strong>Сверхпараметризация</strong> (<span class="math inline">d &gt; n</span>): из всех полиномов степени <span class="math inline">d</span>, точно проходящих через данные, выбирается тот, у которого <strong>минимальная норма коэффициентов</strong>. Эта неявная регуляризация (implicit regularization) даёт гладкие решения, и ошибка падает.</p></li>
 </ol>
-<p>Потяни ползунок ёмкости через порог интерполяции <span class="math inline">d = n</span> — и почувствуй, как ровно на нём подгонка взрывается «шпилем», а сразу за ним МНК минимальной нормы снова приводит кривую к гладкому, хорошо обобщающему решению.</p>
+<p>Потяни ползунок ёмкости через порог интерполяции <span class="math inline">d = n</span>. Ровно на нём подгонка взрывается «шпилем». А сразу за ним МНК минимальной нормы снова выводит кривую к гладкому решению, которое хорошо обобщает.</p>
 <div class="column-page">
 <div data-sigma-widget="double-descent"></div>
 </div>
@@ -518,7 +518,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>При <span class="math inline">p &gt; n</span> МНК выбирает <strong>min-norm решение</strong>. Чем больше <span class="math inline">p</span>, тем меньше норма <span class="math inline">\|\hat{\theta}\|</span>, тем глаже функция, тем лучше обобщение — вопреки классической интуиции. Кривая ошибки не U, а <strong>W</strong>.</p>
+<p>При <span class="math inline">p &gt; n</span> МНК выбирает <strong>решение с минимальной нормой</strong>. Чем больше <span class="math inline">p</span>, тем меньше норма <span class="math inline">\|\hat{\theta}\|</span>, тем глаже функция, тем лучше обобщение — вопреки классической интуиции. Кривая ошибки не U, а <strong>W</strong>.</p>
 </div>
 </div>
 
@@ -537,23 +537,23 @@ window.Quarto = {
 <p><span class="math display">
 \hat{\theta} = \arg\min_{\theta:\, X\theta = y} \|\theta\|_2.
 </span></p>
-<p>В overparameterized regime это интерполирующее решение оказывается <strong>простым</strong> в смысле нормы, а потому обобщает.</p>
+<p>При <span class="math inline">p &gt; n</span> это интерполирующее решение оказывается <strong>простым</strong> в смысле нормы, а потому обобщает.</p>
 </div>
 </div>
 </div></div></section>
 <section id="двойной-спуск-в-нейросетях" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="двойной-спуск-в-нейросетях">Двойной спуск в нейросетях</h2>
 <p>Nakkiran et al.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали тот же паттерн для ResNet-18 на CIFAR-10 в трёх вариантах:</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Nakkiran, Kaplun, Bansal, Yang, Barak, Sutskever. <a href="https://arxiv.org/abs/1912.02292">Deep Double Descent: Where Bigger Models and More Data Can Hurt</a>, ICLR 2020.</p></div></div><section id="поширинный-model-wise" class="level3 page-columns page-full">
-<h3 class="anchored" data-anchor-id="поширинный-model-wise">Поширинный (model-wise)</h3>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Nakkiran, Kaplun, Bansal, Yang, Barak, Sutskever. <a href="https://arxiv.org/abs/1912.02292">Deep Double Descent: Where Bigger Models and More Data Can Hurt</a>, ICLR 2020.</p></div></div><section id="по-ширине-сети-model-wise" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="по-ширине-сети-model-wise">По ширине сети (model-wise)</h3>
 <p>Фиксируем число эпох, увеличиваем ширину сети. При ширине <span class="math inline">\approx</span> порог интерполяции — пик ошибки. При дальнейшем увеличении ширины — ошибка падает.</p>
 <p>Эффект виден далеко за пределами ResNet на CIFAR — тот же горб появляется и на <strong>маленькой сети</strong>, которую можно обучить за минуту. Ниже — настоящий MLP (один скрытый слой, ReLU, Adam), обученный на зашумлённых рукописных цифрах при растущей ширине:</p>
 <div class="column-page">
 <div data-sigma-widget="double-descent-nn"></div>
 </div>
 </section>
-<section id="поэпохный-epoch-wise" class="level3">
-<h3 class="anchored" data-anchor-id="поэпохный-epoch-wise">Поэпохный (epoch-wise)</h3>
+<section id="по-числу-эпох-epoch-wise" class="level3">
+<h3 class="anchored" data-anchor-id="по-числу-эпох-epoch-wise">По числу эпох (epoch-wise)</h3>
 <p>Фиксируем архитектуру, увеличиваем число эпох обучения. Ошибка на тесте сначала падает, потом растёт (классическое переобучение), потом <strong>снова падает</strong> при длительном обучении. Вывод: ранняя остановка в зоне «первого подъёма» бывает вредна.</p>
 </section>
 <section id="по-объёму-данных-sample-wise" class="level3">
@@ -577,14 +577,14 @@ window.Quarto = {
 </section>
 <section id="почему-это-важно" class="level2">
 <h2 class="anchored" data-anchor-id="почему-это-важно">Почему это важно</h2>
-<p>Двойной спуск объясняет, почему современные нейросети с миллиардами параметров (GPT-4: ~1,8 трлн, по оценкам) обучаются на данных, через которые они могут точно интерполировать, — и при этом обобщают:</p>
+<p>Двойной спуск объясняет, почему современные нейросети с миллиардами параметров (GPT-4: ~1,8 трлн, по оценкам) могут точно интерполировать обучающие данные — и при этом обобщать:</p>
 <ol type="1">
 <li><p><strong>Больше параметров = лучше</strong> (при правильном обучении), вопреки классической интуиции.</p></li>
 <li><p><strong>Early stopping</strong> может быть вредным, если останавливаться в зоне «первого подъёма» test loss.</p></li>
 <li><p><strong>Больше данных не всегда лучше</strong> — может сдвинуть порог интерполяции и временно ухудшить результат.</p></li>
 </ol>
 <hr>
-<p><strong>Главный вывод.</strong> Кривая ошибки не U, а W: после «шпиля» переобучения следует второй спуск. Следствие для практики: если большая нейросеть переобучилась — не уменьшайте её, а <strong>увеличьте</strong>. Именно так работают все современные Foundation models: они существуют глубоко в зоне сверхпараметризации, где min-norm решение автоматически даёт обобщение.</p>
+<p><strong>Главный вывод.</strong> После «шпиля» переобучения идёт второй спуск. Следствие для практики: если большая нейросеть переобучилась — не уменьшайте её, а <strong>увеличьте</strong>. Современные большие модели и живут в этой зоне: далеко за порогом интерполяции, где параметров куда больше, чем обучающих примеров.</p>
 </section>
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>

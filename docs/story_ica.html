@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Представьте комнату с тремя людьми и тремя микрофонами. Каждый микрофон записывает смесь всех трёх голосов. Задача — восстановить отдельные голоса, не зная ни расположения микрофонов, ни характеристик голосов. Это <strong>задача коктейльной вечеринки</strong> (cocktail party problem), и её решает метод независимых компонент (ICA) — одна из самых элегантных идей на стыке линейной алгебры и статистики. Удивительно: для этого не нужно знать ни матрицу смешивания <span class="math inline">A</span>, ни форму сигналов — достаточно того, что они не гауссовы.</em></p>
+<p><em>Представьте комнату с тремя людьми и тремя микрофонами. Каждый микрофон записывает смесь всех трёх голосов. Задача — восстановить отдельные голоса, не зная ни расположения микрофонов, ни характеристик голосов. Это <strong>задача коктейльной вечеринки</strong> (cocktail party problem), и её решает метод независимых компонент (ICA). Причём не нужно знать ни матрицу смешивания <span class="math inline">A</span>, ни форму сигналов — достаточно того, что они не гауссовы.</em></p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/ica_separation.svg" class="img-fluid figure-img"></p>
@@ -434,7 +434,7 @@ x(t) = A \cdot s(t),
 <section id="почему-pca-не-справляется" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="почему-pca-не-справляется">Почему PCA не справляется</h2>
 <p>Рассмотрим два независимых равномерных сигнала <span class="math inline">s_1, s_2 \sim U[-1, 1]</span>. Их совместное распределение — квадрат. После линейного смешивания <span class="math inline">x = As</span> квадрат превращается в параллелограмм.</p>
-<p>PCA находит оси максимальной дисперсии — это главные оси эллипса, вписанного в параллелограмм. Но стороны параллелограмма (= направления исходных сигналов) в общем случае <strong>не совпадают</strong> с осями эллипса.</p>
+<p>PCA находит оси максимальной дисперсии — это главные оси эллипса разброса, вписанного в параллелограмм. Но стороны параллелограмма (= направления исходных сигналов) в общем случае <strong>не совпадают</strong> с осями эллипса.</p>
 <p>ICA ищет именно стороны параллелограмма — направления, при проецировании на которые распределения <strong>максимально негауссовы</strong>.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
@@ -445,8 +445,8 @@ x(t) = A \cdot s(t),
 </section>
 <section id="ключевая-идея-негауссовость" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="ключевая-идея-негауссовость">Ключевая идея: негауссовость</h2>
-<p>Центральная предельная теорема говорит: сумма независимых случайных величин стремится к гауссову распределению. Значит, <strong>смесь</strong> сигналов более гауссова, чем каждый сигнал по отдельности.</p>
-<p>Если мы найдём линейные комбинации <span class="math inline">w^T x</span>, которые <strong>максимально далеки от гауссовости</strong>, — это и будут исходные компоненты. Это эквивалентно минимизации взаимной информации между компонентами (см. раздел «<a href="#связь-с-информационной-теорией">Связь с информационной теорией</a>» ниже).</p>
+<p>Центральная предельная теорема говорит: сумма независимых случайных величин стремится к гауссову распределению. Поэтому <strong>смесь</strong> сигналов обычно ближе к гауссову распределению, чем каждый сигнал по отдельности.</p>
+<p>Если мы найдём линейные комбинации <span class="math inline">w^T x</span>, которые <strong>максимально далеки от гауссовости</strong>, — это и будут исходные компоненты. Такой поиск эквивалентен минимизации взаимной информации между компонентами (см. раздел «<a href="#связь-с-информационной-теорией">Связь с информационной теорией</a>» ниже).</p>
 
 <div class="no-row-height column-margin column-container"><div class="">
 <div class="callout callout-style-default callout-tip callout-titled" title="Закон ICA">
@@ -459,7 +459,7 @@ x(t) = A \cdot s(t),
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>ЦПТ — ваш ориентир.</strong> Смесь сигналов гауссовее каждого компонента. Ищите самые негауссовые проекции — там спрятаны источники.</p>
+<p><strong>ЦПТ — ваш ориентир.</strong> Смесь ближе к гауссову распределению, чем каждый источник по отдельности. Ищите самые негауссовые проекции — там спрятаны источники.</p>
 </div>
 </div>
 </div></div><p>Меры негауссовости:</p>
@@ -469,7 +469,7 @@ x(t) = A \cdot s(t),
 </ul>
 <section id="почему-гауссов-сигнал-слепое-пятно-ica" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="почему-гауссов-сигнал-слепое-пятно-ica">Почему гауссов сигнал — слепое пятно ICA</h3>
-<p>Если один из исходных сигналов <span class="math inline">s_i</span> — гауссов, ICA <strong>не может</strong> его отделить. Это фундаментальное ограничение: гауссово распределение инвариантно относительно ортогональных поворотов, и любой поворот «выглядит одинаково».</p>
+<p>Если один из исходных сигналов <span class="math inline">s_i</span> — гауссов, ICA <strong>не может</strong> его отделить. Причина в самом распределении: гауссово распределение не меняется при ортогональных поворотах, поэтому по данным не понять, какой поворот верный.</p>
 
 <div class="no-row-height column-margin column-container"><div class="">
 <div class="callout callout-style-default callout-note callout-titled" title="Условия работоспособности ICA">
@@ -498,7 +498,7 @@ x(t) = A \cdot s(t),
 <p>Hyvärinen<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> предложил эффективный итеративный алгоритм:</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Hyvärinen, Oja. <a href="https://doi.org/10.1016/S0893-6080(00)00026-5">Independent Component Analysis: Algorithms and Applications</a>, Neural Networks, 2000.</p></div></div><p><strong>Шаг 0.</strong> Вычесть среднее и уравнять разброс по всем направлениям (это делает PCA): <span class="math display">
 z = \Lambda^{-1/2} U^T (x - \bar{x}),
-</span> где <span class="math inline">U\Lambda U^T</span> — собственное разложение ковариационной матрицы. После этого ковариационная матрица становится единичной: <span class="math inline">\text{Cov}(z) = I</span> — данные одинаково «раздуты» во все стороны, и дальше ICA ищет уже не масштаб, а форму распределения.</p>
+</span> где <span class="math inline">U\Lambda U^T</span> — собственное разложение ковариационной матрицы. После этого ковариационная матрица становится единичной: <span class="math inline">\text{Cov}(z) = I</span>. Данные одинаково «раздуты» во все стороны, и дальше ICA ищет уже не масштаб, а форму распределения.</p>
 <p><strong>Шаг 1.</strong> Инициализация случайного вектора <span class="math inline">w</span> единичной нормы.</p>
 <p><strong>Шаг 2.</strong> Итерация с фиксированной точкой:</p>
 <div class="column-page">
@@ -506,7 +506,7 @@ z = \Lambda^{-1/2} U^T (x - \bar{x}),
 w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 </span></p>
 </div>
-<p>где <span class="math inline">g(u) = \tanh(u)</span> — нелинейность (приближение негэнтропии).</p>
+<p>где <span class="math inline">g(u) = \tanh(u)</span> — нелинейность, через которую приближают негэнтропию.</p>
 <p><strong>Шаг 3.</strong> Нормализация: <span class="math inline">w \leftarrow w / \|w\|</span>.</p>
 <p><strong>Шаг 4.</strong> Повторять шаги 2—3 до сходимости.</p>
 <p>Для нескольких компонент добавляется ортогонализация Грама–Шмидта между найденными направлениями.</p>
@@ -553,7 +553,7 @@ w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 </section>
 <section id="демо-разделение-звуков" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="демо-разделение-звуков">Демо: разделение звуков</h2>
-<p>Возьмитесь за стрелки и сами смешайте источники: тяните столбцы матрицы <span class="math inline">A</span> — квадрат на глазах перекашивается в параллелограмм, а оси PCA и ICA расходятся ровно так, как описано выше.</p>
+<p>Возьмитесь за стрелки и смешайте источники сами: тяните столбцы матрицы <span class="math inline">A</span>. Квадрат перекашивается в параллелограмм, а оси PCA и ICA расходятся так, как описано выше.</p>
 <div class="column-page">
 <div data-sigma-widget="ica-cocktail"></div>
 </div>
@@ -616,13 +616,13 @@ w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>fMRI</strong></td>
-<td style="text-align: left;">Spatial ICA</td>
+<td style="text-align: left;">Пространственный ICA (spatial ICA)</td>
 <td style="text-align: left;">Независимые нейронные сети мозга</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Финансы</strong></td>
 <td style="text-align: left;">Выделение факторов</td>
-<td style="text-align: left;">Независимые рыночные драйверы</td>
+<td style="text-align: left;">Независимые движущие силы рынка</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Телеком</strong></td>
@@ -631,14 +631,14 @@ w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Астрономия</strong></td>
-<td style="text-align: left;">Выделение CMB из смеси с галактической пылью</td>
+<td style="text-align: left;">Выделение реликтового излучения (CMB) из смеси</td>
 <td style="text-align: left;">Реликтовое излучение и галактическая пыль</td>
 </tr>
 </tbody>
 </table>
 <section id="пример-очистка-ээг" class="level3">
 <h3 class="anchored" data-anchor-id="пример-очистка-ээг">Пример: очистка ЭЭГ</h3>
-<p>Электроэнцефалограмма — сигнал с 64 электродов на голове. Помимо мозговой активности, электроды ловят моргание (EOG), сердцебиение (ECG), мышечные артефакты (EMG). ICA разделяет эти компоненты, и нейробиолог вручную отмечает артефактные (по характерной пространственной карте и спектру) — затем данные восстанавливаются без них.</p>
+<p>Электроэнцефалограмма — сигнал с 64 электродов на голове. Помимо мозговой активности, электроды ловят моргание (EOG), сердцебиение (ECG), мышечные артефакты (EMG). ICA разделяет эти компоненты, нейробиолог вручную отмечает артефактные (по характерной пространственной карте и спектру), и данные собирают обратно уже без них.</p>
 </section>
 </section>
 <section id="связь-с-информационной-теорией" class="level2">
@@ -648,7 +648,7 @@ w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 I(y_1, \ldots, y_n) = \sum_i H(y_i) - H(y_1, \ldots, y_n).
 </span></p>
 <p>Если компоненты действительно независимы, <span class="math inline">I = 0</span>. ICA ищет такое линейное преобразование, которое минимизирует <span class="math inline">I</span> — то есть делает компоненты максимально «не знающими» друг о друге.</p>
-<p>Это связывает ICA с энтропией Шеннона из Части I книги и с cross-entropy loss нейросетей.</p>
+<p>Через эту формулу ICA связан с энтропией Шеннона из Части I книги и с перекрёстной энтропией (cross-entropy), которую минимизируют при обучении нейросетей.</p>
 </section>
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>

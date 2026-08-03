@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Нейронная сеть с миллионами параметров минимизирует функцию потерь в пространстве, которое невозможно визуализировать. Что увидит человек, если «срежет» этот ландшафт плоскостью? Почему в пространстве тысяч измерений почти все точки — седловые, а не локальные минимумы? И есть ли смысл вообще «застрять» в плохом локальном минимуме?</em></p>
+<p><em>Нейронная сеть с миллионами параметров минимизирует функцию потерь в пространстве, которое невозможно визуализировать. Что увидит человек, если «срежет» этот ландшафт плоскостью? Почему в пространстве тысяч измерений почти все точки — седловые, а не локальные минимумы? И стоит ли вообще бояться застрять в плохом локальном минимуме?</em></p>
 <section id="зачем-проецировать-ландшафт" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="зачем-проецировать-ландшафт">Зачем проецировать ландшафт</h2>
 <p>Когда мы обучаем нейросеть, мы движемся по поверхности <span class="math inline">L(\theta)</span>, где <span class="math inline">\theta \in \mathbb{R}^d</span>, а <span class="math inline">d</span> может быть от десятков тысяч (LeNet) до сотен миллиардов (GPT-4). Визуализировать такое пространство напрямую нельзя — мы ограничены двумя или тремя измерениями на экране.</p>
@@ -414,7 +414,7 @@ f(\alpha, \beta) = L(\theta^* + \alpha\,\delta_1 + \beta\,\delta_2).
 <p><span class="math display">
 f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 </span></p>
-<p>Если <span class="math inline">\delta</span> — случайный гауссов вектор, мы получаем одномерный «срез» ландшафта. Для хорошо обученной сети этот срез выглядит как гладкая парабола вблизи минимума, но вдали от минимума — многомодально: встречаются плоские плато и острые пики.</p>
+<p>Если <span class="math inline">\delta</span> — случайный гауссов вектор, мы получаем одномерный «срез» ландшафта. Для хорошо обученной сети вблизи минимума этот срез выглядит как гладкая парабола, а дальше ломается: встречаются плато и острые пики.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Фильтр-нормализация">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -431,7 +431,7 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 </section>
 <section id="проекция-на-плоскость" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="проекция-на-плоскость">Проекция на плоскость</h3>
-<p>Два случайных направления <span class="math inline">\delta_1, \delta_2</span> задают двумерное сечение. Для ResNet-56 без skip-connections ландшафт оказывается хаотичным с множеством глубоких впадин. Добавление residual connections <strong>драматически</strong> сглаживает его — это одно из самых наглядных объяснений того, <em>зачем</em> нужны skip-connections.</p>
+<p>Два случайных направления <span class="math inline">\delta_1, \delta_2</span> задают двумерное сечение. Для ResNet-56 без skip-connections ландшафт оказывается хаотичным с множеством глубоких впадин. Добавление residual connections <strong>резко</strong> сглаживает его — это одно из самых наглядных объяснений того, <em>зачем</em> нужны skip-connections.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -485,9 +485,9 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 </section>
 <section id="парадоксы-высокой-размерности" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="парадоксы-высокой-размерности">Парадоксы высокой размерности</h2>
-<p>Ландшафт функции потерь живёт в пространстве очень высокой размерности. Наша геометрическая интуиция, выработанная в 2D и 3D, систематически обманывает нас в таком мире.</p>
-<section id="парадокс-1-объём-сферы" class="level3 page-columns page-full">
-<h3 class="anchored" data-anchor-id="парадокс-1-объём-сферы">Парадокс 1: объём сферы</h3>
+<p>Ландшафт функции потерь живёт в пространстве очень высокой размерности. Наша геометрическая интуиция, выработанная в 2D и 3D, здесь систематически нас обманывает.</p>
+<section id="парадокс-1-объём-шара" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="парадокс-1-объём-шара">Парадокс 1: объём шара</h3>
 <p>Объём единичного шара в <span class="math inline">\mathbb{R}^d</span>:</p>
 <p><span class="math display">
 V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
@@ -523,7 +523,7 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 <p><span class="math display">
 \mathbb{E}[\|x_i - x_j\|] \approx \sqrt{d/6}.
 </span></p>
-<p>А дисперсия расстояний растёт как <span class="math inline">O(1/d)</span>, то есть <strong>все попарные расстояния стремятся к одному и тому же значению</strong>. В <span class="math inline">d = 10\,000</span> разброс расстояний — доли процента. Метрика расстояний теряет смысл.</p>
+<p>А разброс вокруг этого среднего убывает как <span class="math inline">O(1/d)</span>, то есть <strong>все попарные расстояния стремятся к одному и тому же значению</strong>. При <span class="math inline">d = 10\,000</span> разброс — доли процента: расстояние почти перестаёт различать точки.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/loss_concentration.svg" class="img-fluid figure-img"></p>
@@ -554,28 +554,28 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 </div></div></section>
 <section id="парадокс-4-седловые-точки-вместо-локальных-минимумов" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="парадокс-4-седловые-точки-вместо-локальных-минимумов">Парадокс 4: седловые точки вместо локальных минимумов</h3>
-<p>В двумерном ландшафте локальный минимум — обычное дело: обе кривизны положительны. Но в <span class="math inline">d</span>-мерном пространстве для стационарной точки нужно, чтобы <strong>все</strong> <span class="math inline">d</span> собственных значений гессиана были одного знака. В модели, где знаки собственных значений независимы и равновероятны (упрощение, но иллюстративное), вероятность этого — <span class="math inline">2^{-d}</span>.</p>
-<p>Dauphin et al.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали, что в высокомерных нейросетях критические точки с высоким значением loss — почти всегда седловые, а не локальные минимумы. Настоящие локальные минимумы имеют примерно одинаковое значение loss.</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Dauphin, Pascanu, Gulcehre, Cho, Ganguli, Bengio. <a href="https://arxiv.org/abs/1406.2572">Identifying and attacking the saddle point problem in high-dimensional non-convex optimization</a>, NeurIPS 2014.</p></div></div><div class="callout callout-style-default callout-important callout-titled" title="Закон Dauphin: все минимумы одинаково хороши">
+<p>В двумерном ландшафте локальный минимум — обычное дело: обе кривизны положительны. Но в <span class="math inline">d</span>-мерном пространстве стационарная точка окажется минимумом, только если <strong>все</strong> <span class="math inline">d</span> собственных значений гессиана положительны. В модели, где знаки собственных значений независимы и равновероятны (упрощение, но наглядное), вероятность этого — <span class="math inline">2^{-d}</span>.</p>
+<p>Dauphin et al.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали, что в сетях высокой размерности критические точки с высоким значением потерь — почти всегда седловые, а не локальные минимумы. У настоящих локальных минимумов значение потерь примерно одинаковое.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Dauphin, Pascanu, Gulcehre, Cho, Ganguli, Bengio. <a href="https://arxiv.org/abs/1406.2572">Identifying and attacking the saddle point problem in high-dimensional non-convex optimization</a>, NeurIPS 2014.</p></div></div><div class="callout callout-style-default callout-important callout-titled" title="Все минимумы примерно одинаково хороши">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Закон Dauphin: все минимумы одинаково хороши
+<span class="screen-reader-only">Важное уведомление</span>Все минимумы примерно одинаково хороши
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Плохих локальных минимумов в глубоких нейросетях почти нет. Критические точки с высоким loss — <strong>почти всегда сёдла</strong>, а не ямы. Все настоящие локальные минимумы сосредоточены вблизи одного и того же уровня loss. Это означает: если SGD застрял — он застрял в седле, а не в плохом минимуме. Нужно не «вылезать» — нужно <strong>соскользнуть</strong>.</p>
+<p>Плохих локальных минимумов в глубоких нейросетях почти нет: точки с высокими потерями — <strong>почти всегда сёдла</strong>, а не ямы. Значит, если SGD застрял, то застрял в седле. Оттуда не надо «вылезать» — оттуда можно <strong>соскользнуть</strong>.</p>
 </div>
 </div>
-<p>Это объясняет, почему SGD работает: ему не нужно «перепрыгивать» через барьеры локальных минимумов — он просто «соскальзывает» с седловых точек вдоль направлений отрицательной кривизны.</p>
+<p>Отсюда понятно, почему SGD работает: ему не нужно перепрыгивать барьеры — он соскальзывает с седловых точек вдоль направлений отрицательной кривизны.</p>
 </section>
 </section>
 <section id="что-показывают-проекции" class="level2">
 <h2 class="anchored" data-anchor-id="что-показывают-проекции">Что показывают проекции</h2>
-<p>Когда мы проецируем <span class="math inline">L(\theta)</span> на случайную прямую или плоскость, мы видим <strong>типичное</strong> сечение, а не специально выбранное. Теорема Джонсона–Линденштраусса гарантирует, что случайная проекция из <span class="math inline">\mathbb{R}^d</span> в <span class="math inline">\mathbb{R}^k</span> сохраняет попарные расстояния <span class="math inline">N</span> точек с точностью <span class="math inline">\varepsilon</span> при <span class="math inline">k = O(\log N / \varepsilon^2)</span> измерениях — для <span class="math inline">N = 10\,000</span> и <span class="math inline">\varepsilon = 0{,}1</span> достаточно <span class="math inline">k \approx 1\,900</span> измерений (константа в оценке зависит от формулировки теоремы, <span class="math inline">k \approx 2\!-\!4\,\ln N / \varepsilon^2</span>) — вместо исходных тысяч; при <span class="math inline">d \sim 10^6</span> это сжатие в сотни раз.</p>
-<p>Но одномерный срез показывает только одно из миллиона направлений. Гладкость среза не означает гладкости ландшафта: может существовать узкое «ущелье» в ортогональном направлении.</p>
+<p>Когда мы проецируем <span class="math inline">L(\theta)</span> на случайную прямую или плоскость, мы видим <strong>типичное</strong> сечение, а не специально выбранное. Теорема Джонсона — Линденштрауса гарантирует, что случайная проекция из <span class="math inline">\mathbb{R}^d</span> в <span class="math inline">\mathbb{R}^k</span> сохраняет попарные расстояния <span class="math inline">N</span> точек с точностью <span class="math inline">\varepsilon</span> при <span class="math inline">k = O(\log N / \varepsilon^2)</span> измерениях. Для <span class="math inline">N = 10\,000</span> и <span class="math inline">\varepsilon = 0{,}1</span> хватает <span class="math inline">k \approx 1\,900</span> измерений (константа в оценке зависит от формулировки теоремы, <span class="math inline">k \approx 2\!-\!4\,\ln N / \varepsilon^2</span>). При <span class="math inline">d \sim 10^6</span> это сжатие в сотни раз. Но на экране измерений всего два, и такой гарантии для них уже нет.</p>
+<p>Одномерный срез показывает только одно из миллиона направлений. Гладкость среза не означает гладкости ландшафта: может существовать узкое «ущелье» в ортогональном направлении.</p>
 <section id="что-видно-на-практике" class="level3">
 <h3 class="anchored" data-anchor-id="что-видно-на-практике">Что видно на практике</h3>
 <table class="caption-top table">
@@ -600,7 +600,7 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 <tr class="even">
 <td style="text-align: left;">Plain-110 / ResNet-110</td>
 <td style="text-align: left;">Ещё более хаотичный</td>
-<td style="text-align: left;">Идеально гладкий</td>
+<td style="text-align: left;">Гладкий</td>
 </tr>
 </tbody>
 </table>
@@ -609,8 +609,8 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 </section>
 <section id="практическое-следствие-широкие-минимумы-обобщают-лучше" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="практическое-следствие-широкие-минимумы-обобщают-лучше">Практическое следствие: широкие минимумы обобщают лучше</h2>
-<p>Keskar et al.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> заметили, что <strong>широкие</strong> минимумы (с малой кривизной гессиана) обобщают лучше, чем <strong>острые</strong>. Маленький batch size в SGD добавляет шум, который «выталкивает» оптимизатор из острых минимумов в широкие — это одна из причин, почему SGD обобщает лучше полного градиентного спуска.</p>
-<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Keskar, Mudigere, Nocedal, Smelyanskiy, Tang. <a href="https://arxiv.org/abs/1609.04836">On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima</a>, ICLR 2017.</p></div></div><p>На проекциях это видно буквально: ландшафт для SGD с batch 256 выглядит как широкая долина, а для полного GD — как узкий каньон.</p>
+<p>Keskar et al.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> заметили, что <strong>широкие</strong> минимумы (с малой кривизной гессиана) обобщают лучше, чем <strong>острые</strong>. Маленький размер батча в SGD добавляет шум, который «выталкивает» оптимизатор из острых минимумов в широкие — это одна из причин, почему SGD обобщает лучше полного градиентного спуска.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Keskar, Mudigere, Nocedal, Smelyanskiy, Tang. <a href="https://arxiv.org/abs/1609.04836">On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima</a>, ICLR 2017.</p></div></div><p>На проекциях это видно буквально: ландшафт для SGD с батчем 256 выглядит как широкая долина, а для полного GD — как узкий каньон.</p>
 </section>
 <section id="резюме" class="level2">
 <h2 class="anchored" data-anchor-id="резюме">Резюме</h2>
@@ -655,7 +655,7 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 </tr>
 </tbody>
 </table>
-<p><strong>Закон, который стоит унести:</strong> все локальные минимумы глубокой сети примерно одинаковы по качеству — плохие критические точки почти всегда сёдла, а не ямы. Визуализация через проекции — мощный инструмент, но интерпретировать её нужно с осторожностью: гладкость одного среза не гарантирует гладкости ландшафта целиком.</p>
+<p><strong>Что стоит унести:</strong> все локальные минимумы глубокой сети примерно одинаковы по качеству, а плохие критические точки почти всегда оказываются сёдлами, а не ямами. Проекции помогают увидеть ландшафт, но читать их надо осторожно: гладкость одного среза не гарантирует гладкости ландшафта целиком.</p>
 
 
 </section>

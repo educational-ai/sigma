@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Безградиентный ZO-GD на задаче с 200 переменными потребует в 200 раз больше итераций, чем градиентный спуск. С 5000 переменными — в 5000 раз. Именно поэтому нейросети не обучают без градиента. Метод Нелдера–Мида разделяет это проклятие: как и любой безградиентный подход, он не обходит теоретический барьер размерности. Чтобы понять почему, возьмём конкретную задачу: по таблице расстояний между городами восстановить карту — координаты каждого города. Это многомерное шкалирование (MDS), и на нём разрыв между методами виден физически.</em></p>
+<p><em>Безградиентному ZO-GD на задаче с 200 переменными по теории нужно в 200 раз больше итераций, чем градиентному спуску. С 5000 переменными — в 5000 раз. Именно поэтому нейросети не обучают без градиента. Метод Нелдера–Мида тут не исключение: как и любой безградиентный подход, барьер размерности он не обходит. Чтобы понять почему, возьмём конкретную задачу: по таблице расстояний между городами восстановить карту — координаты каждого города. Это многомерное шкалирование (MDS), и на нём разрыв между методами видно глазами.</em></p>
 <section id="постановка-задачи" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="постановка-задачи">Постановка задачи</h2>
 <p>Дана матрица расстояний <span class="math inline">D \in \mathbb{R}^{N \times N}</span>, <span class="math inline">D_{ij} = \text{dist}(i, j)</span>. Хотим найти координаты <span class="math inline">W_1, \ldots, W_N \in \mathbb{R}^d</span> так, чтобы расстояния между ними как можно меньше расходились с заданными. Меру расхождения и минимизируем:</p>
@@ -427,6 +427,7 @@ L(W) = \sum_{i &lt; j} \bigl(\|W_i - W_j\|_2 - D_{ij}\bigr)^2.
 </div></div></section>
 <section id="пример-восстановление-карты-городов" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="пример-восстановление-карты-городов">Пример: восстановление карты городов</h2>
+<p>Начнём с игрушечных данных: десять точек со случайными координатами — и оставим от них только таблицу расстояний.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -517,10 +518,10 @@ L(W) = \sum_{i &lt; j} \bigl(\|W_i - W_j\|_2 - D_{ij}\bigr)^2.
 </figure>
 </div>
 </section>
-<section id="градиентный-спуск-vs-безградиентные-методы" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="градиентный-спуск-vs-безградиентные-методы">Градиентный спуск vs безградиентные методы</h2>
-<p>Задача MDS — идеальный полигон для сравнения: размерность <span class="math inline">p = Nd</span> растёт с <span class="math inline">N</span> и <span class="math inline">d</span>.</p>
-<p>Вот как это выглядит на настоящих данных: 34 крупнейших города Европы, на входе только таблица расстояний между ними. Двигайте число городов и переключайте метод — карта собирается сама, а разрыв между градиентным и безградиентным методом растёт вместе с размерностью.</p>
+<section id="градиентный-спуск-против-безградиентных-методов" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="градиентный-спуск-против-безградиентных-методов">Градиентный спуск против безградиентных методов</h2>
+<p>Задача MDS удобна для сравнения: размерность <span class="math inline">p = Nd</span> растёт вместе с <span class="math inline">N</span> и <span class="math inline">d</span>.</p>
+<p>Вот как это выглядит на настоящих данных: 34 крупнейших города Европы, на входе — только таблица расстояний между ними, ни широт, ни долгот. Двигайте число городов и переключайте метод (градиентный или Нелдера–Мида). Из одних расстояний не понять, где север, поэтому карту доворачивают и при необходимости отражают, чтобы приложить к настоящей географии — к крестикам. Чем больше городов, тем больше переменных (<span class="math inline">p = 2N</span>) и тем сильнее отстаёт безградиентный метод.</p>
 <div class="column-page">
 <div data-sigma-widget="mds-relax"></div>
 </div>
@@ -533,7 +534,7 @@ L(W) = \sum_{i &lt; j} \bigl(\|W_i - W_j\|_2 - D_{ij}\bigr)^2.
 (W_i - W_j).
 </span></p>
 </div>
-<p>Вычисление: <span class="math inline">O(N^2 d)</span> операций — одна итерация GD.</p>
+<p>Одна итерация GD стоит <span class="math inline">O(N^2 d)</span> операций.</p>
 </section>
 <section id="безградиентные-методы" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="безградиентные-методы">Безградиентные методы</h3>
@@ -543,7 +544,7 @@ L(W) = \sum_{i &lt; j} \bigl(\|W_i - W_j\|_2 - D_{ij}\bigr)^2.
 G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilon} v_k,
 </span></p>
 </div>
-<p>где <span class="math inline">v_k</span> — случайное направление. В среднем <span class="math inline">\mathbb{E}[G] = \nabla L</span>, но дисперсия оценки <span class="math inline">\propto d</span>.</p>
+<p>где <span class="math inline">v_k</span> — случайное направление. В среднем такая оценка смотрит туда же, куда градиент, <span class="math inline">\mathbb{E}[G] = \nabla L</span>, но разброс её растёт с размерностью: дисперсия <span class="math inline">\propto d</span>.</p>
 </section>
 </section>
 <section id="проклятие-размерности-для-безградиентных-методов" class="level2 page-columns page-full">
@@ -579,8 +580,8 @@ G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilo
 </tr>
 </tbody>
 </table>
-<p>Безградиентные методы <strong>платят фактор <span class="math inline">d</span></strong> в скорости сходимости. Для MDS с <span class="math inline">N = 100</span> городами в <span class="math inline">d = 2</span> измерениях: <span class="math inline">p = 200</span>, фактор <span class="math inline">d</span> = 200. В <span class="math inline">d = 50</span>: <span class="math inline">p = 5000</span>, фактор <span class="math inline">d</span> = 5000.</p>
-<p><strong>Каждая лишняя размерность обходится безградиентному методу одной лишней итерацией.</strong> Для нейросети с <span class="math inline">10^8</span> параметрами — это смертный приговор.</p>
+<p>Безградиентные методы <strong>платят фактор <span class="math inline">d</span></strong> в скорости сходимости, где <span class="math inline">d</span> — полное число переменных задачи. Для MDS с <span class="math inline">N = 100</span> городами на плоскости переменных выходит <span class="math inline">p = 200</span> — значит, и фактор равен 200. При вложении в 50 измерений <span class="math inline">p = 5000</span>, фактор — 5000.</p>
+<p><strong>Число итераций у безградиентного метода растёт пропорционально числу переменных.</strong> Для нейросети с <span class="math inline">10^8</span> параметрами это уже неподъёмно.</p>
 <section id="численный-эксперимент" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="численный-эксперимент">Численный эксперимент</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -645,14 +646,14 @@ G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilo
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/mds_gd_vs_zo.svg" class="img-fluid figure-img"></p>
-<figcaption class="margin-caption">GD vs безградиентный метод: разрыв усиливается с ростом d.&nbsp;Теоретический фактор d — верхняя оценка, эмпирический рост медленнее. Здесь d — размерность вложения; p = n·d — полное число переменных.</figcaption>
+<figcaption class="margin-caption">GD против безградиентного метода: разрыв растёт с d.&nbsp;Теоретический фактор d — верхняя оценка, эмпирический рост медленнее. Здесь d — размерность вложения; p = n·d — полное число переменных.</figcaption>
 </figure>
 </div>
 </section>
 <section id="что-видно" class="level3">
 <h3 class="anchored" data-anchor-id="что-видно">Что видно</h3>
-<p>На фигуре — реальные результаты запуска кода выше (seed=42). Разрыв усиливается с ростом <span class="math inline">d</span>: при <span class="math inline">d=2</span> безградиентный хуже примерно в 36 раз, при <span class="math inline">d=50</span> — уже в 200+ раз. Теоретический фактор <span class="math inline">d</span> — верхняя оценка; эмпирический рост медленнее (6× при 25-кратном росте <span class="math inline">d</span>). Точные числа зависят от seed и гиперпараметров, но качественная картина устойчива.</p>
-<p>Градиентный спуск, получая точный вектор <span class="math inline">\nabla L \in \mathbb{R}^p</span>, движется по правильному направлению с первой итерации — независимо от того, насколько велико <span class="math inline">p</span>.</p>
+<p>На рисунке — результаты запуска кода выше (seed=42). Разрыв растёт с <span class="math inline">d</span>: при <span class="math inline">d=2</span> безградиентный метод хуже примерно в 36 раз, при <span class="math inline">d=50</span> — уже больше чем в 200. Теоретический фактор <span class="math inline">d</span> — верхняя оценка, на практике рост медленнее: <span class="math inline">d</span> вырос в 25 раз, а разрыв — примерно в 6 раз. Точные числа зависят от seed и шага, но качественная картина не меняется.</p>
+<p>Градиентный спуск, получая точный вектор <span class="math inline">\nabla L \in \mathbb{R}^p</span>, движется в сторону убывания уже с первой итерации — независимо от того, насколько велико <span class="math inline">p</span>.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Главный вывод">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -663,7 +664,7 @@ G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilo
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Автоматическое дифференцирование</strong> (autograd в PyTorch, JAX) позволяет вычислять точный градиент любой дифференцируемой функции за время, сопоставимое с одним вычислением функции (обратный проход ≤ 4× прямого). Это делает методы первого порядка доступными для <strong>любой</strong> задачи, не только для тех, где градиент можно выписать аналитически.</p>
+<p><strong>Автоматическое дифференцирование</strong> (autograd в PyTorch, JAX) позволяет вычислять точный градиент любой дифференцируемой функции за время, сопоставимое с одним вычислением функции (обратный проход дороже прямого не больше чем вчетверо). Это делает методы первого порядка доступными для <strong>любой</strong> задачи, не только для тех, где градиент можно выписать аналитически.</p>
 <p>Именно поэтому нейросети обучаются: задача с <span class="math inline">10^{11}</span> параметров решается SGD с точным (автоматически вычисленным) градиентом, а не безградиентными методами.</p>
 </div>
 </div>
@@ -671,14 +672,14 @@ G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilo
 </section>
 <section id="связь-mds-с-pca" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="связь-mds-с-pca">Связь MDS с PCA</h2>
-<p>Классический MDS и PCA тесно связаны. Если расстояния евклидовы, классический MDS даёт <strong>те же координаты</strong>, что PCA матрицы координат:</p>
+<p>Классический MDS и PCA тесно связаны. Если расстояния евклидовы, классический MDS даёт <strong>те же координаты</strong>, что и PCA той же матрицы координат:</p>
 <div class="column-page">
 <p><span class="math display">
 B = -\frac{1}{2} J D^{(2)} J = X X^T \implies \text{eigendecomposition}
 \implies \text{координаты} = U_k \Lambda_k^{1/2}.
 </span></p>
 </div>
-<p>Но PCA требует знания координат <span class="math inline">X</span>, а MDS — только расстояний <span class="math inline">D</span>. MDS работает даже когда координаты неопределены (перцептуальные расстояния, лингвистическое сходство).</p>
+<p>Но PCA требует знания координат <span class="math inline">X</span>, а MDS — только расстояний <span class="math inline">D</span>. MDS работает даже там, где координат нет вовсе, а есть лишь попарная близость: воспринимаемое сходство стимулов, близость слов по смыслу.</p>
 </section>
 <section id="применения-mds" class="level2">
 <h2 class="anchored" data-anchor-id="применения-mds">Применения MDS</h2>
@@ -699,7 +700,7 @@ B = -\frac{1}{2} J D^{(2)} J = X X^T \implies \text{eigendecomposition}
 <tr class="even">
 <td style="text-align: left;"><strong>Психология</strong></td>
 <td style="text-align: left;">Стимулы</td>
-<td style="text-align: left;">Перцептуальное сходство</td>
+<td style="text-align: left;">Воспринимаемое сходство</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>NLP</strong></td>
@@ -709,7 +710,7 @@ B = -\frac{1}{2} J D^{(2)} J = X X^T \implies \text{eigendecomposition}
 <tr class="even">
 <td style="text-align: left;"><strong>Биоинформатика</strong></td>
 <td style="text-align: left;">Белки</td>
-<td style="text-align: left;">Edit distance</td>
+<td style="text-align: left;">Расстояние редактирования</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Социология</strong></td>
@@ -722,12 +723,12 @@ B = -\frac{1}{2} J D^{(2)} J = X X^T \implies \text{eigendecomposition}
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>
-<li><a href="story_pca.html"><strong>PCA и eigenfaces</strong></a> — классический MDS это тот же PCA, только из расстояний</li>
+<li><a href="story_pca.html"><strong>PCA и eigenfaces</strong></a> — классический MDS сводится к тому же PCA, только на входе расстояния</li>
 <li><a href="story_optimizers.html"><strong>GD, momentum, Adam</strong></a> — почему первый порядок решает MDS за секунды</li>
 <li><a href="story_loss_landscape.html"><strong>Ландшафт функции потерь</strong></a> — концентрация меры и проклятие размерности</li>
 <li><strong>t-SNE, UMAP</strong> — нелинейные варианты MDS</li>
 <li><strong>Автоматическое дифференцирование</strong> — считает градиент без ручных формул</li>
-<li>Интерактивный бенчмарк сравнения методов на задаче MDS — <a href="http://www.benfrederickson.com/numerical-optimization/">benfrederickson.com/numerical-optimization</a></li>
+<li>Интерактивное сравнение методов на задаче MDS — <a href="http://www.benfrederickson.com/numerical-optimization/">benfrederickson.com/numerical-optimization</a></li>
 </ul>
 </section>
 <section id="код-и-данные" class="level2">

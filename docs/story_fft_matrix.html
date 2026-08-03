@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>За 4 секунды Shazam перебирает 50 миллионов треков и находит нужный — без перебора. Секрет: одно математическое наблюдение о матрице Фурье превращает <span class="math inline">O(n^2)</span> операций в <span class="math inline">O(n \log n)</span>. Дискретное преобразование Фурье — это умножение вектора на матрицу <span class="math inline">F_n</span>, элементы которой — корни из единицы. Быстрое преобразование Фурье (БПФ, Кули–Тьюки, 1965) — это факторизация <span class="math inline">F_n</span> в произведение <span class="math inline">\log_2 n</span> разреженных матриц. Одно алгебраическое тождество — и задача, непосильная для матрицы, решается за миллисекунды.</em></p>
+<p><em>За 4 секунды Shazam находит нужный трек среди 50 миллионов — не перебирая их. Секрет: одно наблюдение о матрице Фурье превращает <span class="math inline">O(n^2)</span> операций в <span class="math inline">O(n \log n)</span>. Дискретное преобразование Фурье — это умножение вектора на матрицу <span class="math inline">F_n</span>, элементы которой — корни из единицы. Быстрое преобразование Фурье (БПФ, Кули–Тьюки, 1965) — это факторизация <span class="math inline">F_n</span> в произведение <span class="math inline">\log_2 n</span> разреженных матриц. Одно алгебраическое тождество — и задача, неподъёмная при умножении на плотную матрицу, решается за миллисекунды.</em></p>
 <section id="дпф-как-матричное-умножение" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="дпф-как-матричное-умножение">ДПФ как матричное умножение</h2>
 <p>Дискретное преобразование Фурье вектора <span class="math inline">x = (x_0, x_1, \ldots, x_{n-1})^T</span>:</p>
@@ -409,7 +409,7 @@ X_k = \sum_{j=0}^{n-1} x_j \cdot \omega_n^{jk}, \quad k = 0, 1, \ldots, n-1,
 </span></p>
 </div>
 <p>где <span class="math inline">\omega_n = e^{-2\pi i/n}</span> — примитивный корень <span class="math inline">n</span>-й степени из единицы.</p>
-<p>В матричной форме это записывается как <span class="math inline">X = F_n \cdot x</span>, где матрица Фурье:</p>
+<p>В матричной форме это <span class="math inline">X = F_n \cdot x</span>, где матрица Фурье:</p>
 <div class="column-page">
 <p><span class="math display">
 F_n = \begin{pmatrix}
@@ -436,7 +436,7 @@ F_n = \begin{pmatrix}
 <div class="callout-body-container callout-body">
 <ul>
 <li><span class="math inline">F_n</span> — <strong>унитарная</strong> (с точностью до нормировки): <span class="math inline">F_n^* F_n = nI</span></li>
-<li>Строки <span class="math inline">F_n</span> — ортогональные базисные вектора «частотного» пространства</li>
+<li>Строки <span class="math inline">F_n</span> — ортогональные базисные векторы «частотного» пространства</li>
 <li>Обратное преобразование: <span class="math inline">x = \frac{1}{n} F_n^* X</span> (сопряжённая матрица)</li>
 <li>Все элементы <span class="math inline">F_n</span> лежат на единичной окружности в <span class="math inline">\mathbb{C}</span></li>
 </ul>
@@ -445,7 +445,7 @@ F_n = \begin{pmatrix}
 </div></div><div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/fft_matrix.svg" class="img-fluid figure-img"></p>
-<figcaption class="margin-caption">Матрица Фурье <span class="math inline">F_{32}</span> (Re и Im) и пример разреженного butterfly-слоя <span class="math inline">B_8</span> — один из <span class="math inline">\log_2 n</span> множителей факторизации</figcaption>
+<figcaption class="margin-caption">Матрица Фурье <span class="math inline">F_{32}</span> (Re и Im) и пример разреженного слоя-бабочки <span class="math inline">B_8</span> — одного из <span class="math inline">\log_2 n</span> множителей факторизации</figcaption>
 </figure>
 </div>
 <section id="пример-n-4" class="level3 page-columns page-full">
@@ -487,7 +487,7 @@ F_4 = \begin{pmatrix}
 </section>
 <section id="идея-бпф-факторизация-матрицы" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="идея-бпф-факторизация-матрицы">Идея БПФ: факторизация матрицы</h2>
-<p>Гениальность алгоритма Кули–Тьюки (1965)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>: матрицу <span class="math inline">F_n</span> (при <span class="math inline">n = 2^m</span>) можно разложить в произведение <span class="math inline">m = \log_2 n</span> <strong>разреженных</strong> матриц, каждая с <span class="math inline">O(n)</span> ненулевыми элементами.</p>
+<p>Идея алгоритма Кули–Тьюки (1965)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>: матрицу <span class="math inline">F_n</span> (при <span class="math inline">n = 2^m</span>) можно разложить в произведение <span class="math inline">m = \log_2 n</span> <strong>разреженных</strong> матриц, каждая с <span class="math inline">O(n)</span> ненулевыми элементами.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Cooley, Tukey. <a href="https://doi.org/10.2307/2003354">An Algorithm for the Machine Calculation of Complex Fourier Series</a>, Mathematics of Computation, 1965.</p></div></div><section id="рекурсивное-разделение" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="рекурсивное-разделение">Рекурсивное разделение</h3>
 <p>Разобьём <span class="math inline">x</span> на чётные и нечётные компоненты:</p>
@@ -496,7 +496,7 @@ F_4 = \begin{pmatrix}
 X_k = \underbrace{\sum_{j=0}^{n/2-1} x_{2j}\, \omega_n^{2jk}}_{\text{ДПФ чётных}} + \omega_n^k \underbrace{\sum_{j=0}^{n/2-1} x_{2j+1}\, \omega_n^{2jk}}_{\text{ДПФ нечётных}}
 </span></p>
 </div>
-<p>Здесь — главный трюк, до неприличия простой: <span class="math inline">\omega_n^2 = \omega_{n/2}</span>. Одно равенство — и обе суммы оказываются ДПФ половинного размера. Применяем рекурсивно <span class="math inline">\log_2 n</span> раз — и <span class="math inline">n^2</span> превращается в <span class="math inline">n \log n</span>.</p>
+<p>Здесь главный трюк, и он совсем простой: <span class="math inline">\omega_n^2 = \omega_{n/2}</span>. Подставьте это равенство — и в обеих суммах останутся степени <span class="math inline">\omega_{n/2}</span>, то есть каждая сумма сама окажется ДПФ половинного размера. Применяем рекурсивно <span class="math inline">\log_2 n</span> раз — и <span class="math inline">n^2</span> превращается в <span class="math inline">n \log n</span>.</p>
 <p>Обозначим ДПФ чётных и нечётных компонент <span class="math inline">E_k</span> и <span class="math inline">O_k</span>:</p>
 <p><span class="math display">
 X_k = E_{k \bmod n/2} + \omega_n^k \cdot O_{k \bmod n/2}
@@ -511,7 +511,7 @@ X_k = E_{k \bmod n/2} + \omega_n^k \cdot O_{k \bmod n/2}
 F_8 = P_8 \cdot \underbrace{(I_4 \oplus D_4) \cdot (F_4 \otimes I_2)}_{\text{уровень 2}} \cdot \underbrace{(I_2 \oplus D_2) \cdot (F_2 \otimes I_4)}_{\text{уровень 1}} \cdot \ldots
 </span></p>
 </div>
-<p>где <span class="math inline">D_k = \text{diag}(1, \omega, \omega^2, \ldots)</span> — диагональ twiddle-факторов, <span class="math inline">P_8</span> — перестановка (bit-reversal), <span class="math inline">\otimes</span> — произведение Кронекера.</p>
+<p>где <span class="math inline">D_k = \text{diag}(1, \omega, \omega^2, \ldots)</span> — диагональ поворотных множителей (twiddle factors), <span class="math inline">P_8</span> — перестановка (bit-reversal), <span class="math inline">\otimes</span> — произведение Кронекера.</p>
 <p>Каждый множитель — разреженная матрица с <span class="math inline">O(n)</span> ненулевых элементов. Всего <span class="math inline">\log_2 n</span> таких множителей, итого <span class="math inline">O(n \log n)</span> операций вместо <span class="math inline">O(n^2)</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: БПФ против наивного умножения на матрицу">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
@@ -554,21 +554,21 @@ F_8 = P_8 \cdot \underbrace{(I_4 \oplus D_4) \cdot (F_4 \otimes I_2)}_{\text{у�
 </div>
 </div>
 </div>
-<p>Возьмите два чистых тона, сложите их и посмотрите, как ДПФ мгновенно разбирает сумму обратно на два пика — потяните частоты и проследите, на какие строки матрицы <span class="math inline">F_n</span> они «садятся».</p>
+<p>Возьмите два чистых тона, сложите их и посмотрите, как ДПФ разбирает сумму обратно на два пика. Потяните частоты и проследите, на какие строки матрицы <span class="math inline">F_n</span> они «садятся».</p>
 <div class="column-page">
 <div data-sigma-widget="fft-spectrum"></div>
 </div>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/fft_speed.svg" class="img-fluid figure-img"></p>
-<figcaption class="margin-caption">Скорость БПФ: разрыв между <span class="math inline">O(n^2)</span> и реальным БПФ нарастает сверхлинейно — как <span class="math inline">n/\log n</span></figcaption>
+<figcaption class="margin-caption">Скорость БПФ: разрыв между <span class="math inline">O(n^2)</span> и реальным БПФ растёт как <span class="math inline">n/\log n</span></figcaption>
 </figure>
 </div>
 </section>
 </section>
 <section id="спектрограмма-частота-время" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="спектрограмма-частота-время">Спектрограмма: частота × время</h2>
-<p>Чистое ДПФ даёт спектр всего сигнала, но не говорит, <strong>когда</strong> прозвучала каждая нота. Решение — оконное ДПФ (Short-Time Fourier Transform, STFT): разбиваем сигнал на перекрывающиеся фрагменты и считаем ДПФ каждого:</p>
+<p>Обычное ДПФ даёт спектр всего сигнала, но не говорит, <strong>когда</strong> прозвучала каждая нота. Решение — оконное ДПФ (Short-Time Fourier Transform, STFT): разбиваем сигнал на перекрывающиеся фрагменты и считаем ДПФ каждого:</p>
 <div class="column-page">
 <p><span class="math display">
 S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
@@ -578,7 +578,7 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/fft_spectrogram.png" class="img-fluid figure-img"></p>
-<figcaption class="margin-caption">Спектрограмма трёх последовательных нот — три сегмента по времени, горизонтальные полосы фундаментальных частот и обертоны</figcaption>
+<figcaption class="margin-caption">Спектрограмма трёх последовательных нот — три сегмента по времени, горизонтальные полосы основных частот и обертоны</figcaption>
 </figure>
 </div>
 </section>
@@ -586,7 +586,7 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 <h2 class="anchored" data-anchor-id="как-работает-shazam">Как работает Shazam</h2>
 <p>Wang<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> описал алгоритм Shazam в 2003 году:</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Wang, Avery Li-Chun. <a href="https://www.ee.columbia.edu/~dpwe/papers/Wang03-shazam.pdf">An Industrial-Strength Audio Search Algorithm</a>, ISMIR 2003.</p></div></div><p><strong>1. Спектрограмма.</strong> Записанный фрагмент (4—10 секунд) преобразуется в спектрограмму через STFT.</p>
-<p><strong>2. Выделение пиков.</strong> На спектрограмме находятся локальные максимумы — точки <span class="math inline">(t_i, f_i)</span> с наибольшей энергией в окрестности. Это <strong>конструктивные точки</strong> (constellation points).</p>
+<p><strong>2. Выделение пиков.</strong> На спектрограмме находятся локальные максимумы — точки <span class="math inline">(t_i, f_i)</span> с наибольшей энергией в окрестности. Их называют <strong>точками созвездия</strong> (constellation points).</p>
 <p><strong>3. Хеширование пар.</strong> Пары ближайших пиков образуют «отпечатки» (fingerprints):</p>
 <div class="column-page">
 <p><span class="math display">
@@ -594,7 +594,7 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 </span></p>
 </div>
 <p>Каждый хеш — 32-битное число. Один 4-секундный фрагмент порождает сотни хешей.</p>
-<p><strong>4. Поиск.</strong> База данных содержит хеши 50+ миллионов треков. Совпавшие хеши дают гипотезы; если достаточно много хешей совпало с одной и той же временной привязкой — трек найден.</p>
+<p><strong>4. Поиск.</strong> База данных содержит хеши более чем 50 миллионов треков. Совпавшие хеши дают гипотезы; если достаточно много хешей совпало с одной и той же временной привязкой — трек найден.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: построение отпечатка (constellation hashing)">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -648,13 +648,13 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Поиск по хеш-таблице — <span class="math inline">O(1)</span> на каждый хеш. Один 4-секундный фрагмент порождает сотни хешей; для каждого — мгновенный запрос в таблицу. Победитель определяется голосованием: если сотни хешей указывают на один трек с одинаковым временным сдвигом — это он. База в 50 миллионов треков при этом не «перебирается» — она адресуется напрямую.</p>
+<p>Поиск по хеш-таблице — <span class="math inline">O(1)</span> на каждый хеш. Сотни хешей от фрагмента — сотни таких запросов. Победитель определяется голосованием: если сотни хешей указывают на один трек с одинаковым временным сдвигом — это он. База в 50 миллионов треков при этом не «перебирается» — она адресуется напрямую.</p>
 </div>
 </div>
 </section>
 <section id="матрица-фурье-и-физика" class="level2">
 <h2 class="anchored" data-anchor-id="матрица-фурье-и-физика">Матрица Фурье и физика</h2>
-<p>Почему именно ДПФ? Потому что <strong>синусоиды — собственные функции линейных стационарных систем</strong>. Если система не меняется во времени и линейна (акустика, электрические цепи, оптика), то синусоида на входе даёт синусоиду на выходе, только с другой амплитудой и фазой. Это делает разложение по синусоидам <strong>естественным базисом</strong> для анализа любого сигнала.</p>
+<p>Почему именно ДПФ? Потому что <strong>синусоиды — собственные функции линейных стационарных систем</strong>. Если система не меняется во времени и линейна (акустика, электрические цепи, оптика), то синусоида на входе даёт синусоиду на выходе, только с другой амплитудой и фазой. Поэтому синусоиды — <strong>естественный базис</strong> для разбора таких сигналов.</p>
 <p>Матрица <span class="math inline">F_n</span> — дискретный аналог разложения по <span class="math inline">e^{i\omega t}</span>.</p>
 </section>
 <section id="где-ещё-работает-та-же-матрица" class="level2">
@@ -677,7 +677,7 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>MP3</strong></td>
-<td style="text-align: left;">Модифицированный DCT на 576 аудиосэмплах</td>
+<td style="text-align: left;">Модифицированный DCT на 576 отсчётах звука</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Wi-Fi (OFDM)</strong></td>
@@ -704,8 +704,8 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 </section>
 <section id="резюме" class="level2">
 <h2 class="anchored" data-anchor-id="резюме">Резюме</h2>
-<p>БПФ — не просто алгоритм, а теорема о структуре матрицы <span class="math inline">F_n</span>: в ней спрятано <span class="math inline">\log_2 n</span> разреженных слоёв, и это следует из одного равенства <span class="math inline">\omega_n^2 = \omega_{n/2}</span>. Именно поэтому умножение на плотную матрицу стоит <span class="math inline">O(n \log n)</span>, а не <span class="math inline">O(n^2)</span> — и именно поэтому Shazam успевает за 4 секунды.</p>
-<p>Пики, которые вы видели в виджете — это конструктивные точки спектрограммы: именно они хешируются и сравниваются с базой треков. Идея разреженной факторизации плотной матрицы оказалась универсальной: её используют вейвлеты, JPEG, OFDM в Wi-Fi и — в другой форме — линейные трансформеры с ядровым приближением внимания.</p>
+<p>БПФ — это теорема о структуре матрицы <span class="math inline">F_n</span>: в ней спрятано <span class="math inline">\log_2 n</span> разреженных слоёв, и следует это из одного равенства <span class="math inline">\omega_n^2 = \omega_{n/2}</span>. Поэтому умножение на плотную матрицу стоит <span class="math inline">O(n \log n)</span>, а не <span class="math inline">O(n^2)</span>, и поэтому же Shazam успевает за 4 секунды.</p>
+<p>Пики, которые вы двигали в виджете, — того же рода, что Shazam выделяет на спектрограмме: такие точки он и хеширует, чтобы сравнить с базой треков. Та же идея — разреженная факторизация плотной матрицы — работает в вейвлетах, JPEG, OFDM в Wi-Fi и, в другой форме, в линейных трансформерах с ядровым приближением внимания.</p>
 
 
 </section>

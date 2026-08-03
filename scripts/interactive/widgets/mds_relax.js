@@ -48,16 +48,21 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   let scaleKm = 1;
   let stepG = 1e-7;   // размер градиентного шага, подбирается дроблением
 
-  // Плавность и следы (по образцу визуализации на fmin.xyz): оптимизация идёт
-  // дискретными шагами, а рисуем интерполяцию между прошлой и текущей позицией;
-  // пройденные отрезки копятся полупрозрачным следом.
-  let prevA = null, curA = null;   // выровненные позиции: было / стало
-  let tween = 1;                   // 0..1 — где мы между ними
-  let trail = [];                  // [{i, x1,y1, x2,y2}] в координатах карты
-  const TRAIL_MAX = 6000;  // след живёт от «заново» до схождения — его и надо видеть
-  const STEP_MS = 90;              // как часто делать шаг оптимизации
-  let lastStep = 0;
-  let mirror = null;               // отражение фиксируем, иначе карта мигает
+  // Траектория считается ЦЕЛИКОМ заранее, а потом разворачивается одним
+  // поворотом по финальному положению — как в визуализации на fmin.xyz.
+  // Иначе ориентацию приходится подбирать на ходу: решение MDS определено
+  // с точностью до движения, и карта то и дело переворачивалась бы на лету.
+  let traj = { grad: [], zero: [] };   // выровненные позиции по шагам
+  let errs = { grad: [], zero: [] };   // средняя ошибка расстояний, км
+  let cursor = 0;                      // какой шаг проигрываем
+  let tween = 0;                       // 0..1 внутри шага
+  // След копится на отдельном слое: раньше он хранился списком и ПЕРЕРИСОВЫВАЛСЯ
+  // целиком каждый кадр — к концу схождения это тысячи вызовов stroke на кадр,
+  // то есть стоимость кадра росла снежным комом. Теперь новые отрезки
+  // дорисовываются на слой один раз, а в кадре — один drawImage.
+  let trailCv = null, trailCtx = null;
+  const STEPS = 260;               // столько шагов считаем вперёд
+  let drawnUpTo = 0;               // до какого шага след уже нанесён на слой
   // цвета городов — как в d3.schemeCategory20 у fmin
   const CC = ["#1f77b4","#aec7e8","#ff7f0e","#ffbb78","#2ca02c","#98df8a",
               "#d62728","#ff9896","#9467bd","#c5b0d5","#8c564b","#c49c94",
@@ -166,109 +171,170 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     return la.map((v, i) => ({ x: 111.32 * k * lo[i], y: 111.32 * v }));
   }
 
+  // Прокруст: поворот + отражение + масштаб + сдвиг. Решение MDS определено
+  // с точностью до движения, поэтому «правильной» ориентации у него нет —
+  // её приходится назначать, прикладывая результат к настоящей географии.
+  // Зеркало НЕ фиксируем: раньше оно выбиралось на первом шаге, когда точки
+  // ещё лежали случайным кругом, и карта навсегда оставалась перевёрнутой,
+  // хотя сами расстояния были восстановлены верно.
   function align(Y, R) {
     const cy = { x: 0, y: 0 }, cr = { x: 0, y: 0 };
     for (let i = 0; i < n; i++) { cy.x += Y[i].x / n; cy.y += Y[i].y / n; cr.x += R[i].x / n; cr.y += R[i].y / n; }
     const A = Y.map((p) => sub(p, cy)), B = R.map((p) => sub(p, cr));
-    let bestOut = null, bestSse = Infinity, bestMir = 1;
-    const tryMirrors = mirror === null ? [1, -1] : [mirror];
-    for (const mir of tryMirrors) {
-      const Am = A.map((p) => ({ x: p.x, y: mir * p.y }));
-      let aa = 0, bb = 0;
+    let best = null, bestSse = Infinity;
+    for (const mir of [1, -1]) {
+      let aa = 0, bb = 0, na = 0;
       for (let i = 0; i < n; i++) {
-        aa += Am[i].x * B[i].x + Am[i].y * B[i].y;
-        bb += Am[i].x * B[i].y - Am[i].y * B[i].x;
+        const ax = A[i].x, ay = mir * A[i].y;
+        aa += ax * B[i].x + ay * B[i].y;
+        bb += ax * B[i].y - ay * B[i].x;
+        na += ax * ax + ay * ay;
       }
-      const th = Math.atan2(bb, aa), c = Math.cos(th), s = Math.sin(th);
-      const outp = Am.map((p) => ({ x: c * p.x - s * p.y + cr.x, y: s * p.x + c * p.y + cr.y }));
+      const th = Math.atan2(bb, aa);
+      const s = na > 1e-12 ? Math.sqrt(aa * aa + bb * bb) / na : 1;
+      const c = Math.cos(th) * s, sn = Math.sin(th) * s;
+      const outp = A.map((p) => {
+        const ax = p.x, ay = mir * p.y;
+        return { x: c * ax - sn * ay + cr.x, y: sn * ax + c * ay + cr.y };
+      });
       let sse = 0;
       for (let i = 0; i < n; i++) sse += (outp[i].x - R[i].x) ** 2 + (outp[i].y - R[i].y) ** 2;
-      if (sse < bestSse) { bestSse = sse; bestOut = outp; if (mirror === null) bestMir = mir; }
+      if (sse < bestSse) {
+        bestSse = sse;
+        best = { pts: outp, tf: { mir, th, s, cy, cr } };
+      }
     }
-    if (mirror === null) mirror = bestMir;
-    return bestOut;
-  }
-
-  // ---------- инициализация задачи ----------
-  function reset() {
-    D = [];
-    for (let i = 0; i < n; i++) D.push(DFULL[i].slice(0, n));
-    let mx = 0;
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) mx = Math.max(mx, D[i][j]);
-    scaleKm = mx || 1;
-    const R = 0.35 * scaleKm;
-    Yg = []; Yz = [];
-    for (let i = 0; i < n; i++) {
-      const a = (2 * Math.PI * i) / n, r = R * (0.6 + 0.4 * ((i * 37) % 11) / 11);
-      const p = { x: r * Math.cos(a), y: r * Math.sin(a) };
-      Yg.push({ x: p.x, y: p.y });
-      Yz.push({ x: p.x, y: p.y });
-    }
-    simplex = initSimplex(Yz);
-    stepG = 1e-7;
-    histG = []; histZ = []; iter = 0;
-    prevA = curA = null; tween = 1; trail = []; mirror = null; lastStep = 0;
+    return best;
   }
 
   // Градиентный шаг с дроблением: фиксированный шаг на таких масштабах (тысячи
   // километров) заставляет метод перескакивать минимум и выглядеть хуже
   // безградиентного — что неправда и ломает весь смысл сравнения.
   function gradStep() {
-    let f0 = err(Yg);
+    const f0 = err(Yg);
     const g = grad(Yg);
     let gn2 = 0;
     for (const q of g) gn2 += q.x * q.x + q.y * q.y;
     if (gn2 < 1e-14) return;
-    let t = stepG;
+    let st = stepG;
     for (let k = 0; k < 30; k++) {
-      const cand = Yg.map((p, i) => ({ x: p.x - t * g[i].x, y: p.y - t * g[i].y }));
-      if (err(cand) < f0) { Yg = cand; stepG = t * 1.8; return; }
-      t *= 0.5;
+      const cand = Yg.map((p, i) => ({ x: p.x - st * g[i].x, y: p.y - st * g[i].y }));
+      if (err(cand) < f0) { Yg = cand; stepG = st * 1.8; return; }
+      st *= 0.5;
     }
-    stepG = Math.max(t, 1e-16);
+    stepG = Math.max(st, 1e-16);
   }
 
-  function step() {
-    if (!ready) return;
-    for (let s = 0; s < 2; s++) gradStep();
-    for (let s = 0; s < 2; s++) simplex = nelderMeadStep(simplex);
-    Yz = unflat(simplex[0].v);
+  // ---------- предпросчёт всей траектории ----------
+  // Один раз считаем оба метода до конца, затем разворачиваем каждую траекторию
+  // ОДНИМ преобразованием, найденным по её финальному положению. Во время
+  // анимации не остаётся ни одной операции оптимизации — только отрисовка.
+  function precompute() {
+    D = [];
+    for (let i = 0; i < n; i++) D.push(DFULL[i].slice(0, n));
+    let mx = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) mx = Math.max(mx, D[i][j]);
+    scaleKm = mx || 1;
 
-    iter++;
-    histG.push(kmErr(Yg)); histZ.push(kmErr(Yz));
-    if (histG.length > HIST_MAX) { histG.shift(); histZ.shift(); }
+    const R = 0.35 * scaleKm;
+    const start = [];
+    for (let i = 0; i < n; i++) {
+      const a = (2 * Math.PI * i) / n, r = R * (0.55 + 0.45 * ((i * 37) % 11) / 11);
+      start.push({ x: r * Math.cos(a), y: r * Math.sin(a) });
+    }
+
+    Yg = start.map((p) => ({ x: p.x, y: p.y }));
+    Yz = start.map((p) => ({ x: p.x, y: p.y }));
+    simplex = initSimplex(Yz);
+    stepG = 1e-7;
+
+    const rawG = [], rawZ = [];
+    errs = { grad: [], zero: [] };
+    for (let s = 0; s < STEPS; s++) {
+      gradStep(); gradStep();
+      simplex = nelderMeadStep(nelderMeadStep(simplex));
+      Yz = unflat(simplex[0].v);
+      rawG.push(Yg.map((p) => ({ x: p.x, y: p.y })));
+      rawZ.push(Yz.map((p) => ({ x: p.x, y: p.y })));
+      errs.grad.push(kmErr(Yg));
+      errs.zero.push(kmErr(Yz));
+    }
+
+    // Разворот считаем по последнему кадру и применяем ко всем — тогда
+    // траектория едет как единое целое и ничего не переворачивается по пути.
+    const geo = geoRef();
+    traj = { grad: applyFinalAlign(rawG, geo), zero: applyFinalAlign(rawZ, geo) };
+    cursor = 0; tween = 0; drawnUpTo = 0;
+    clearTrail();
+  }
+
+  function applyFinalAlign(raw, geo) {
+    const fin = align(raw[raw.length - 1], geo);
+    const { mir, th, s, cy, cr } = fin.tf;
+    const c = Math.cos(th) * s, sn = Math.sin(th) * s;
+    return raw.map((pos) => pos.map((p) => {
+      const ax = p.x - cy.x, ay = mir * (p.y - cy.y);
+      return { x: c * ax - sn * ay + cr.x, y: sn * ax + c * ay + cr.y };
+    }));
   }
 
   // ---------- отрисовка ----------
-  // Общий масштаб держим по настоящей географии, чтобы карта не «дышала»
-  // при каждом шаге и след оставался осмысленным.
+  let frameCache = null, frameKey = "";
   function frame() {
+    const key = n + ":" + (ready ? 1 : 0);
+    if (frameCache && frameKey === key) return frameCache;
     const R = geoRef();
     const xs = R.map((p) => p.x), ys = R.map((p) => p.y);
     const x0 = Math.min(...xs), x1 = Math.max(...xs);
     const y0 = Math.min(...ys), y1 = Math.max(...ys);
-    // Масштаб подбираем по обеим осям сразу (Европа шире, чем выше), но одним
-    // числом — иначе карта растянется и перестанет быть картой.
     const spanX = (x1 - x0) * 1.16 || 1, spanY = (y1 - y0) * 1.22 || 1;
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
     const k = Math.min(plot.w / spanX, plot.h / spanY);
-    return {
+    frameKey = key;
+    frameCache = {
       R,
       X: (v) => plot.x + plot.w / 2 + (v - cx) * k,
       Y: (v) => plot.y + plot.h / 2 - (v - cy) * k,
     };
+    return frameCache;
   }
 
-  function pushTrail(fr) {
-    if (!prevA || !curA) return;
-    for (let i = 0; i < n; i++) {
-      trail.push({
-        i,
-        x1: fr.X(prevA[i].x), y1: fr.Y(prevA[i].y),
-        x2: fr.X(curA[i].x), y2: fr.Y(curA[i].y),
-      });
+  function ensureTrailLayer() {
+    if (trailCv) return;
+    trailCv = document.createElement("canvas");
+    trailCv.width = W; trailCv.height = H;
+    trailCtx = trailCv.getContext("2d");
+    // Обрезаем по рамке: безградиентный метод уносит точки далеко за карту,
+    // и его след иначе расчерчивает весь виджет, залезая в график ошибки.
+    trailCtx.beginPath();
+    trailCtx.rect(plot.x, plot.y, plot.w, plot.h);
+    trailCtx.clip();
+    trailCtx.lineCap = "round";
+    trailCtx.lineWidth = 5;
+    trailCtx.globalAlpha = 0.18;
+  }
+
+  function clearTrail() {
+    if (trailCtx) trailCtx.clearRect(0, 0, W, H);
+    drawnUpTo = 0;
+  }
+
+  // Дорисовываем след только на новые шаги — стоимость кадра постоянная.
+  function extendTrail(fr, upTo) {
+    const path = traj[method];
+    if (!path.length) return;
+    ensureTrailLayer();
+    for (let s = Math.max(1, drawnUpTo); s <= upTo && s < path.length; s++) {
+      const a = path[s - 1], bpt = path[s];
+      for (let i = 0; i < n; i++) {
+        trailCtx.strokeStyle = CC[i % CC.length];
+        trailCtx.beginPath();
+        trailCtx.moveTo(fr.X(a[i].x), fr.Y(a[i].y));
+        trailCtx.lineTo(fr.X(bpt[i].x), fr.Y(bpt[i].y));
+        trailCtx.stroke();
+      }
     }
-    while (trail.length > TRAIL_MAX) trail.shift();
+    drawnUpTo = Math.max(drawnUpTo, upTo);
   }
 
   function draw() {
@@ -279,6 +345,8 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       return;
     }
     const fr = frame();
+    const path = traj[method];
+    if (!path.length) return;
 
     ctx.save();
     ctx.strokeStyle = "#e6e2d4"; ctx.lineWidth = 1;
@@ -298,32 +366,18 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     ctx.beginPath();
     ctx.restore();
 
-    // след траекторий — толстые полупрозрачные отрезки, цвет по городу
-    ctx.save();
-    ctx.lineCap = "round";
-    ctx.lineWidth = 5;
-    for (let k = 0; k < trail.length; k++) {
-      const s = trail[k];
-      // старые отрезки бледнее — видно, откуда город пришёл
-      ctx.globalAlpha = 0.10 + 0.22 * (k / trail.length);
-      ctx.strokeStyle = CC[s.i % CC.length];
-      ctx.beginPath();
-      ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2);
-      ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.restore();
+    extendTrail(fr, cursor);
+    if (trailCv) ctx.drawImage(trailCv, 0, 0, W, H);
 
-    // текущее положение: интерполяция между прошлым и текущим шагом
-    const P0 = prevA || curA, P1 = curA;
-    if (!P1) { ctx.beginPath(); return; }
-    const e = tween < 1 ? tween : 1;
-    const now = P1.map((p, i) => ({
-      x: (P0[i].x) + (p.x - P0[i].x) * e,
-      y: (P0[i].y) + (p.y - P0[i].y) * e,
+    const i0 = Math.min(cursor, path.length - 1);
+    const i1 = Math.min(cursor + 1, path.length - 1);
+    const now = path[i0].map((p, i) => ({
+      x: p.x + (path[i1][i].x - p.x) * tween,
+      y: p.y + (path[i1][i].y - p.y) * tween,
     }));
 
     ctx.save();
+    ctx.beginPath(); ctx.rect(plot.x, plot.y, plot.w, plot.h); ctx.clip();
     for (let i = 0; i < n; i++) {
       const px = fr.X(now[i].x), py = fr.Y(now[i].y);
       ctx.fillStyle = CC[i % CC.length];
@@ -333,14 +387,14 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     ctx.restore();
     ctx.beginPath();
 
-    // подписи — по центру над точкой, без наложений
     ctx.save();
+    ctx.beginPath(); ctx.rect(plot.x, plot.y, plot.w, plot.h); ctx.clip();
     ctx.font = "12px ui-sans-serif, system-ui";
     ctx.fillStyle = "#2d2d31";
     ctx.textAlign = "center";
     const taken = [];
-    const free = (b) => !taken.some((q) =>
-      b.x < q.x + q.w && b.x + b.w > q.x && b.y < q.y + q.h && b.y + b.h > q.y);
+    const free = (bx) => !taken.some((q) =>
+      bx.x < q.x + q.w && bx.x + bx.w > q.x && bx.y < q.y + q.h && bx.y + bx.h > q.y);
     for (let i = 0; i < n; i++) {
       const px = fr.X(now[i].x), py = fr.Y(now[i].y);
       const label = CITY[i];
@@ -365,11 +419,13 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     ctx.save();
     ctx.strokeStyle = "#e6e2d4"; ctx.lineWidth = 1;
     ctx.strokeRect(curve.x, curve.y, curve.w, curve.h);
-    const all = histG.concat(histZ).filter((v) => v > 0);
+    const shown = cursor + 1;
+    const hg = errs.grad.slice(0, shown), hz = errs.zero.slice(0, shown);
+    const all = errs.grad.concat(errs.zero).filter((v) => v > 0);
     const hi = all.length ? Math.max(...all) : 1;
     const lo = all.length ? Math.max(Math.min(...all), hi * 1e-4) : 1e-3;
     const lg = (v) => Math.log10(Math.max(v, lo));
-    const cxp = (i, len) => curve.x + (len < 2 ? 0 : (i / (len - 1)) * curve.w);
+    const cxp = (i) => curve.x + (i / Math.max(1, STEPS - 1)) * curve.w;
     const cyp = (v) => curve.y + curve.h - ((lg(v) - lg(lo)) / (lg(hi) - lg(lo) || 1)) * curve.h;
     const line = (h, color) => {
       if (h.length < 2) return;
@@ -377,25 +433,26 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       ctx.beginPath();
       let started = false;
       h.forEach((v, i) => {
-        const px = cxp(i, h.length), py = cyp(v);
+        const px = cxp(i), py = cyp(v);
         if (!isFinite(px) || !isFinite(py)) return;
         if (started) ctx.lineTo(px, py); else { ctx.moveTo(px, py); started = true; }
       });
       ctx.stroke();
       ctx.beginPath();
     };
-    line(histZ, P.red);
-    line(histG, P.blue);
+    line(hz, P.red);
+    line(hg, P.blue);
     ctx.fillStyle = P.mut; ctx.font = "12px ui-sans-serif, system-ui";
     ctx.fillText("насколько врут расстояния, км (лог-шкала)", curve.x, curve.y - 6);
     ctx.restore();
 
+    const cur = (h) => (h.length ? h[Math.min(cursor, h.length - 1)] : null);
     out.set([
       { k: "городов", v: String(n) },
       { k: "неизвестных", v: String(2 * n) },
-      { k: "шаг", v: String(iter) },
-      { k: "градиентный", v: histG.length ? histG[histG.length - 1].toFixed(0) + " км" : "—", color: P.blue },
-      { k: "безградиентный", v: histZ.length ? histZ[histZ.length - 1].toFixed(0) + " км" : "—", color: P.red },
+      { k: "шаг", v: `${Math.min(cursor + 1, STEPS)}/${STEPS}` },
+      { k: "градиентный", v: cur(errs.grad) != null ? cur(errs.grad).toFixed(0) + " км" : "—", color: P.blue },
+      { k: "безградиентный", v: cur(errs.zero) != null ? cur(errs.zero).toFixed(0) + " км" : "—", color: P.red },
     ]);
   }
 
@@ -403,37 +460,34 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   S.slider(controls, {
     label: "Городов", min: 4, max: 34, step: 1, value: n,
     fmt: (v) => String(v),
-  }, (v) => { n = v; reset(); });
+  }, (v) => { n = v; if (ready) precompute(); });
 
   S.segmented(controls, {
     label: "Показать",
     options: [{ value: "grad", label: "градиентный" }, { value: "zero", label: "безградиентный" }],
     value: method,
-  }, (v) => { method = v; prevA = curA = null; trail = []; mirror = null; });
+  }, (v) => { method = v; clearTrail(); });
 
-  S.button(controls, "заново", () => reset());
+  S.button(controls, "заново", () => { if (ready) { cursor = 0; tween = 0; clearTrail(); } });
 
   S.loadData("mds_europe.json").then((d) => {
     CITY = d.cities; LAT = d.lat; LON = d.lon; DFULL = d.D;
-    reset();
+    precompute();
     ready = true;
   }).catch((e) => { ready = false; console.error("mds-relax:", e); });
 
   // S.loop только СОЗДАЁТ цикл — без .start() кадр застывает на заставке.
+  const STEP_MS = 70;   // темп проигрывания траектории
+  let lastMs = 0;
   S.loop((elapsed) => {
     if (ready) {
       const ms = elapsed * 1000;
-      if (ms - lastStep >= STEP_MS) {
-        lastStep = ms;
-        step();
-        const fr = frame();
-        prevA = curA;
-        curA = align(method === "grad" ? Yg : Yz, fr.R);
-        if (prevA) pushTrail(fr);
-        tween = 0;
-      } else {
-        tween = Math.min(1, (ms - lastStep) / STEP_MS);
-      }
+      const path = traj[method];
+      if (cursor < path.length - 1) {
+        const d = ms - lastMs;
+        tween = Math.min(1, d / STEP_MS);
+        if (d >= STEP_MS) { cursor++; lastMs = ms; tween = 0; }
+      } else { tween = 0; lastMs = ms; }
     }
     draw();
   }).start();

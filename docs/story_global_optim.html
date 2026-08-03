@@ -406,15 +406,15 @@ window.Quarto = {
 <p><span class="math display">
 L(\pi) = \sum_{i=1}^{n-1} D_{\pi(i), \pi(i+1)} + D_{\pi(n), \pi(1)}.
 </span></p>
-<p>TSP — NP-трудна. Перебрать все маршруты невозможно ни при каком разумном <span class="math inline">n</span>: уже при <span class="math inline">n \gtrsim 25</span> перебор займёт дольше возраста Вселенной (при скорости <span class="math inline">10^9</span> маршрутов/с). Точные алгоритмы (Concorde, LKH) справляются с тысячами городов, но для <span class="math inline">n \sim 10^4</span> требуют часов. Метаэвристики находят решения, близкие к оптимуму, за секунды.</p>
+<p>TSP — NP-трудна. Полный перебор становится безнадёжным очень быстро: уже при <span class="math inline">n \gtrsim 25</span> он займёт дольше возраста Вселенной (при скорости <span class="math inline">10^9</span> маршрутов/с). Точные алгоритмы (Concorde, LKH) справляются с тысячами городов, но для <span class="math inline">n \sim 10^4</span> требуют часов. Метаэвристики находят решения, близкие к оптимуму, за секунды.</p>
 </section>
 <section id="генетический-алгоритм-ga" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="генетический-алгоритм-ga">Генетический алгоритм (GA)</h2>
 <p>Holland (1975)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> — имитация эволюции:</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Holland, J.H. <em>Adaptation in Natural and Artificial Systems</em>. University of Michigan Press, 1975.</p></div></div><p><strong>1. Популяция.</strong> <span class="math inline">P</span> случайных туров (перестановок).</p>
-<p><strong>2. Fitness.</strong> <span class="math inline">f(\pi) = 1 / L(\pi)</span> — чем короче тур, тем выше приспособленность.</p>
+<p><strong>2. Приспособленность (fitness).</strong> <span class="math inline">f(\pi) = 1 / L(\pi)</span> — чем короче тур, тем она выше.</p>
 <p><strong>3. Селекция.</strong> Турнирный отбор: из случайной пары выбираем лучшего.</p>
-<p><strong>4. Кроссовер</strong> (Order Crossover, OX). Берём подстроку из родителя A, оставшиеся позиции заполняем из родителя B в порядке появления.</p>
+<p><strong>4. Кроссовер</strong> (Order Crossover, OX). Берём кусок маршрута из родителя A, оставшиеся позиции заполняем городами из родителя B в порядке появления.</p>
 <p><strong>5. Мутация.</strong> С малой вероятностью <span class="math inline">p_m \approx 0{,}01</span> меняем местами два случайных города.</p>
 <p><strong>6. Следующее поколение.</strong> Лучшие потомки заменяют худших.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: генетический алгоритм для TSP">
@@ -494,8 +494,8 @@ L(\pi) = \sum_{i=1}^{n-1} D_{\pi(i), \pi(i+1)} + D_{\pi(n), \pi(1)}.
 </div>
 </div>
 </section>
-<section id="particle-swarm-optimization-pso" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="particle-swarm-optimization-pso">Particle Swarm Optimization (PSO)</h2>
+<section id="роевой-интеллект-pso" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="роевой-интеллект-pso">Роевой интеллект (PSO)</h2>
 <p>Kennedy и Eberhart (1995)<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> — вдохновлены стаей птиц и косяком рыб.</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Kennedy, Eberhart. <a href="https://doi.org/10.1109/ICNN.1995.488968">Particle Swarm Optimization</a>, IEEE ICNN, 1995.</p></div></div><section id="алгоритм" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="алгоритм">Алгоритм</h3>
@@ -523,11 +523,11 @@ x_i \leftarrow x_i + v_i,
 </div>
 <div class="callout-body-container callout-body">
 <ol type="1">
-<li><strong>Инерция</strong> (<span class="math inline">w v_i</span>): частица продолжает движение по инерции — exploration.</li>
+<li><strong>Инерция</strong> (<span class="math inline">w v_i</span>): частица сохраняет прежнее направление — это исследование (exploration).</li>
 <li><strong>Когнитивная</strong> (<span class="math inline">c_1 r_1 (p_i - x_i)</span>): частица помнит своё лучшее место.</li>
 <li><strong>Социальная</strong> (<span class="math inline">c_2 r_2 (g - x_i)</span>): частица стремится к лучшему месту стаи.</li>
 </ol>
-<p>Баланс между exploration (инерция) и exploitation (социальная) определяет эффективность PSO. Слишком большая инерция — стая разлетается. Слишком сильная социальная сила — все слетаются к локальному минимуму.</p>
+<p>Эффективность PSO зависит от баланса между исследованием (инерция) и использованием найденного (социальная сила). Слишком большая инерция — стая разлетается. Слишком сильная социальная сила — все слетаются к локальному минимуму.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: роевой алгоритм PSO">
@@ -611,7 +611,7 @@ x_i \leftarrow x_i + v_i,
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Kirkpatrick, Gelatt, Vecchi. <a href="https://doi.org/10.1126/science.220.4598.671">Optimization by Simulated Annealing</a>, Science, 1983.</p></div></div><p>При высокой температуре атомы металла свободно перемещаются (жидкость). При медленном охлаждении они упорядочиваются в кристалл — состояние с минимальной энергией.</p>
 <section id="критерий-метрополиса" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="критерий-метрополиса">Критерий Метрополиса</h3>
-<p>На каждом шаге предлагаем случайное изменение <span class="math inline">\Delta E = f(x') - f(x)</span>:</p>
+<p>На каждом шаге предлагаем случайный переход <span class="math inline">x \to x'</span> и считаем разницу <span class="math inline">\Delta E = f(x') - f(x)</span>:</p>
 <div class="column-page">
 <p><span class="math display">
 P(\text{принять}) = \begin{cases}
@@ -620,7 +620,7 @@ P(\text{принять}) = \begin{cases}
 \end{cases}
 </span></p>
 </div>
-<p>При высоком <span class="math inline">T</span> принимаем почти любое изменение (exploration). При низком <span class="math inline">T</span> — только улучшения (exploitation).</p>
+<p>При высоком <span class="math inline">T</span> принимаем почти любое изменение — идёт исследование. При низком <span class="math inline">T</span> — почти только улучшения.</p>
 </section>
 <section id="расписание-охлаждения" class="level3">
 <h3 class="anchored" data-anchor-id="расписание-охлаждения">Расписание охлаждения</h3>
@@ -631,7 +631,7 @@ T(t) = T_0 \cdot \alpha^t, \quad \alpha \in [0{,}95, 0{,}999].
 </section>
 <section id="температура-в-llm-та-же-формула" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="температура-в-llm-та-же-формула">Температура в LLM: та же формула</h2>
-<p>Это не случайное совпадение формул. В 1986 году Хинтон и соавторы (Boltzmann machines) напрямую позаимствовали критерий Метрополиса для обучения нейронных сетей: вероятность активации нейрона определялась той же формулой <span class="math inline">\sigma(\Delta E / T)</span>. Оттуда температурный параметр перешёл в softmax-сэмплинг языковых моделей.</p>
+<p>Совпадение формул не случайно. В 1986 году Хинтон и соавторы (машины Больцмана) взяли критерий Метрополиса для обучения нейронных сетей: вероятность активации нейрона задавалась родственной формулой <span class="math inline">\sigma(\Delta E / T)</span> с той же температурой. Оттуда температура перешла в softmax при генерации текста языковыми моделями.</p>
 <p>При генерации текста модель вычисляет логиты <span class="math inline">z_i</span> для каждого токена <span class="math inline">i</span> в словаре и применяет softmax:</p>
 <p><span class="math display">
 P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
@@ -669,26 +669,26 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 <figcaption class="margin-caption">Температура в softmax LLM: от детерминированного выбора (T=0,1) до равномерного (T=5)</figcaption>
 </figure>
 </div>
-<div class="callout callout-style-default callout-important callout-titled" title="Единая идея: exploration vs exploitation">
+<div class="callout callout-style-default callout-important callout-titled" title="Единая идея: исследовать или использовать">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Важное уведомление</span>Единая идея: exploration vs exploitation
+<span class="screen-reader-only">Важное уведомление</span>Единая идея: исследовать или использовать
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Во всех трёх методах ключевой параметр управляет балансом между <strong>исследованием</strong> (exploration) и <strong>эксплуатацией</strong> (exploitation):</p>
+<p>Во всех трёх методах ключевой параметр управляет балансом между <strong>исследованием</strong> нового (exploration) и <strong>использованием</strong> уже найденного (exploitation):</p>
 <ul>
 <li><strong>GA</strong>: вероятность мутации <span class="math inline">p_m</span></li>
 <li><strong>PSO</strong>: инерция <span class="math inline">w</span> vs социальная сила <span class="math inline">c_2</span></li>
 <li><strong>SA/LLM</strong>: температура <span class="math inline">T</span></li>
 </ul>
-<p>Все три задачи — TSP, минимизация Растригина, генерация текста — сводятся к одной: найти хорошее решение в огромном дискретном или непрерывном пространстве, избегая ловушек локальных оптимумов.</p>
+<p>Во всех трёх задачах — TSP, минимизация Растригина, генерация текста — надо выбрать хороший вариант в огромном дискретном или непрерывном пространстве и не застрять в первом попавшемся локальном оптимуме.</p>
 </div>
 </div>
-<p>Покрутите температуру и посмотрите, как отжиг прямо на глазах перекраивает маршрут: при жаре он смело принимает ухудшения и выпрыгивает из ловушек, а остывая — застывает в найденном минимуме. Кликайте по полю, чтобы подбросить новый город.</p>
+<p>Покрутите температуру и посмотрите, как отжиг перекраивает маршрут: пока горячо, он принимает и ухудшения, поэтому выбирается из локальных минимумов; остывая — застывает в найденном. Кликайте по полю, чтобы добавить новый город.</p>
 <div class="column-page">
 <div data-sigma-widget="annealing-tsp"></div>
 </div>
@@ -779,17 +779,17 @@ P(i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}.
 <td style="text-align: left;">SA</td>
 <td style="text-align: left;">Кристаллизация</td>
 <td style="text-align: left;">Температура <span class="math inline">T</span></td>
-<td style="text-align: left;">Богатая теория сходимости (гарантия — при логарифм. охлаждении)</td>
+<td style="text-align: left;">Богатая теория сходимости (гарантия — при логарифмическом охлаждении)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">LLM sampling</td>
+<td style="text-align: left;">Генерация в LLM</td>
 <td style="text-align: left;">SA / Больцман (1986)</td>
 <td style="text-align: left;">Температура <span class="math inline">T</span></td>
 <td style="text-align: left;">Управление случайностью генерации, баланс точность/разнообразие</td>
 </tr>
 </tbody>
 </table>
-<p>Все четыре — варианты стохастического поиска, и все управляют одним и тем же dial: случайность → детерминизм.</p>
+<p>Все четыре — варианты случайного поиска, и все крутят одну и ту же ручку: случайность → детерминизм.</p>
 
 
 </section>
