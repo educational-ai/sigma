@@ -43,6 +43,7 @@
     model: "",
     pyodide: null,                 // Pyodide worker bridge
     busy: false,
+    convId: "",              // id текущего вопроса — сшивает шаги в логе
   };
 
   // -------------------------------------------------------------------------
@@ -567,7 +568,7 @@
   async function streamCompletion(messages, { noTools = false, onProgress, onReasoning } = {}) {
     const ctrl = new AbortController();
     let idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);
-    const body = { messages, stream: true, temperature: 0.2 };
+    const body = { messages, stream: true, temperature: 0.2, conv_id: state.convId || null };
     if (!noTools) { body.tools = TOOLS; body.tool_choice = "auto"; }
     let r;
     try {
