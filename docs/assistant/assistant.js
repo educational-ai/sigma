@@ -32,6 +32,7 @@
   // that stalls) emits nothing, while a real long generation keeps streaming and
   // resets the timer. Guarantees the loop never blocks forever on a dead call.
   const TOOL_CHAR_LIMIT = 6000;    // truncate tool results before feeding back
+  const PY_RUN_TIMEOUT_MS = 90000; // потолок на один python-вызов (холодный старт ~31 с)
 
   const state = {
     history: [],                   // chat history (visible messages)
@@ -278,6 +279,18 @@
     const calls = new Map();
     let initResolve, initReject;
     const ready = new Promise((res, rej) => { initResolve = res; initReject = rej; });
+    // Браузер может убить воркер (например, по нехватке памяти). Без этого
+    // обработчика вызовы висят вечно, а ассистент молча ждёт мёртвый поток.
+    w.onerror = () => {
+      if (initReject) initReject(new Error("Воркер Pyodide упал (возможно, не хватило памяти)."));
+      for (const [, c] of calls.entries()) {
+        c.reject(new Error("Воркер Pyodide аварийно остановлен — попробуй упростить код."));
+      }
+      calls.clear();
+      try { w.terminate(); } catch (_) {}
+      state.pyodide = null;   // следующий вызов поднимет воркер заново
+    };
+
     w.onmessage = (e) => {
       const { type, id } = e.data;
       if (type === "progress" && onProgress) onProgress(e.data.message);
@@ -293,7 +306,20 @@
         await ready;
         const id = crypto.randomUUID();
         return new Promise((resolve, reject) => {
-          calls.set(id, { resolve, reject });
+          // Страховка от зависшего кода: без неё бесконечный цикл в python
+          // подвешивает ассистент навсегда. Порог намеренно щедрый — холодный
+          // вызов с графиком (подтяжка numpy и matplotlib внутрь Pyodide)
+          // измеренно занимает около 31 с, так что рубить на 15 нельзя.
+          const timer = setTimeout(() => {
+            calls.delete(id);
+            try { w.terminate(); } catch (_) {}
+            state.pyodide = null;
+            reject(new Error("Код не уложился в 90 секунд — упрости вычисление."));
+          }, PY_RUN_TIMEOUT_MS);
+          calls.set(id, {
+            resolve: (res) => { clearTimeout(timer); resolve(res); },
+            reject: (err) => { clearTimeout(timer); reject(err); },
+          });
           w.postMessage({ type: "run", id, code });
         });
       },
@@ -517,7 +543,7 @@
     });
   }
 
-  async function streamCompletion(messages, { noTools = false } = {}) {
+  async function streamCompletion(messages, { noTools = false, onProgress } = {}) {
     const ctrl = new AbortController();
     let idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);
     const body = { messages, stream: true, temperature: 0.2 };
@@ -543,7 +569,7 @@
         idle = setTimeout(() => ctrl.abort(), LLM_IDLE_MS);  // reset on every byte
         const d = chunk?.choices?.[0]?.delta;
         if (!d) continue;
-        if (d.content) content += d.content;
+        if (d.content) { content += d.content; if (onProgress) onProgress(content); }
         if (d.tool_calls) {
           for (const tc of d.tool_calls) {
             const i = tc.index ?? toolCalls.length;
@@ -659,7 +685,19 @@
       statusEl.textContent = `Думаю… (шаг ${step + 1})`;
       let content, tool_calls;
       try {
-        ({ content, tool_calls } = await streamCompletion(messages));
+        let lastPaint = 0;
+        ({ content, tool_calls } = await streamCompletion(messages, {
+          onProgress: (partial) => {
+            // Дельты приходят десятками в секунду; рендер с KaTeX на каждой
+            // выжигает кадр, поэтому перерисовываем не чаще, чем раз в 120 мс.
+            const now = performance.now();
+            if (now - lastPaint < 120) return;
+            lastPaint = now;
+            if (statusEl.isConnected) statusEl.remove();
+            answerEl.innerHTML = renderMarkdown(partial);
+            sheetBody.scrollTop = sheetBody.scrollHeight;
+          },
+        }));
       } catch (e) {
         // A completion stalled/failed mid-loop (e.g. an image step hung upstream).
         // Never leave an empty bubble — force a final text-only answer instead.
@@ -864,6 +902,11 @@
       item.classList.add("sigma-trace-err");
       status.innerHTML = ERR_ICON;
       status.title = truncate(result.error, 200);
+      // Текст ошибки виден сразу, а не только во всплывающей подсказке.
+      const errDiv = el("div", { class: "sigma-trace-error" });
+      errDiv.textContent = truncate(result.error, 200);
+      const details = item.querySelector(".sigma-trace-details");
+      if (details) details.prepend(errDiv); else item.append(errDiv);
     } else {
       item.classList.add("sigma-trace-ok");
       let summary = "";
@@ -911,6 +954,10 @@
     // 1) Shield math FIRST (so HTML escape doesn't mangle TeX chars).
     s = s.replace(/\$\$([\s\S]+?)\$\$/g, (_, e) => STASH({ k: "mblock", v: e }));
     s = s.replace(/(?<!\$|\\)\$([^\n$]+?)\$(?!\$)/g, (_, e) => STASH({ k: "minline", v: e }));
+    // Модели регулярно отдают формулы в делимитерах \[…\] и \(…\) вопреки
+    // системному промпту. Раньше такие формулы приезжали к читателю сырым TeX.
+    s = s.replace(/\\\[([\s\S]+?)\\\]/g, (_, e) => STASH({ k: "mblock", v: e }));
+    s = s.replace(/\\\(([^\n]+?)\\\)/g, (_, e) => STASH({ k: "minline", v: e }));
 
     // 2) Shield fenced code blocks and inline code.
     s = s.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => STASH({ k: "code-block", lang, code }));
