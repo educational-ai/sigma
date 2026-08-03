@@ -694,7 +694,7 @@
             if (now - lastPaint < 120) return;
             lastPaint = now;
             if (statusEl.isConnected) statusEl.remove();
-            answerEl.innerHTML = renderMarkdown(partial);
+            answerEl.innerHTML = renderMarkdown(trimUnfinished(partial));
             sheetBody.scrollTop = sheetBody.scrollHeight;
           },
         }));
@@ -945,6 +945,29 @@
   // Markdown renderer with proper support for headers, lists, links, code,
   // tables, hr, blockquote, AND inline KaTeX (rendered via window.katex
   // directly, since Quarto loads katex.min.js but not auto-render).
+
+  // Пока ответ ещё течёт, его хвост обрывается на полуслове: «||ответ.|» или
+  // «$\frac{a}{b» — незакрытая конструкция рендерится сырым текстом, и читатель
+  // видит палки и доллары. Прячем незавершённый хвост до его закрытия.
+  function trimUnfinished(text) {
+    let s = String(text || "");
+    const cutFromLast = (marker) => {
+      const i = s.lastIndexOf(marker);
+      if (i !== -1) s = s.slice(0, i);
+    };
+    // незакрытый блок кода
+    if ((s.match(/```/g) || []).length % 2 === 1) cutFromLast("```");
+    // незакрытый спойлер ||…||
+    if ((s.match(/\|\|/g) || []).length % 2 === 1) cutFromLast("||");
+    // одинокая палка в самом конце — начало закрывающего маркера
+    s = s.replace(/\|\s*$/, "");
+    // незакрытая выключная формула
+    if ((s.match(/\$\$/g) || []).length % 2 === 1) cutFromLast("$$");
+    // незакрытая строчная формула
+    if (((s.replace(/\$\$/g, "").match(/\$/g) || []).length) % 2 === 1) cutFromLast("$");
+    return s;
+  }
+
   function renderMarkdown(md) {
     const stash = [];
     const STASH = (item) => { stash.push(item); return `${stash.length - 1}`; };
