@@ -17,20 +17,21 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   }));
 
   const stage = S.row(root);
-  const W = 760, H = 400;
+  const W = 760, H = 486;
   const cv = S.makeCanvas(stage, W, H, { maxWidth: 760, pan: false });
   const ctx = cv.ctx;
 
   const controls = S.row(root, "controls");
   const out = S.readout(root);
   S.caption(root,
-    "Слева — карта, восстановленная методом. Её приходится приложить поворотом и отражением " +
-    "к настоящей географии (серые крестики): из одних расстояний нельзя понять, где север. " +
-    "Справа — насколько расстояния на восстановленной карте расходятся с исходной таблицей. " +
-    "Добавляй города: у градиентного метода кривая почти не меняется, у безградиентного — уползает.");
+    "Цветной след — путь города из случайного начального положения на своё место. Карту " +
+    "приходится приложить поворотом и отражением к настоящей географии (крестики): из одних " +
+    "расстояний не понять, где север. Внизу — насколько расстояния на восстановленной карте " +
+    "расходятся с исходной таблицей. Добавляй города: градиентному методу почти всё равно, " +
+    "безградиентный сдаётся.");
 
-  const plot = { x: 24, y: 26, w: 400, h: 348 };
-  const curve = { x: 480, y: 26, w: 252, h: 348 };
+  const plot = { x: 20, y: 24, w: 720, h: 352 };
+  const curve = { x: 20, y: 400, w: 720, h: 74 };
 
   // ---------- данные ----------
   let CITY = [], LAT = [], LON = [], DFULL = [];
@@ -46,6 +47,22 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   const HIST_MAX = 260;
   let scaleKm = 1;
   let stepG = 1e-7;   // размер градиентного шага, подбирается дроблением
+
+  // Плавность и следы (по образцу визуализации на fmin.xyz): оптимизация идёт
+  // дискретными шагами, а рисуем интерполяцию между прошлой и текущей позицией;
+  // пройденные отрезки копятся полупрозрачным следом.
+  let prevA = null, curA = null;   // выровненные позиции: было / стало
+  let tween = 1;                   // 0..1 — где мы между ними
+  let trail = [];                  // [{i, x1,y1, x2,y2}] в координатах карты
+  const TRAIL_MAX = 6000;  // след живёт от «заново» до схождения — его и надо видеть
+  const STEP_MS = 90;              // как часто делать шаг оптимизации
+  let lastStep = 0;
+  let mirror = null;               // отражение фиксируем, иначе карта мигает
+  // цвета городов — как в d3.schemeCategory20 у fmin
+  const CC = ["#1f77b4","#aec7e8","#ff7f0e","#ffbb78","#2ca02c","#98df8a",
+              "#d62728","#ff9896","#9467bd","#c5b0d5","#8c564b","#c49c94",
+              "#e377c2","#f7b6d2","#7f7f7f","#c7c7c7","#bcbd22","#dbdb8d",
+              "#17becf","#9edae5"];
 
   function sub(a, b) { return { x: a.x - b.x, y: a.y - b.y }; }
   function dist(a, b) {
@@ -153,8 +170,9 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     const cy = { x: 0, y: 0 }, cr = { x: 0, y: 0 };
     for (let i = 0; i < n; i++) { cy.x += Y[i].x / n; cy.y += Y[i].y / n; cr.x += R[i].x / n; cr.y += R[i].y / n; }
     const A = Y.map((p) => sub(p, cy)), B = R.map((p) => sub(p, cr));
-    let bestOut = null, bestSse = Infinity;
-    for (const mir of [1, -1]) {
+    let bestOut = null, bestSse = Infinity, bestMir = 1;
+    const tryMirrors = mirror === null ? [1, -1] : [mirror];
+    for (const mir of tryMirrors) {
       const Am = A.map((p) => ({ x: p.x, y: mir * p.y }));
       let aa = 0, bb = 0;
       for (let i = 0; i < n; i++) {
@@ -165,8 +183,9 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       const outp = Am.map((p) => ({ x: c * p.x - s * p.y + cr.x, y: s * p.x + c * p.y + cr.y }));
       let sse = 0;
       for (let i = 0; i < n; i++) sse += (outp[i].x - R[i].x) ** 2 + (outp[i].y - R[i].y) ** 2;
-      if (sse < bestSse) { bestSse = sse; bestOut = outp; }
+      if (sse < bestSse) { bestSse = sse; bestOut = outp; if (mirror === null) bestMir = mir; }
     }
+    if (mirror === null) mirror = bestMir;
     return bestOut;
   }
 
@@ -188,6 +207,7 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     simplex = initSimplex(Yz);
     stepG = 1e-7;
     histG = []; histZ = []; iter = 0;
+    prevA = curA = null; tween = 1; trail = []; mirror = null; lastStep = 0;
   }
 
   // Градиентный шаг с дроблением: фиксированный шаг на таких масштабах (тысячи
@@ -220,6 +240,37 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   }
 
   // ---------- отрисовка ----------
+  // Общий масштаб держим по настоящей географии, чтобы карта не «дышала»
+  // при каждом шаге и след оставался осмысленным.
+  function frame() {
+    const R = geoRef();
+    const xs = R.map((p) => p.x), ys = R.map((p) => p.y);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs);
+    const y0 = Math.min(...ys), y1 = Math.max(...ys);
+    // Масштаб подбираем по обеим осям сразу (Европа шире, чем выше), но одним
+    // числом — иначе карта растянется и перестанет быть картой.
+    const spanX = (x1 - x0) * 1.16 || 1, spanY = (y1 - y0) * 1.22 || 1;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const k = Math.min(plot.w / spanX, plot.h / spanY);
+    return {
+      R,
+      X: (v) => plot.x + plot.w / 2 + (v - cx) * k,
+      Y: (v) => plot.y + plot.h / 2 - (v - cy) * k,
+    };
+  }
+
+  function pushTrail(fr) {
+    if (!prevA || !curA) return;
+    for (let i = 0; i < n; i++) {
+      trail.push({
+        i,
+        x1: fr.X(prevA[i].x), y1: fr.Y(prevA[i].y),
+        x2: fr.X(curA[i].x), y2: fr.Y(curA[i].y),
+      });
+    }
+    while (trail.length > TRAIL_MAX) trail.shift();
+  }
+
   function draw() {
     ctx.clearRect(0, 0, W, H);
     if (!ready) {
@@ -227,70 +278,91 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
       ctx.fillText("Загружаю таблицу расстояний…", 24, 40);
       return;
     }
-    const Y = method === "grad" ? Yg : Yz;
-    const R = geoRef();
-    const A = align(Y, R);
+    const fr = frame();
 
-    const xs = R.map((p) => p.x).concat(A.map((p) => p.x));
-    const ys = R.map((p) => p.y).concat(A.map((p) => p.y));
-    const x0 = Math.min(...xs), x1 = Math.max(...xs);
-    const y0 = Math.min(...ys), y1 = Math.max(...ys);
-    const span = Math.max(x1 - x0, y1 - y0) * 1.16 || 1;
-    const cx = (x0 + x1) / 2, cy2 = (y0 + y1) / 2;
-    const sz = Math.min(plot.w, plot.h);
-    const X = (v) => plot.x + plot.w / 2 + ((v - cx) / span) * sz;
-    const Yp = (v) => plot.y + plot.h / 2 - ((v - cy2) / span) * sz;
-
+    ctx.save();
     ctx.strokeStyle = "#e6e2d4"; ctx.lineWidth = 1;
     ctx.strokeRect(plot.x, plot.y, plot.w, plot.h);
+    ctx.restore();
 
-    ctx.strokeStyle = "#c9c4b4"; ctx.lineWidth = 1;
+    // где город на самом деле
+    ctx.save();
+    ctx.strokeStyle = "#cfcabb"; ctx.lineWidth = 1;
     for (let i = 0; i < n; i++) {
-      const px = X(R[i].x), py = Yp(R[i].y);
+      const px = fr.X(fr.R[i].x), py = fr.Y(fr.R[i].y);
       ctx.beginPath();
-      ctx.moveTo(px - 3, py); ctx.lineTo(px + 3, py);
-      ctx.moveTo(px, py - 3); ctx.lineTo(px, py + 3);
+      ctx.moveTo(px - 3.5, py); ctx.lineTo(px + 3.5, py);
+      ctx.moveTo(px, py - 3.5); ctx.lineTo(px, py + 3.5);
       ctx.stroke();
     }
-    ctx.strokeStyle = "rgba(150,145,130,0.45)";
-    for (let i = 0; i < n; i++) {
-      ctx.beginPath(); ctx.moveTo(X(R[i].x), Yp(R[i].y)); ctx.lineTo(X(A[i].x), Yp(A[i].y)); ctx.stroke();
+    ctx.beginPath();
+    ctx.restore();
+
+    // след траекторий — толстые полупрозрачные отрезки, цвет по городу
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineWidth = 5;
+    for (let k = 0; k < trail.length; k++) {
+      const s = trail[k];
+      // старые отрезки бледнее — видно, откуда город пришёл
+      ctx.globalAlpha = 0.10 + 0.22 * (k / trail.length);
+      ctx.strokeStyle = CC[s.i % CC.length];
+      ctx.beginPath();
+      ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2);
+      ctx.stroke();
     }
-    ctx.font = "11px ui-sans-serif, system-ui";
-    // сначала все точки, потом подписи — иначе точка ляжет поверх чужого названия
+    ctx.beginPath();
+    ctx.restore();
+
+    // текущее положение: интерполяция между прошлым и текущим шагом
+    const P0 = prevA || curA, P1 = curA;
+    if (!P1) { ctx.beginPath(); return; }
+    const e = tween < 1 ? tween : 1;
+    const now = P1.map((p, i) => ({
+      x: (P0[i].x) + (p.x - P0[i].x) * e,
+      y: (P0[i].y) + (p.y - P0[i].y) * e,
+    }));
+
+    ctx.save();
     for (let i = 0; i < n; i++) {
-      const px = X(A[i].x), py = Yp(A[i].y);
-      ctx.fillStyle = method === "grad" ? P.blue : P.red;
-      ctx.beginPath(); ctx.arc(px, py, 4, 0, 2 * Math.PI); ctx.fill();
+      const px = fr.X(now[i].x), py = fr.Y(now[i].y);
+      ctx.fillStyle = CC[i % CC.length];
+      ctx.shadowColor = "rgba(0,0,0,0.25)"; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, 2 * Math.PI); ctx.fill();
     }
-    // Подписи ставим только там, где они не налезают на уже поставленные:
-    // при 34 городах Европа тесная, и «Нижний Новгород» затирает соседей.
+    ctx.restore();
+    ctx.beginPath();
+
+    // подписи — по центру над точкой, без наложений
+    ctx.save();
+    ctx.font = "12px ui-sans-serif, system-ui";
+    ctx.fillStyle = "#2d2d31";
+    ctx.textAlign = "center";
     const taken = [];
     const free = (b) => !taken.some((q) =>
       b.x < q.x + q.w && b.x + b.w > q.x && b.y < q.y + q.h && b.y + b.h > q.y);
-    ctx.fillStyle = "#2d2d31";
     for (let i = 0; i < n; i++) {
-      const px = X(A[i].x), py = Yp(A[i].y);
+      const px = fr.X(now[i].x), py = fr.Y(now[i].y);
       const label = CITY[i];
-      const tw = ctx.measureText(label).width, th = 12;
-      const cand = [
-        { x: px + 7, y: py - 6 },
-        { x: px - 7 - tw, y: py - 6 },
-        { x: px - tw / 2, y: py + 6 },
-        { x: px - tw / 2, y: py - 18 },
-      ];
-      for (const c of cand) {
-        const box = { x: c.x, y: c.y, w: tw, h: th };
-        if (box.x < plot.x || box.x + tw > plot.x + plot.w) continue;
+      const tw = ctx.measureText(label).width;
+      for (const dy of [-16, 12, -28]) {
+        const box = { x: px - tw / 2, y: py + dy - 9, w: tw, h: 13 };
+        if (box.x < plot.x || box.x + tw > plot.x + plot.w) break;
         if (!free(box)) continue;
         taken.push(box);
-        ctx.fillText(label, c.x, c.y + 9);
+        ctx.fillText(label, px, py + dy);
         break;
       }
     }
-    ctx.fillStyle = P.mut; ctx.font = "12px ui-sans-serif, system-ui";
-    ctx.fillText("восстановлено из расстояний · серое — где город на самом деле", plot.x, plot.y - 8);
+    ctx.restore();
 
+    ctx.save();
+    ctx.fillStyle = P.mut; ctx.font = "12px ui-sans-serif, system-ui";
+    ctx.fillText("восстановлено из расстояний · крестики — где город на самом деле", plot.x, plot.y - 8);
+    ctx.restore();
+
+    // ---------- полоса ошибки ----------
+    ctx.save();
     ctx.strokeStyle = "#e6e2d4"; ctx.lineWidth = 1;
     ctx.strokeRect(curve.x, curve.y, curve.w, curve.h);
     const all = histG.concat(histZ).filter((v) => v > 0);
@@ -299,11 +371,9 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     const lg = (v) => Math.log10(Math.max(v, lo));
     const cxp = (i, len) => curve.x + (len < 2 ? 0 : (i / (len - 1)) * curve.w);
     const cyp = (v) => curve.y + curve.h - ((lg(v) - lg(lo)) / (lg(hi) - lg(lo) || 1)) * curve.h;
-
-    const line = (h, color, wid) => {
+    const line = (h, color) => {
       if (h.length < 2) return;
-      ctx.save();
-      ctx.strokeStyle = color; ctx.lineWidth = wid;
+      ctx.strokeStyle = color; ctx.lineWidth = 2;
       ctx.beginPath();
       let started = false;
       h.forEach((v, i) => {
@@ -312,17 +382,13 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
         if (started) ctx.lineTo(px, py); else { ctx.moveTo(px, py); started = true; }
       });
       ctx.stroke();
-      ctx.beginPath();          // не оставляем путь следующему примитиву
-      ctx.restore();
+      ctx.beginPath();
     };
-    line(histZ, P.red, 2);
-    line(histG, P.blue, 2);
-
-    ctx.font = "12px ui-sans-serif, system-ui";
-    ctx.fillStyle = P.mut;
-    ctx.fillText("насколько врут расстояния, км (лог-шкала)", curve.x, curve.y - 8);
-    ctx.fillStyle = P.blue; ctx.fillText("градиентный", curve.x + 8, curve.y + 16);
-    ctx.fillStyle = P.red; ctx.fillText("безградиентный", curve.x + 8, curve.y + 32);
+    line(histZ, P.red);
+    line(histG, P.blue);
+    ctx.fillStyle = P.mut; ctx.font = "12px ui-sans-serif, system-ui";
+    ctx.fillText("насколько врут расстояния, км (лог-шкала)", curve.x, curve.y - 6);
+    ctx.restore();
 
     out.set([
       { k: "городов", v: String(n) },
@@ -343,7 +409,7 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
     label: "Показать",
     options: [{ value: "grad", label: "градиентный" }, { value: "zero", label: "безградиентный" }],
     value: method,
-  }, (v) => { method = v; });
+  }, (v) => { method = v; prevA = curA = null; trail = []; mirror = null; });
 
   S.button(controls, "заново", () => reset());
 
@@ -354,6 +420,22 @@ SigmaInt.register("mds-relax", function (root, opts, S) {
   }).catch((e) => { ready = false; console.error("mds-relax:", e); });
 
   // S.loop только СОЗДАЁТ цикл — без .start() кадр застывает на заставке.
-  S.loop(() => { step(); draw(); }).start();
+  S.loop((elapsed) => {
+    if (ready) {
+      const ms = elapsed * 1000;
+      if (ms - lastStep >= STEP_MS) {
+        lastStep = ms;
+        step();
+        const fr = frame();
+        prevA = curA;
+        curA = align(method === "grad" ? Yg : Yz, fr.R);
+        if (prevA) pushTrail(fr);
+        tween = 0;
+      } else {
+        tween = Math.min(1, (ms - lastStep) / STEP_MS);
+      }
+    }
+    draw();
+  }).start();
   draw();
 });
