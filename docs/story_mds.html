@@ -205,7 +205,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -538,19 +538,22 @@ L(W) = \sum_{i &lt; j} \bigl(\|W_i - W_j\|_2 - D_{ij}\bigr)^2.
 </section>
 <section id="безградиентные-методы" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="безградиентные-методы">Безградиентные методы</h3>
-<p>Если градиент недоступен (чёрный ящик), используем аппроксимацию. Двухточечная оценка:</p>
+<p>Если градиент недоступен (чёрный ящик), обойтись без него можно двумя способами.</p>
+<p><strong>Оценить градиент по значениям функции.</strong> Двухточечная оценка:</p>
 <div class="column-page">
 <p><span class="math display">
 G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilon} v_k,
 </span></p>
 </div>
-<p>где <span class="math inline">v_k</span> — случайное направление. В среднем такая оценка смотрит туда же, куда градиент, <span class="math inline">\mathbb{E}[G] = \nabla L</span>, но разброс её растёт с размерностью: дисперсия <span class="math inline">\propto d</span>.</p>
-</section>
+<p>где <span class="math inline">v_k</span> — случайное направление. В среднем такая оценка смотрит туда же, куда градиент, <span class="math inline">\mathbb{E}[G] = \nabla L</span>, но разброс её растёт с размерностью: дисперсия <span class="math inline">\propto d</span>. Это ZO-GD — метод, для которого ниже выписана теория и построен рисунок.</p>
+<p><strong>Не оценивать градиент вовсе.</strong> Так работает метод Нелдера–Мида — тот самый, что стоит на переключателе «безградиентный» в виджете выше. Он держит симплекс из <span class="math inline">p + 1</span> точек (для <span class="math inline">N</span> городов на плоскости это <span class="math inline">2N + 1</span> вершина) и на каждом шаге двигает худшую вершину: отражает её через центр остальных, при удаче растягивает шаг дальше, при неудаче поджимает симплекс к лучшей вершине. Ни производных, ни случайных направлений — только сравнение значений <span class="math inline">L</span>.</p>
+<p>Гарантий вида «столько-то итераций до такой-то точности» у Нелдера–Мида нет: известен пример строго выпуклой функции двух переменных, на которой метод сходится к точке, не являющейся минимумом<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Но упирается он в то же самое, во что и оценка градиента: чем больше переменных, тем больше вершин надо переставить, чтобы сдвинуться в нужную сторону. На экране это и видно: до восьми городов красная кривая идёт вровень с синей, а с дюжины отваливается. На всех 34 городах градиентный метод к концу прогона врёт в расстояниях на единицы километров, Нелдера–Мида — на сотни.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;McKinnon. <a href="https://doi.org/10.1137/S1052623496303482">Convergence of the Nelder–Mead Simplex Method to a Nonstationary Point</a>, SIAM Journal on Optimization, 1998.</p></div></div></section>
 </section>
 <section id="проклятие-размерности-для-безградиентных-методов" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="проклятие-размерности-для-безградиентных-методов">Проклятие размерности для безградиентных методов</h2>
-<p>Ключевой теоретический результат<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>:</p>
-<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Shamir. <a href="https://arxiv.org/abs/1209.4350">On the Complexity of Bandit and Derivative-Free Stochastic Convex Optimization</a>, COLT, 2013.</p></div></div><table class="caption-top table">
+<p>Ключевой теоретический результат<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>:</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Shamir. <a href="https://arxiv.org/abs/1209.4350">On the Complexity of Bandit and Derivative-Free Stochastic Convex Optimization</a>, COLT, 2013.</p></div></div><table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -652,7 +655,7 @@ G_k = d \cdot \frac{L(W + \varepsilon v_k) - L(W - \varepsilon v_k)}{2\varepsilo
 </section>
 <section id="что-видно" class="level3">
 <h3 class="anchored" data-anchor-id="что-видно">Что видно</h3>
-<p>На рисунке — результаты запуска кода выше (seed=42). Разрыв растёт с <span class="math inline">d</span>: при <span class="math inline">d=2</span> безградиентный метод хуже примерно в 36 раз, при <span class="math inline">d=50</span> — уже больше чем в 200. Теоретический фактор <span class="math inline">d</span> — верхняя оценка, на практике рост медленнее: <span class="math inline">d</span> вырос в 25 раз, а разрыв — примерно в 6 раз. Точные числа зависят от seed и шага, но качественная картина не меняется.</p>
+<p>На рисунке — тот же эксперимент, что в коде выше: 30 точек, по 500 итераций каждым методом. Разрыв растёт с <span class="math inline">d</span>: при <span class="math inline">d=2</span> безградиентный метод остался на стрессе примерно в 36 раз большем, при <span class="math inline">d=50</span> — в 228 раз. Теоретический фактор <span class="math inline">d</span> — верхняя оценка, на практике рост медленнее: <span class="math inline">d</span> вырос в 25 раз, а разрыв — примерно в 6 раз. Конкретные числа зависят от генератора случайных чисел и шага (код выше с другим сидом даёт около 50 и 220), но качественная картина не меняется.</p>
 <p>Градиентный спуск, получая точный вектор <span class="math inline">\nabla L \in \mathbb{R}^p</span>, движется в сторону убывания уже с первой итерации — независимо от того, насколько велико <span class="math inline">p</span>.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Главный вывод">
 <div class="callout-header d-flex align-content-center">
@@ -724,7 +727,7 @@ B = -\frac{1}{2} J D^{(2)} J = X X^T \implies \text{eigendecomposition}
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>
 <li><a href="story_pca.html"><strong>PCA и eigenfaces</strong></a> — классический MDS сводится к тому же PCA, только на входе расстояния</li>
-<li><a href="story_optimizers.html"><strong>GD, momentum, Adam</strong></a> — почему первый порядок решает MDS за секунды</li>
+<li><a href="story_optimizers.html"><strong>GD, momentum, Adam</strong></a> — почему на MDS такого размера первому порядку хватает сотни-другой итераций</li>
 <li><a href="story_loss_landscape.html"><strong>Ландшафт функции потерь</strong></a> — концентрация меры и проклятие размерности</li>
 <li><strong>t-SNE, UMAP</strong> — нелинейные варианты MDS</li>
 <li><strong>Автоматическое дифференцирование</strong> — считает градиент без ручных формул</li>

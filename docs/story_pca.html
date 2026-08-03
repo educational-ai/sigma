@@ -205,7 +205,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -468,7 +468,7 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 <figcaption class="margin-caption">Восстановление лица из 1, 5, 10, 25, 50, 100, 200 eigenfaces — уже при k=25 лицо узнаваемо</figcaption>
 </figure>
 </div>
-<p>Покрутите сами на <strong>настоящих</strong> лицах из датасета Olivetti: двигайте число компонент <span class="math inline">k</span> — лицо пересобирается из собственных лиц прямо на глазах. Уже при <span class="math inline">k=10</span>—<span class="math inline">15</span> лицо узнаваемо, хотя вместо 4096 пикселей хранится лишь <span class="math inline">k</span> чисел.</p>
+<p>Покрутите сами на <strong>настоящих</strong> лицах из датасета Olivetti: двигайте число компонент <span class="math inline">k</span> — лицо пересобирается из собственных лиц прямо на глазах. Уже при <span class="math inline">k = 25</span> лицо узнаваемо, хотя вместо 4096 пикселей хранится лишь <span class="math inline">k</span> чисел.</p>
 <div class="column-page">
 <div data-sigma-widget="pca-eigenfaces"></div>
 </div>
@@ -497,7 +497,7 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Лицо — это вектор из 4096 пикселей, но <em>реальное</em> разнообразие лиц укладывается примерно в 123 числа: именно столько компонент PCA описывают 95% дисперсии датасета Olivetti. Данные с внутренней структурой занимают ничтожную долю доступного пространства — <strong>PCA находит это многообразие</strong>. Турк и Пентланд в 1991 году показали: для распознавания лица хватает 50—100 чисел.</p>
+<p>Лицо — это вектор из 4096 пикселей, но <em>реальное</em> разнообразие лиц укладывается примерно в 123 числа: именно столько компонент PCA описывают 95% дисперсии датасета Olivetti. Данные с внутренней структурой занимают ничтожную долю доступного пространства — <strong>PCA находит это многообразие</strong>. Turk и Pentland в 1991 году показали: для распознавания лица хватает 50—100 чисел.</p>
 </div>
 </div>
 </section>
@@ -510,7 +510,7 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 <h2 class="anchored" data-anchor-id="pca-в-других-задачах">PCA в других задачах</h2>
 <section id="финансы-факторная-модель" class="level3">
 <h3 class="anchored" data-anchor-id="финансы-факторная-модель">Финансы: факторная модель</h3>
-<p>Матрица доходностей <span class="math inline">n</span> акций за <span class="math inline">T</span> дней: <span class="math inline">X \in \mathbb{R}^{T \times n}</span>. PCA выделяет <strong>факторы</strong>: первая компонента ≈ рыночный индекс, вторая ≈ разница growth/value, третья ≈ размер компании.</p>
+<p>Матрица доходностей <span class="math inline">d</span> акций за <span class="math inline">n</span> дней: <span class="math inline">X \in \mathbb{R}^{n \times d}</span>. PCA выделяет <strong>факторы</strong>. Первая компонента, как правило, почти повторяет рыночный индекс — общее движение всего рынка сразу. Дальше идут более узкие эффекты: отраслевые, разница между growth и value, размер компании. Их порядок не закреплён и меняется от рынка к рынку и от периода к периоду.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Пример: случайные доходности с общим фактором</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_stocks, n_days <span class="op">=</span> <span class="dv">50</span>, <span class="dv">252</span></span>
@@ -538,15 +538,15 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 <h3 class="anchored" data-anchor-id="геномика-популяционная-структура">Геномика: популяционная структура</h3>
 <p>PCA матрицы генотипов (<span class="math inline">n</span> людей × <span class="math inline">d</span> SNP) выявляет популяционную структуру: европейцы, азиаты, африканцы чётко разделяются в первых двух компонентах<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Price et al. <a href="https://doi.org/10.1038/ng1847">Principal components analysis corrects for stratification in genome-wide association studies</a>, Nature Genetics, 2006.</p></div></div></section>
-<section id="климатология-eof-анализ" class="level3">
+<section id="климатология-eof-анализ" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="климатология-eof-анализ">Климатология: EOF-анализ</h3>
-<p>Empirical Orthogonal Functions (EOF) — это PCA для пространственно-временных данных. Первая EOF глобальной температуры = тренд потепления.</p>
-</section>
+<p>Empirical Orthogonal Functions (EOF) — это PCA для пространственно-временных данных. Если ряды температуры не очищать от тренда, потепление обычно проступает уже в первой EOF. Но ставить знак равенства между первой EOF и «трендом потепления» нельзя: она смешивает тренд с естественной изменчивостью (в первую очередь с Эль-Ниньо) и чисто их не разделяет<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;<a href="https://projectpythia.org/eofs-cookbook/notebooks/eof-intro">Introduction to EOFs</a>, EOFs Cookbook, Project Pythia.</p></div></div></section>
 </section>
 <section id="pca-на-чистом-шуме" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="pca-на-чистом-шуме">PCA на чистом шуме</h2>
-<p>Допустим, первая главная компонента объясняет 30% дисперсии. Прежде чем считать это структурой, стоит спросить: сколько объяснил бы чистый шум? Возьмём матрицу из независимого гауссова шума. Истинная ковариация у такого шума — единичная матрица, так что все собственные значения должны быть около единицы. Но при конечном числе наблюдений выборочные собственные значения <strong>растекаются</strong> по отрезку <span class="math inline">[\lambda_-, \lambda_+]</span>, <span class="math inline">\lambda_\pm = (1\pm\sqrt{\gamma})^2</span>, <span class="math inline">\gamma = p/n</span>. Это закон <strong>Марченко–Пастура</strong>. Наибольшее собственное значение заметно больше единицы и легко сходит за «сильную компоненту», хотя никакого сигнала в данных нет.</p>
-<p>Чем меньше наблюдений <span class="math inline">n</span> на признак <span class="math inline">p</span> (больше <span class="math inline">\gamma</span>), тем шире разброс и тем выше этот артефакт. Настоящий сигнал, заложенный в данные, отличим от шума, только если его собственное значение <strong>пробивает правый край</strong> <span class="math inline">\lambda_+</span>; это и называют фазовым переходом BBP. В виджете можно добавить сигнал ранга 1 и проследить, при какой силе он выходит за «полумесяц» шума.</p>
+<p>Допустим, первая главная компонента объясняет 30% дисперсии. Прежде чем считать это структурой, стоит спросить: сколько объяснил бы чистый шум? Возьмём матрицу из независимого гауссова шума. Истинная ковариация у такого шума — единичная матрица, так что все собственные значения должны быть около единицы. Но при конечном числе наблюдений выборочные собственные значения <strong>растекаются</strong> по отрезку <span class="math inline">[\lambda_-, \lambda_+]</span>, <span class="math inline">\lambda_\pm = (1\pm\sqrt{\gamma})^2</span>, где <span class="math inline">\gamma = d/n</span> — отношение числа признаков к числу объектов. Это закон <strong>Марченко–Пастура</strong>. Наибольшее собственное значение заметно больше единицы и легко сходит за «сильную компоненту», хотя никакого сигнала в данных нет.</p>
+<p>Чем меньше объектов <span class="math inline">n</span> приходится на признак (больше <span class="math inline">\gamma</span>), тем шире разброс и тем выше этот артефакт. Настоящий сигнал, заложенный в данные, отличим от шума, только если его собственное значение <strong>пробивает правый край</strong> <span class="math inline">\lambda_+</span>; это и называют фазовым переходом BBP. В виджете можно добавить сигнал ранга 1 и проследить, при какой силе он выходит за «полумесяц» шума. Число признаков там подписано буквой <span class="math inline">p</span> — это то же самое <span class="math inline">d</span>.</p>
 <div class="column-page">
 <div data-sigma-widget="pca-noise"></div>
 </div>
@@ -554,14 +554,14 @@ w = V_k^T (x - \bar{x}) \in \mathbb{R}^k.
 </section>
 <section id="не-только-лица-eigencats" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="не-только-лица-eigencats">Не только лица: eigencats</h2>
-<p>Хорошая проверка на честность: если метод и правда про однородные объекты, а не про лица конкретно, он обязан сработать на любом другом однотипном наборе. Берём датасет примерно из 2000 котиков и повторяем тот же эксперимент.</p>
+<p>Хорошая проверка на честность: если метод и правда про однородные объекты, а не про лица конкретно, он обязан сработать на любом другом однотипном наборе. Берём открытый набор фотографий кошачьих морд, приведённых к одному размеру, и повторяем тот же эксперимент.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="./figures/eigencats_components.svg" class="img-fluid figure-img"></p>
 <figcaption class="margin-caption">Первые 8 eigencats. Видны общие «коты»: положение ушей, форма морды, направление взгляда. Каждый конкретный кот собирается как линейная комбинация этих универсальных «прото-котов».</figcaption>
 </figure>
 </div>
-<p>Картина повторяется до деталей: первая компонента ловит освещение, вторая — наклон головы, дальше идут форма морды и уши. Кот тоже сжимается примерно в полсотни чисел.</p>
+<p>Картина повторяется качественно: первые компоненты забирают себе самое грубое — общую освещённость и разворот головы, дальше идут форма морды и уши. Точного числа компонент мы здесь не называем: scree-график для котов не строили. Важно другое — кот, как и лицо, описывается небольшим набором координат вместо всех пикселей.</p>
 <p>Вывод сильнее, чем кажется. <strong>Пространство «реальных» объектов почти всегда узкое</strong> — лица, морды котов, рукописные цифры, фотографии природы: настоящие данные занимают в своём огромном пространстве крошечное подпространство. Распознавание и есть «найти это подпространство и работать внутри него». Отсюда прямая дорога к автокодировщикам и эмбеддингам: PCA — самая ранняя и самая понятная версия той же мысли.</p>
 </section>
 <section id="ограничения-pca" class="level2">

@@ -205,7 +205,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>За 4 секунды Shazam находит нужный трек среди 50 миллионов — не перебирая их. Секрет: одно наблюдение о матрице Фурье превращает <span class="math inline">O(n^2)</span> операций в <span class="math inline">O(n \log n)</span>. Дискретное преобразование Фурье — это умножение вектора на матрицу <span class="math inline">F_n</span>, элементы которой — корни из единицы. Быстрое преобразование Фурье (БПФ, Кули–Тьюки, 1965) — это факторизация <span class="math inline">F_n</span> в произведение <span class="math inline">\log_2 n</span> разреженных матриц. Одно алгебраическое тождество — и задача, неподъёмная при умножении на плотную матрицу, решается за миллисекунды.</em></p>
+<p><em>Shazam находит нужный трек среди миллионов за считаные секунды — не перебирая их. Секрет: одно наблюдение о матрице Фурье превращает <span class="math inline">O(n^2)</span> операций в <span class="math inline">O(n \log n)</span>. Дискретное преобразование Фурье — это умножение вектора на матрицу <span class="math inline">F_n</span>, элементы которой — корни из единицы. Быстрое преобразование Фурье (БПФ, Кули–Тьюки, 1965) — это факторизация <span class="math inline">F_n</span> в произведение <span class="math inline">\log_2 n</span> разреженных матриц. Одно алгебраическое тождество — и задача, неподъёмная при умножении на плотную матрицу, решается за миллисекунды.</em></p>
 <section id="дпф-как-матричное-умножение" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="дпф-как-матричное-умножение">ДПФ как матричное умножение</h2>
 <p>Дискретное преобразование Фурье вектора <span class="math inline">x = (x_0, x_1, \ldots, x_{n-1})^T</span>:</p>
@@ -505,14 +505,14 @@ X_k = E_{k \bmod n/2} + \omega_n^k \cdot O_{k \bmod n/2}
 </section>
 <section id="матричная-факторизация" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="матричная-факторизация">Матричная факторизация</h3>
-<p>Для <span class="math inline">n = 8</span> матрица <span class="math inline">F_8</span> раскладывается как:</p>
+<p>Для <span class="math inline">n = 8</span> один шаг рекурсии записывается так:</p>
 <div class="column-page">
 <p><span class="math display">
-F_8 = P_8 \cdot \underbrace{(I_4 \oplus D_4) \cdot (F_4 \otimes I_2)}_{\text{уровень 2}} \cdot \underbrace{(I_2 \oplus D_2) \cdot (F_2 \otimes I_4)}_{\text{уровень 1}} \cdot \ldots
+F_8 \;=\; (F_2 \otimes I_4)\,(I_4 \oplus D_4)\,(I_2 \otimes F_4)\,P_8
 </span></p>
 </div>
-<p>где <span class="math inline">D_k = \text{diag}(1, \omega, \omega^2, \ldots)</span> — диагональ поворотных множителей (twiddle factors), <span class="math inline">P_8</span> — перестановка (bit-reversal), <span class="math inline">\otimes</span> — произведение Кронекера.</p>
-<p>Каждый множитель — разреженная матрица с <span class="math inline">O(n)</span> ненулевых элементов. Всего <span class="math inline">\log_2 n</span> таких множителей, итого <span class="math inline">O(n \log n)</span> операций вместо <span class="math inline">O(n^2)</span>.</p>
+<p>где <span class="math inline">D_4 = \text{diag}(1, \omega_8, \omega_8^2, \omega_8^3)</span> — поворотные множители (twiddle factors), <span class="math inline">P_8</span> — перестановка, ставящая чётные индексы перед нечётными, <span class="math inline">\otimes</span> — произведение Кронекера, <span class="math inline">\oplus</span> — блочно-диагональная сборка.</p>
+<p>Внутри <span class="math inline">F_4</span> сидит тот же приём, и его снова можно разложить, а внутри <span class="math inline">F_2</span> уже нечего раскладывать. Поэтому рекурсия обрывается через <span class="math inline">\log_2 n</span> шагов, и всего получается <span class="math inline">\log_2 n</span> разреженных множителей с <span class="math inline">O(n)</span> ненулевых элементов каждый — итого <span class="math inline">O(n \log n)</span> операций вместо <span class="math inline">O(n^2)</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: БПФ против наивного умножения на матрицу">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -585,7 +585,7 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 <section id="как-работает-shazam" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="как-работает-shazam">Как работает Shazam</h2>
 <p>Wang<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> описал алгоритм Shazam в 2003 году:</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Wang, Avery Li-Chun. <a href="https://www.ee.columbia.edu/~dpwe/papers/Wang03-shazam.pdf">An Industrial-Strength Audio Search Algorithm</a>, ISMIR 2003.</p></div></div><p><strong>1. Спектрограмма.</strong> Записанный фрагмент (4—10 секунд) преобразуется в спектрограмму через STFT.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Wang, Avery Li-Chun. <a href="https://www.ee.columbia.edu/~dpwe/papers/Wang03-shazam.pdf">An Industrial-Strength Audio Search Algorithm</a>, ISMIR 2003.</p></div></div><p><strong>1. Спектрограмма.</strong> Записанный фрагмент (в статье Wang — до 15 секунд, в приложении — около десяти) преобразуется в спектрограмму через STFT.</p>
 <p><strong>2. Выделение пиков.</strong> На спектрограмме находятся локальные максимумы — точки <span class="math inline">(t_i, f_i)</span> с наибольшей энергией в окрестности. Их называют <strong>точками созвездия</strong> (constellation points).</p>
 <p><strong>3. Хеширование пар.</strong> Пары ближайших пиков образуют «отпечатки» (fingerprints):</p>
 <div class="column-page">
@@ -593,8 +593,8 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 \text{hash} = \text{H}(f_1, f_2, \Delta t), \quad \Delta t = t_2 - t_1.
 </span></p>
 </div>
-<p>Каждый хеш — 32-битное число. Один 4-секундный фрагмент порождает сотни хешей.</p>
-<p><strong>4. Поиск.</strong> База данных содержит хеши более чем 50 миллионов треков. Совпавшие хеши дают гипотезы; если достаточно много хешей совпало с одной и той же временной привязкой — трек найден.</p>
+<p>Каждый хеш упаковывается в 32-битное беззнаковое число. Один фрагмент порождает сотни таких хешей.</p>
+<p><strong>4. Поиск.</strong> База данных содержит хеши всего каталога: в статье 2003 года это около двух миллионов треков, нынешний размер Shazam не публикует. Совпавшие хеши дают гипотезы; если достаточно много хешей совпало с одной и той же временной привязкой — трек найден.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Код: построение отпечатка (constellation hashing)">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -648,7 +648,7 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Поиск по хеш-таблице — <span class="math inline">O(1)</span> на каждый хеш. Сотни хешей от фрагмента — сотни таких запросов. Победитель определяется голосованием: если сотни хешей указывают на один трек с одинаковым временным сдвигом — это он. База в 50 миллионов треков при этом не «перебирается» — она адресуется напрямую.</p>
+<p>Поиск по хеш-таблице — <span class="math inline">O(1)</span> на каждый хеш. Сотни хешей от фрагмента — сотни таких запросов. Победитель определяется голосованием: если сотни хешей указывают на один трек с одинаковым временным сдвигом — это он. База при этом не «перебирается» — она адресуется напрямую: у Wang на базе в 20 тысяч треков поиск занимал от 5 до 500 миллисекунд, смотря по настройкам.</p>
 </div>
 </div>
 </section>
@@ -704,8 +704,8 @@ S(t, f) = \left|\sum_{j} x(j) \cdot w(j - t) \cdot e^{-2\pi i f j / n}\right|^2,
 </section>
 <section id="резюме" class="level2">
 <h2 class="anchored" data-anchor-id="резюме">Резюме</h2>
-<p>БПФ — это теорема о структуре матрицы <span class="math inline">F_n</span>: в ней спрятано <span class="math inline">\log_2 n</span> разреженных слоёв, и следует это из одного равенства <span class="math inline">\omega_n^2 = \omega_{n/2}</span>. Поэтому умножение на плотную матрицу стоит <span class="math inline">O(n \log n)</span>, а не <span class="math inline">O(n^2)</span>, и поэтому же Shazam успевает за 4 секунды.</p>
-<p>Пики, которые вы двигали в виджете, — того же рода, что Shazam выделяет на спектрограмме: такие точки он и хеширует, чтобы сравнить с базой треков. Та же идея — разреженная факторизация плотной матрицы — работает в вейвлетах, JPEG, OFDM в Wi-Fi и, в другой форме, в линейных трансформерах с ядровым приближением внимания.</p>
+<p>БПФ — это теорема о структуре матрицы <span class="math inline">F_n</span>: в ней спрятано <span class="math inline">\log_2 n</span> разреженных слоёв, и следует это из одного равенства <span class="math inline">\omega_n^2 = \omega_{n/2}</span>. Поэтому умножение на плотную матрицу стоит <span class="math inline">O(n \log n)</span>, а не <span class="math inline">O(n^2)</span>, и поэтому же поиск у Shazam укладывается в миллисекунды.</p>
+<p>Пики, которые вы двигали в виджете, — максимумы того же амплитудного спектра <span class="math inline">|X_k|</span>, только посчитанного один раз для всего сигнала. Shazam считает такой спектр в каждом окне по времени и берёт локальные максимумы уже на спектрограмме: из них набирается созвездие точек, пары которых он и хеширует. Та же идея — разреженная факторизация плотной матрицы — работает в вейвлетах, JPEG, OFDM в Wi-Fi и, в другой форме, в линейных трансформерах с ядровым приближением внимания.</p>
 
 
 </section>

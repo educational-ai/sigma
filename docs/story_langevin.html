@@ -170,7 +170,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -368,6 +368,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="от-спуска-к-блужданию">От спуска к блужданию</h2>
 <p>Обычный градиентный спуск делает шаг против градиента минимизируемой функции <span class="math inline">U</span> (её удобно считать энергией ландшафта): <span class="math inline">x \leftarrow x - \nabla U(x)\,\Delta t</span>. Динамика Ланжевена добавляет к нему гауссов толчок: <span class="math display">x \leftarrow x - \nabla U(x)\,\Delta t + \sqrt{2T\,\Delta t}\;\xi,\qquad \xi\sim\mathcal N(0,I).</span> Параметр <span class="math inline">T</span> — температура. При <span class="math inline">T=0</span> это в точности спуск: частица скатывается в ближайший минимум и остаётся там. При <span class="math inline">T&gt;0</span> толчки позволяют выбираться из ям и переходить через барьеры.</p>
 <p>У этой динамики есть стационарное распределение — больцмановское <span class="math inline">p(x)\propto e^{-U(x)/T}</span>: после долгого блуждания частица оказывается в точке тем чаще, чем ниже там энергия. Глубокие ямы населены плотнее мелких, а <span class="math inline">T</span> задаёт, насколько резок этот контраст.</p>
+<p>Строго это верно для непрерывной динамики: конечный шаг <span class="math inline">\Delta t</span> даёт лишь приближение к <span class="math inline">p</span>, и чем шаг крупнее, тем заметнее смещение. Поэтому шаг либо делают мелким, либо добавляют поправку Метрополиса — предложенный шаг принимают или отвергают, и тогда распределение получается точным; этот вариант и называют MALA.</p>
 </section>
 <section id="посмотрите-на-облако" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="посмотрите-на-облако">Посмотрите на облако</h2>
@@ -380,6 +381,7 @@ window.Quarto = {
 <div class="column-page">
 <div data-sigma-widget="langevin-sampling"></div>
 </div>
+<p>Слева — ландшафт энергии <span class="math inline">U</span> и облако частиц, справа — столбики заселённости трёх ям и доля частиц, застрявших на барьерах. Двигайте <span class="math inline">T</span> и смотрите, как меняются доли: при <span class="math inline">T=0</span> занята одна яма, с ростом <span class="math inline">T</span> заселяются все три, и в самой глубокой частиц больше всего.</p>
 </section>
 <section id="при-чём-тут-диффузионные-модели" class="level2">
 <h2 class="anchored" data-anchor-id="при-чём-тут-диффузионные-модели">При чём тут диффузионные модели</h2>
@@ -391,6 +393,7 @@ window.Quarto = {
 <ul>
 <li><a href="story_optimizers.html"><strong>GD, momentum, Adam</strong></a> — Ланжевен это ровно градиентный спуск плюс шум</li>
 <li><a href="story_global_optim.html"><strong>Глобальная оптимизация</strong></a> — имитация отжига тот же приём, только температуру снижают, чтобы найти минимум, а не обойти всё распределение</li>
+<li><a href="story_loss_landscape.html"><strong>Ландшафт функции потерь</strong></a> — откуда берутся ямы, барьеры и моды в задачах обучения и как они выглядят в высокой размерности</li>
 <li><a href="story_heavy_tails.html"><strong>Тяжёлые хвосты</strong></a> — форма распределения решает, значит ли что-нибудь «среднее» по выборке</li>
 </ul>
 

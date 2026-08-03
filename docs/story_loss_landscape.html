@@ -205,7 +205,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -431,7 +431,7 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 </section>
 <section id="проекция-на-плоскость" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="проекция-на-плоскость">Проекция на плоскость</h3>
-<p>Два случайных направления <span class="math inline">\delta_1, \delta_2</span> задают двумерное сечение. Для ResNet-56 без skip-connections ландшафт оказывается хаотичным с множеством глубоких впадин. Добавление residual connections <strong>резко</strong> сглаживает его — это одно из самых наглядных объяснений того, <em>зачем</em> нужны skip-connections.</p>
+<p>Два случайных направления <span class="math inline">\delta_1, \delta_2</span> задают двумерное сечение. Для ResNet-56 без skip-connections ландшафт оказывается хаотичным: резкие невыпуклости, а потери круто растут почти во все стороны от минимума. Добавление residual connections <strong>резко</strong> сглаживает его — это одно из самых наглядных объяснений того, <em>зачем</em> нужны skip-connections.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -492,7 +492,7 @@ f(\alpha) = L(\theta^* + \alpha\,\delta), \quad \alpha \in [-1, 1].
 <p><span class="math display">
 V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 </span></p>
-<p>При <span class="math inline">d = 2</span> это <span class="math inline">\pi \approx 3{,}14</span>. При <span class="math inline">d = 10</span> — уже <span class="math inline">2{,}55</span>. При <span class="math inline">d = 100</span> — число <span class="math inline">V_{100} \approx 2{,}37 \times 10^{-40}</span> — это <span class="math inline">\approx 2{,}6 \times 10^{39}</span> раз меньше объёма атома водорода (<span class="math inline">\approx 0{,}62\,\text{Å}^3</span> при радиусе Бора <span class="math inline">\approx 0{,}53\,\text{Å}</span>). <strong>Единичный шар в высоких измерениях пуст.</strong></p>
+<p>При <span class="math inline">d = 2</span> это <span class="math inline">\pi \approx 3{,}14</span>. При <span class="math inline">d = 10</span> — уже <span class="math inline">2{,}55</span>. При <span class="math inline">d = 100</span> — <span class="math inline">V_{100} \approx 2{,}37 \times 10^{-40}</span>. Сравнивать это число с объёмами привычных трёхмерных тел нельзя: у <span class="math inline">d</span>-мерного объёма своя размерность — «длина в степени <span class="math inline">d</span>». Осмысленное сравнение — с кубом <span class="math inline">[-1,1]^{100}</span>, в который этот шар вписан: объём куба равен <span class="math inline">2^{100} \approx 1{,}27 \times 10^{30}</span>, то есть шар занимает лишь <span class="math inline">\approx 1{,}9 \times 10^{-70}</span> его объёма. Почти весь куб — это его углы. <strong>Единичный шар в высоких измерениях пуст.</strong></p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/loss_volume.svg" class="img-fluid figure-img"></p>
@@ -523,7 +523,7 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 <p><span class="math display">
 \mathbb{E}[\|x_i - x_j\|] \approx \sqrt{d/6}.
 </span></p>
-<p>А разброс вокруг этого среднего убывает как <span class="math inline">O(1/d)</span>, то есть <strong>все попарные расстояния стремятся к одному и тому же значению</strong>. При <span class="math inline">d = 10\,000</span> разброс — доли процента: расстояние почти перестаёт различать точки.</p>
+<p>При этом сам разброс расстояний не растёт: стандартное отклонение остаётся порядка <span class="math inline">O(1)</span>, а среднее растёт как <span class="math inline">\sqrt{d}</span>. Значит, к нулю стремится <strong>относительный</strong> разброс — коэффициент вариации (отношение отклонения к среднему), он убывает как <span class="math inline">O(1/\sqrt{d})</span>. То есть <strong>все попарные расстояния стремятся к одному и тому же значению</strong>. При <span class="math inline">d = 10\,000</span> коэффициент вариации — меньше процента (около <span class="math inline">0{,}6\%</span>): расстояние почти перестаёт различать точки.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/loss_concentration.svg" class="img-fluid figure-img"></p>
@@ -587,20 +587,20 @@ V_d = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}.
 <thead>
 <tr class="header">
 <th style="text-align: left;">Архитектура</th>
-<th style="text-align: left;">Без skip-connections</th>
+<th style="text-align: left;">Без skip-connections (вариант <code>noshort</code>)</th>
 <th style="text-align: left;">С skip-connections</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Plain-56 / ResNet-56</td>
-<td style="text-align: left;">Множество острых минимумов</td>
-<td style="text-align: left;">Один широкий бассейн</td>
+<td style="text-align: left;">ResNet-56</td>
+<td style="text-align: left;">Резкие невыпуклости, минимум вытянут и плохо обусловлен</td>
+<td style="text-align: left;">Широкий, почти выпуклый бассейн</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Plain-110 / ResNet-110</td>
-<td style="text-align: left;">Ещё более хаотичный</td>
-<td style="text-align: left;">Гладкий</td>
+<td style="text-align: left;">ResNet-110</td>
+<td style="text-align: left;">Невыпуклости ещё резче, потери круто растут во все стороны</td>
+<td style="text-align: left;">Бассейн почти такой же, как у ResNet-20 — глубина ландшафт не портит</td>
 </tr>
 </tbody>
 </table>
@@ -1082,8 +1082,8 @@ document.addEventListener("DOMContentLoaded", function () {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./story_optimizers.html" class="pagination-link" aria-label="Как методы спускаются с горы: GD, momentum, Adam">
-        <span class="nav-page-text">Как методы спускаются с горы: GD, momentum, Adam</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./story_optimizers.html" class="pagination-link" aria-label="Зигзаг в овраге: откуда взялись momentum и Adam">
+        <span class="nav-page-text">Зигзаг в овраге: откуда взялись momentum и Adam</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -205,7 +205,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -434,7 +434,7 @@ x(t) = A \cdot s(t),
 <section id="почему-pca-не-справляется" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="почему-pca-не-справляется">Почему PCA не справляется</h2>
 <p>Рассмотрим два независимых равномерных сигнала <span class="math inline">s_1, s_2 \sim U[-1, 1]</span>. Их совместное распределение — квадрат. После линейного смешивания <span class="math inline">x = As</span> квадрат превращается в параллелограмм.</p>
-<p>PCA находит оси максимальной дисперсии — это главные оси эллипса разброса, вписанного в параллелограмм. Но стороны параллелограмма (= направления исходных сигналов) в общем случае <strong>не совпадают</strong> с осями эллипса.</p>
+<p>PCA находит оси максимальной дисперсии — это главные оси эллипса рассеяния, который строится по ковариационной матрице облака точек. Эллипс показывает, как разброшены точки внутри параллелограмма, но со сторонами самой фигуры он никак не связан: его форму задают только вторые моменты, а где у распределения границы — PCA не видит. Поэтому стороны параллелограмма (= направления исходных сигналов) в общем случае <strong>не совпадают</strong> с осями эллипса.</p>
 <p>ICA ищет именно стороны параллелограмма — направления, при проецировании на которые распределения <strong>максимально негауссовы</strong>.</p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
@@ -484,9 +484,8 @@ x(t) = A \cdot s(t),
 <div class="callout-body-container callout-body">
 <ol type="1">
 <li>Не более одного гауссова сигнала среди компонент</li>
-<li>Число наблюдений (микрофонов) ≥ числа источников</li>
+<li>Смешивание обратимо: матрица <span class="math inline">A</span> невырождена (для квадратной <span class="math inline">A</span> это же и означает, что микрофонов хватает)</li>
 <li>Данные порождены независимыми источниками (предположение модели; нарушение ведёт к смысловым артефактам, не к ошибке алгоритма)</li>
-<li>Матрица смешивания <span class="math inline">A</span> обратима</li>
 <li>ICA не определяет порядок компонент и их знак — это нормально (восстановленный сигнал 1 может соответствовать источнику 3)</li>
 </ol>
 </div>
@@ -506,7 +505,7 @@ z = \Lambda^{-1/2} U^T (x - \bar{x}),
 w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 </span></p>
 </div>
-<p>где <span class="math inline">g(u) = \tanh(u)</span> — нелинейность, через которую приближают негэнтропию.</p>
+<p>где <span class="math inline">g(u) = \tanh(u)</span>. Негэнтропию приближают не самой этой функцией, а контраст-функцией <span class="math inline">G(u) = \log\cosh(u)</span>; в итерацию входит её производная <span class="math inline">g = G'</span>, а <span class="math inline">g'</span> — поправочным членом. Пара <span class="math inline">G = \log\cosh</span>, <span class="math inline">g = \tanh</span> — стандартный выбор на общий случай, но контраст-функция может быть и другой: например, <span class="math inline">G(u) = -e^{-u^2/2}</span> (устойчивее к выбросам) или <span class="math inline">G(u) = u^4/4</span> (тот самый куртозис).</p>
 <p><strong>Шаг 3.</strong> Нормализация: <span class="math inline">w \leftarrow w / \|w\|</span>.</p>
 <p><strong>Шаг 4.</strong> Повторять шаги 2—3 до сходимости.</p>
 <p>Для нескольких компонент добавляется ортогонализация Грама–Шмидта между найденными направлениями.</p>
@@ -638,7 +637,7 @@ w \leftarrow \mathbb{E}[z \cdot g(w^T z)] - \mathbb{E}[g'(w^T z)] \cdot w,
 </table>
 <section id="пример-очистка-ээг" class="level3">
 <h3 class="anchored" data-anchor-id="пример-очистка-ээг">Пример: очистка ЭЭГ</h3>
-<p>Электроэнцефалограмма — сигнал с 64 электродов на голове. Помимо мозговой активности, электроды ловят моргание (EOG), сердцебиение (ECG), мышечные артефакты (EMG). ICA разделяет эти компоненты, нейробиолог вручную отмечает артефактные (по характерной пространственной карте и спектру), и данные собирают обратно уже без них.</p>
+<p>Электроэнцефалограмма — сигнал с электродов на голове. Сколько их, зависит от системы: в клинике это обычно два десятка (стандартная схема 10–20), в исследованиях ставят 32, 64, 128 и больше. Помимо мозговой активности, электроды ловят моргание (EOG), сердцебиение (ECG), мышечные артефакты (EMG). ICA разделяет эти компоненты, нейробиолог вручную отмечает артефактные (по характерной пространственной карте и спектру), и данные собирают обратно уже без них.</p>
 </section>
 </section>
 <section id="связь-с-информационной-теорией" class="level2">
@@ -650,17 +649,17 @@ I(y_1, \ldots, y_n) = \sum_i H(y_i) - H(y_1, \ldots, y_n).
 <p>Если компоненты действительно независимы, <span class="math inline">I = 0</span>. ICA ищет такое линейное преобразование, которое минимизирует <span class="math inline">I</span> — то есть делает компоненты максимально «не знающими» друг о друге.</p>
 <p>Через эту формулу ICA связан с энтропией Шеннона из Части I книги и с перекрёстной энтропией (cross-entropy), которую минимизируют при обучении нейросетей.</p>
 </section>
-<section id="связи" class="level2">
+<section id="связи" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>
 <li><a href="story_pca.html"><strong>PCA и eigenfaces</strong></a> — с него начинается ICA: сначала уравнять разброс по осям, потом искать независимость</li>
 <li><a href="ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.html"><strong>SVD</strong></a> — PCA это SVD центрированных данных</li>
 <li><a href="story_heavy_tails.html"><strong>Тяжёлые хвосты</strong></a> — негауссовость, которую ICA как раз и ищет</li>
-<li><strong>Байесовский подход</strong> — вариационный ICA через EM-алгоритм</li>
+<li><strong>Вероятностный взгляд</strong> — то же смешивание можно записать как порождающую модель: у каждого источника своё априорное распределение, а параметры оцениваются EM-алгоритмом. За это платят скоростью, зато модель терпит шум в наблюдениях и неквадратную матрицу смешивания — там, где FastICA уже не работает<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></li>
 </ul>
 
 
-</section>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Attias. <a href="https://direct.mit.edu/neco/article/11/4/803-851/6262">Independent Factor Analysis</a>, Neural Computation, 1999. Для большого числа источников точный EM становится неподъёмным, и в той же работе выводится вариационное приближение.</p></div></div></section>
 
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Наверх</a></main> <!-- /main -->

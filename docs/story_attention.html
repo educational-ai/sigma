@@ -170,7 +170,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -386,6 +386,19 @@ window.Quarto = {
 </span></p>
 </div>
 <p>Температура <span class="math inline">\tau</span> управляет <strong>резкостью</strong> внимания. При <span class="math inline">\tau \to 0</span> всё внимание уходит на единственный самый похожий ключ (жёсткий argmax). При <span class="math inline">\tau \to \infty</span> веса выравниваются — токен смотрит на всех одинаково и контекст размывается.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Температура — учебная ручка виджета, а не деталь трансформера">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Предупреждение</span>Температура — учебная ручка виджета, а не деталь трансформера
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>В настоящем слое внимания температуры нет: там ровно одна фиксированная нормировка <span class="math inline">1/\sqrt{d}</span>, и крутить её никто не даёт. Температуру вы встретите в другом месте — на <strong>выходе</strong> модели, когда из предсказанного распределения по словарю выбирают следующий токен; это параметр генерации, а не часть архитектуры. Мы вставили <span class="math inline">\tau</span> в веса внимания только затем, чтобы вы могли руками покрутить резкость и увидеть, что делает softmax. По смыслу <span class="math inline">\tau</span> и <span class="math inline">\sqrt{d}</span> — одна и та же ручка масштаба, просто в трансформере её раз и навсегда зафиксировали.</p>
+</div>
+</div>
 </section>
 <section id="потрогайте-внимание" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="потрогайте-внимание">Потрогайте внимание</h2>
@@ -405,7 +418,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Здесь схожесть — скалярное произведение в 2D. В настоящем трансформере <span class="math inline">q</span>, <span class="math inline">k</span>, <span class="math inline">v</span> получаются из эмбеддинга обучаемыми матрицами <span class="math inline">W_Q, W_K, W_V</span>, а <span class="math inline">d</span> — сотни измерений. Несколько «голов» внимания параллельно смотрят на разное: одна — на грамматику, другая — на то, к чему относится местоимение, третья — на тему. Но арифметика — ровно та, что на этой картинке.</p>
+<p>Здесь схожесть — скалярное произведение в 2D. В настоящем трансформере <span class="math inline">q</span>, <span class="math inline">k</span>, <span class="math inline">v</span> получаются из эмбеддинга обучаемыми матрицами <span class="math inline">W_Q, W_K, W_V</span>, а <span class="math inline">d</span> — уже не 2, а десятки или сотни измерений. Точное число зависит от модели, причём одна голова работает не со всем эмбеддингом, а со своим куском: полная размерность делится между головами, и на голову приходится заметно меньше, чем на модель целиком. Несколько «голов» внимания параллельно смотрят на разное: одна — на грамматику, другая — на то, к чему относится местоимение, третья — на тему. Но арифметика — ровно та, что на этой картинке.</p>
 </div>
 </div>
 </div></div><div class="callout callout-style-default callout-tip callout-titled" title="Суть">

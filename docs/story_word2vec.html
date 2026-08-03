@@ -205,7 +205,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./story_optimizers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Как методы спускаются с горы: GD, momentum, Adam</span></a>
+ <span class="menu-text">Зигзаг в овраге: откуда взялись momentum и Adam</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -399,7 +399,7 @@ window.Quarto = {
 </header>
 
 
-<p><em>Модель никогда не видела определений слов и не знала грамматики — только статистику соседей. Тем не менее расстояние от вектора «Токио» до «Японии» примерно равно расстоянию от «Берлина» до «Германии». В 2013 году Томас Миколов из Google показал, что если обучить простую нейросеть предсказывать контекст слова, то побочный продукт обучения — векторные представления слов — кодирует смысловые отношения как направления. Вычитаем из «короля» «мужчину», прибавляем «женщину» — получаем «королеву».</em></p>
+<p><em>Модель никогда не видела определений слов и не знала грамматики — только статистику соседей. Тем не менее разность векторов «Токио» и «Японии» примерно совпадает с разностью «Берлина» и «Германии»: одна и та же длина, одно и то же направление. В 2013 году Томаш Миколов из Google показал, что если обучить простую нейросеть предсказывать контекст слова, то побочный продукт обучения — векторные представления слов — кодирует смысловые отношения как направления. Вычитаем из «короля» «мужчину», прибавляем «женщину» — получаем «королеву».</em></p>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
 <p><img src="figures/stories/w2v_analogies.svg" class="img-fluid figure-img"></p>
@@ -461,7 +461,7 @@ window.Quarto = {
 \approx \vec{v}_{\text{queen}}
 </span></p>
 </div>
-<p>Это работает, потому что вектор <span class="math inline">\vec{v}_{\text{king}} - \vec{v}_{\text{man}}</span> кодирует «быть мужского рода при власти», а прибавление <span class="math inline">\vec{v}_{\text{woman}}</span> переводит результат в женский вариант той же роли.</p>
+<p>Это работает, потому что вычитание <span class="math inline">\vec{v}_{\text{man}}</span> убирает из «короля» признак пола и оставляет саму роль — «монарх». Прибавление <span class="math inline">\vec{v}_{\text{woman}}</span> возвращает пол обратно, но уже женский, — и получается «королева».</p>
 <p>Выберите слова <strong>a − b + c</strong> и тащите любую точку-слово мышью: параллелограмм аналогии и ближайшее к результату слово перестраиваются сразу.</p>
 <div class="column-page">
 <div data-sigma-widget="word2vec-analogy"></div>
@@ -491,7 +491,8 @@ window.Quarto = {
 <p>Нейросеть не учили понимать аналогии. Чтобы предсказывать соседей, ей пришлось сжать язык в пространство, где работает арифметика, — это следствие дистрибутивной гипотезы в непрерывном пространстве.</p>
 </div>
 </div>
-</div></div><p>Почему именно около 300 измерений? По теореме Джонсона–Линденштрауса <span class="math inline">n</span> точек можно уложить в <span class="math inline">\mathbb{R}^d</span> так, что попарные расстояния сохранятся с погрешностью <span class="math inline">\varepsilon</span>, если <span class="math inline">d = O(\varepsilon^{-2} \log n)</span>. Для словаря в 3 миллиона слов это даёт несколько сотен измерений — не магия, а теорема.</p>
+</div></div><p>Почему именно около 300 измерений? Теорема Джонсона–Линденштрауса говорит: <span class="math inline">n</span> точек можно уложить в <span class="math inline">\mathbb{R}^d</span> так, что попарные расстояния сохранятся с погрешностью <span class="math inline">\varepsilon</span>, если <span class="math inline">d = O(\varepsilon^{-2} \log n)</span>. Главное здесь — под логарифмом стоит именно число точек: увеличьте словарь в десять раз, и нужная размерность подрастёт лишь чуть-чуть. Поэтому словарь в 3 миллиона слов и не требует миллионов измерений.</p>
+<p>А вот выводить из теоремы само число 300 не стоит. Множитель <span class="math inline">\varepsilon^{-2}</span> дорогой: уложиться в 300 измерений её гарантия позволяет только при довольно грубой <span class="math inline">\varepsilon</span>, а для по-настоящему точного сохранения расстояний потребовалась бы размерность намного больше. Да и константа под <span class="math inline">O(\cdot)</span> не названа. 300 — значение, подобранное на практике; теорема объясняет не его, а то, почему размерность вообще не обязана расти вместе со словарём.</p>
 </section>
 <section id="таблица-аналогий" class="level3">
 <h3 class="anchored" data-anchor-id="таблица-аналогий">Таблица аналогий</h3>
@@ -587,7 +588,7 @@ window.Quarto = {
 </section>
 <section id="почему-это-работает-геометрия" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="почему-это-работает-геометрия">Почему это работает: геометрия</h2>
-<p>Levy и Goldberg<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали, что Word2Vec с negative sampling неявно факторизует матрицу поточечной взаимной информации (PMI):</p>
+<p>Levy и Goldberg<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> показали, что Word2Vec с negative sampling неявно факторизует <strong>сдвинутую</strong> матрицу поточечной взаимной информации (PMI) — ту же PMI-матрицу, из которой вычли постоянный сдвиг <span class="math inline">\log k</span>, где <span class="math inline">k</span> — число негативных примеров:</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Levy, Goldberg. <a href="https://papers.nips.cc/paper_files/paper/2014/hash/b78666971ceae55a8e87efb7cbfd9ad4-Abstract.html">Neural Word Embedding as Implicit Matrix Factorization</a>, NeurIPS 2014.</p></div></div><p><span class="math display">
 \vec{v}_w \cdot \vec{v}_c \approx \text{PMI}(w, c) - \log k,
 </span></p>
@@ -687,7 +688,7 @@ window.Quarto = {
 <section id="связи" class="level2">
 <h2 class="anchored" data-anchor-id="связи">Связи</h2>
 <ul>
-<li><a href="ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.html"><strong>SVD</strong></a> — Word2Vec — это почти факторизация матрицы PMI</li>
+<li><a href="ch_linalg_3_singulyarnoe-razlozhenie-svd-gla.html"><strong>SVD</strong></a> — Word2Vec — это почти факторизация сдвинутой матрицы PMI</li>
 <li><a href="story_attention.html"><strong>Внимание</strong></a> — следующий шаг: эмбеддинг перестаёт быть фиксированным и начинает зависеть от контекста</li>
 <li><a href="story_loss_landscape.html"><strong>Ландшафт функции потерь</strong></a> — почему 300 измерений хватает на словарь в миллионы слов</li>
 <li><strong>t-SNE</strong> — нелинейная проекция, чтобы посмотреть на векторы глазами</li>
