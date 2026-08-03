@@ -155,4 +155,18 @@ for f in favicon.svg favicon.ico favicon-32.png favicon-180.png favicon-192.png 
 done
 echo "  ✓ favicon files synced"
 
+# -----------------------------------------------------------------
+echo "[6/6] переиндексация ассистента"
+# -----------------------------------------------------------------
+# Индекс жил отдельной жизнью и молча протух на два месяца: шесть сюжетов
+# ассистент не находил вовсе, но отвечал уверенно. Сборка сайта и индекс
+# обязаны ехать вместе.
+if [ -x /root/.venv/bin/python ] && [ -f /root/sigma_assistant/build_structural_index.py ]; then
+    (cd /root/sigma_assistant && /root/.venv/bin/python build_structural_index.py 2>&1 | sed 's/^/  /') \
+        && systemctl restart sigma-assistant 2>/dev/null \
+        && echo "  ✓ индекс пересобран, sigma-assistant перезапущен"
+else
+    echo "  ⚠ /root/sigma_assistant не найден — индекс не тронут"
+fi
+
 echo "✅ Готово: https://sigma.fmin.xyz/"
