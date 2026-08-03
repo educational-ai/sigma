@@ -77,8 +77,8 @@ format:
 ::: {.sigma-what}
 ## Что здесь есть
 
-**16 сюжетов.** Каждый — самодостаточная страница: с чего всё началось, какая
-за этим математика и что из неё следует. Читать можно с любой страницы,
+**17 сюжетов.** Каждый — самодостаточная страница: с чего всё началось, какая
+за этим математика и что из неё следует. Никаких глав: читать можно с любой,
 не подряд.
 
 **19 живых виджетов.** Не картинки: тяните ползунок, точку или матрицу —
@@ -170,16 +170,13 @@ format:
 ```{=html}
 <section class="sigma-tree">
 
-<h2>Все страницы</h2>
+<h2>Все сюжеты</h2>
 
-<p class="lede">4 части, один сквозной рассказ. Каждая страница самодостаточна — читать можно с любой, — а можно подряд. Раскройте часть, чтобы увидеть её страницы.</p>
+<p class="lede">Деления на главы нет: каждая страница — законченный сюжет, который читается сам по себе. Порядок ниже — рекомендованный, но заходить можно с любого места.</p>
 <p class="controls">
 <a onclick="document.querySelectorAll('.sigma-tree details').forEach(d=>d.open=true)">раскрыть всё</a>
 <a onclick="document.querySelectorAll('.sigma-tree details').forEach(d=>d.open=false)">свернуть всё</a>
 </p>
-<details>
-<summary><a href="story_loss_landscape.html">Часть I. Оптимизация</a></summary>
-
 <details>
 <summary><a href="story_loss_landscape.html">Ландшафт функции потерь и парадоксы высокой размерности <span class="tag new">сюжет</span></a></summary>
 <div class="desc">Веса сети — точка в $\mathbb{R}^d$, $d$ до миллиардов. Проецируем потери на случайную плоскость и видим «карту высот»: ResNet без skip-connections хаотичен, с ними — гладкая долина. Почти все критические точки оказываются сёдлами. Виджет: крутите проекцию мышью.</div>
@@ -202,7 +199,7 @@ format:
 
 <details>
 <summary><a href="story_mds.html">Многомерное шкалирование и проклятие размерности для безградиентных методов <span class="tag new">сюжет</span></a></summary>
-<div class="desc">Дана таблица расстояний — восстановите координаты, минимизируя стресс. На этой задаче видно превосходство методов первого порядка: точный градиент сходится за секунды, а безградиентные платят фактор размерности $d$. Виджет: релаксация облака точек.</div>
+<div class="desc">Дана только таблица расстояний между 34 городами Европы — ни одной координаты. Метод раскладывает города на плоскости, и проступает узнаваемая карта. Здесь же видно, почему большие модели учат градиентом: чем больше городов, тем безнадёжнее отстаёт безградиентный метод.</div>
 </details>
 
 <details>
@@ -219,11 +216,6 @@ format:
 <summary><a href="story_optimal_transport.html">Оптимальный транспорт и расстояние Вассерштейна <span class="tag new">сюжет</span></a></summary>
 <div class="desc">Сколько песка с какого склада на какую стройку везти, чтобы суммарный путь был минимален. Задача Монжа–Канторовича, расстояние Вассерштейна и почему оно меряет разницу распределений лучше, чем KL. Виджет: тяните кучи и смотрите план перевозки.</div>
 </details>
-
-</details>
-
-<details>
-<summary><a href="ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html">Часть II. Линейная алгебра и данные</a></summary>
 
 <details>
 <summary><a href="ch_linalg_2_kogda-arifmetika-lzhet-chisla-s.html">Когда арифметика лжёт: числа с плавающей точкой</a></summary>
@@ -285,11 +277,6 @@ format:
 <div class="desc">Оценка липшицевости сети как произведение норм слоёв: откуда берётся чувствительность к состязательным примерам и почему её так трудно ограничить.</div>
 </details>
 
-</details>
-
-<details>
-<summary><a href="ch03_1_prosteyshie-primery-zadach-anali.html">Часть III. Анализ данных и ИИ</a></summary>
-
 <details>
 <summary><a href="ch03_1_prosteyshie-primery-zadach-anali.html">Простейшие примеры задач анализа данных. Принцип максимума правдоподобия</a></summary>
 <div class="desc">Опрос на втором туре выборов, асимптотика Фишера и Ле Кама, доверительные интервалы через Чебышёва и ЦПТ, оценка площади методом Монте-Карло и теорема Гаусса о нормальности шума.</div>
@@ -333,43 +320,6 @@ format:
 <details>
 <summary><a href="ch03_5_kak-iskusstvennyy-intellekt-meny.html">Как искусственный интеллект меняет мир</a></summary>
 <div class="desc">AlphaGo, революция трансформеров и ChatGPT, законы скейлинга в формулах, AlphaFold и Нобель-2024, рассуждения во время инференса, исчерпание данных и меняющийся ландшафт профессий.</div>
-</details>
-
-</details>
-
-<details>
-<summary><a href="ch04_1_elementy-teorii-chisel.html">Часть IV. Дискретная математика и криптография</a></summary>
-
-<details>
-<summary><a href="ch04_1_elementy-teorii-chisel.html">Элементы теории чисел</a></summary>
-<div class="desc">Делимость и сравнения по модулю, алгоритм Евклида (обычный и расширенный), быстрое возведение в степень, функция Эйлера и малая теорема Ферма, проверка простоты и задача факторизации.</div>
-</details>
-
-<details>
-<summary><a href="ch04_2_shifrovanie-ot-taynopisi-k-matem.html">Шифрование: от тайнописи к математической задаче</a></summary>
-<div class="desc">Зачем людям шифры, предел симметричной схемы, революция открытого ключа 1976 года, односторонние функции и функции с секретом.</div>
-</details>
-
-<details>
-<summary><a href="ch04_3_kriptosistemy-rsa-i-diffi-hellma.html">Криптосистемы RSA и Диффи–Хеллмана</a></summary>
-<div class="desc">RSA: замок $N=pq$ кричишь в эфир, ключом владеешь только ты. Корректность и безопасность шифра, протокол Диффи–Хеллмана и атака «человек посередине».</div>
-</details>
-
-<details>
-<summary><a href="ch04_4_primeneniya-rsa-autentifikaciya.html">Применения RSA: аутентификация, цифровая подпись, электронное голосование</a></summary>
-<div class="desc">Аутентификация, электронная цифровая подпись и схема электронного голосования — как одна и та же арифметика RSA даёт целый спектр протоколов доверия.</div>
-</details>
-
-<details>
-<summary><a href="ch04_5_heshirovanie-teoriya-chisel-vstr.html">Хеширование: теория чисел встречается с рандомизацией</a></summary>
-<div class="desc">Беда детерминированного хеширования, универсальное семейство хеш-функций и его конструкция через теорию чисел, маленькая хеш-таблица на пальцах.</div>
-</details>
-
-<details>
-<summary><a href="ch04_6_schetchiki-s-korotkoy-pamyatyu-h.html">Счётчики с короткой памятью HyperLogLog и эксперимент Стенли Мильграма</a></summary>
-<div class="desc">Как посчитать число различных элементов почти без памяти: идея «самого длинного хвоста нулей», набор счётчиков и мост к эксперименту Милгрэма о шести рукопожатиях.</div>
-</details>
-
 </details>
 
 </section>
@@ -433,9 +383,9 @@ format:
         <span class="sigma-landing-chip-kind">📈 График</span>
         <span class="sigma-landing-chip-text">Метод Ньютона: график f(x)=x²−2 с касательной</span>
       </button>
-      <button class="sigma-landing-chip" data-q="Как работает алгоритм RSA? Объясни на маленьком примере с числами.">
-        <span class="sigma-landing-chip-kind">🔐 Разбор</span>
-        <span class="sigma-landing-chip-text">Как работает RSA — на маленьких числах</span>
+      <button class="sigma-landing-chip" data-q="Как PageRank находит важные страницы? Разбери на маленьком примере из шести страниц.">
+        <span class="sigma-landing-chip-kind">🔗 Разбор</span>
+        <span class="sigma-landing-chip-text">PageRank на вебе из шести страниц</span>
       </button>
       <button class="sigma-landing-chip" data-q="Чем нейронная сеть принципиально отличается от линейной регрессии?">
         <span class="sigma-landing-chip-kind">🤔 Сравнение</span>

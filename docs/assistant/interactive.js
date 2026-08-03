@@ -3349,347 +3349,364 @@ SigmaInt.register("loss-landscape-3d", function (root, opts, S) {
 
 
 // ===== widget: mds_relax.js =====
-// mds-relax — живой MDS: набор «истинных» точек задаёт целевую матрицу
-// попарных расстояний D. Случайный эмбеддинг НЕПРЕРЫВНО релаксирует к D,
-// минимизируя стресс σ=Σ(||yi-yj||-Dij)². Точки можно перетаскивать —
-// система выводится из равновесия и снова сходится. Сравниваются два метода:
-// градиентный (первый порядок) и безградиентный (случайные пробы). Никакой
-// кнопки «Запустить» — анимация и пересчёт идут постоянно.
+// mds-relax — восстановление карты Европы из одной таблицы расстояний.
+// На входе только попарные расстояния между городами (км) — ни одной координаты.
+// Метод минимизирует ошибку E = Σ(||yi-yj|| - Dij)² и раскладывает города на
+// плоскости; результат прикладывается поворотом и отражением к настоящей
+// географии, поэтому видно, что вышла именно карта Европы, а не облако точек.
+// Одновременно считаются два метода — градиентный и безградиентный (Нелдера—Мида);
+// чем больше городов, тем сильнее отстаёт безградиентный. Это и есть ответ на
+// вопрос, почему большие модели учат градиентом.
+// Данные: docs/assistant/data/mds_europe.json (расстояния — репозиторий optim
+// Даниила Меркулова, координаты городов — OpenStreetMap).
 SigmaInt.register("mds-relax", function (root, opts, S) {
   const P = S.PALETTE;
 
   root.appendChild(S.el("div", "sigma-int-hint", {
-    text: "Точки релаксируют сами: эмбеддинг сходится к целевой геометрии. " +
-      "Перетащи любую точку и смотри, как стресс снова падает. Переключи метод и сравни скорость.",
+    text: "На входе — только таблица расстояний между городами. Ни широт, ни долгот. " +
+      "Смотри, как из неё сама собой проступает карта Европы.",
   }));
 
   const stage = S.row(root);
-  // левая панель — эмбеддинг (квадрат), правая — кривая стресса
-  const W = 760, H = 380;
+  const W = 760, H = 400;
   const cv = S.makeCanvas(stage, W, H, { maxWidth: 760, pan: false });
   const ctx = cv.ctx;
 
   const controls = S.row(root, "controls");
   const out = S.readout(root);
   S.caption(root,
-    "Слева текущий эмбеддинг (его двигаем), серым показана цель (с точностью до поворота/отражения). " +
-    "Справа стресс σ во времени в лог-шкале. Градиентный метод срывается вниз за десятки шагов; " +
-    "безградиентный (случайные пробы) сходится заметно медленнее.");
+    "Слева — карта, восстановленная методом. Её приходится приложить поворотом и отражением " +
+    "к настоящей географии (серые крестики): из одних расстояний нельзя понять, где север. " +
+    "Справа — насколько расстояния на восстановленной карте расходятся с исходной таблицей. " +
+    "Добавляй города: у градиентного метода кривая почти не меняется, у безградиентного — уползает.");
 
-  // --- геометрия панелей (логические координаты 760×380) ---
-  const plot = { x: 30, y: 30, w: 330, h: 330 };          // эмбеддинг
-  const curve = { x: 430, y: 30, w: 300, h: 330 };        // кривая стресса
+  const plot = { x: 24, y: 26, w: 400, h: 348 };
+  const curve = { x: 480, y: 26, w: 252, h: 348 };
 
-  // ---------- модель ----------
-  let N = 8;            // число точек
-  let lr = 0.05;        // скорость / размер шага
-  let method = "grad";  // "grad" | "zero"
+  // ---------- данные ----------
+  let CITY = [], LAT = [], LON = [], DFULL = [];
+  let n = 8;                 // сколько городов участвует (берём самые крупные)
+  let method = "grad";
+  let ready = false;
 
-  let truth = [];       // «истинные» координаты (для отрисовки цели и D)
-  let D = [];           // целевая матрица расстояний
-  let Y = [];           // текущий эмбеддинг [{x,y}]
-  let dragIdx = -1;     // индекс перетаскиваемой точки
+  let D = [];                // таблица расстояний для текущих n, км
+  let Yg = [], Yz = [];      // конфигурации: градиентный и безградиентный
+  let simplex = null;        // симплекс Нелдера—Мида
+  let histG = [], histZ = [];
   let iter = 0;
-  let histGrad = [];    // история стресса градиентного метода
-  let histZero = [];    // история стресса безградиентного метода
-  const HIST_MAX = 240;
+  const HIST_MAX = 260;
+  let scaleKm = 1;
+  let stepG = 1e-7;   // размер градиентного шага, подбирается дроблением
 
-  function rnd(a, b) { return a + Math.random() * (b - a); }
-
-  // расстояние с защитой от деления на ноль
+  function sub(a, b) { return { x: a.x - b.x, y: a.y - b.y }; }
   function dist(a, b) {
     const dx = a.x - b.x, dy = a.y - b.y;
     return Math.sqrt(dx * dx + dy * dy) || 1e-9;
   }
 
-  // целевая геометрия: точки по кругу + лёгкий шум — стабильная, узнаваемая форма
-  function buildTruth(n) {
-    truth = [];
-    for (let i = 0; i < n; i++) {
-      const a = (2 * Math.PI * i) / n;
-      truth.push({ x: Math.cos(a) + rnd(-0.12, 0.12), y: Math.sin(a) + rnd(-0.12, 0.12) });
-    }
-    // целевая матрица расстояний
-    D = [];
-    for (let i = 0; i < n; i++) {
-      D[i] = [];
-      for (let j = 0; j < n; j++) D[i][j] = i === j ? 0 : dist(truth[i], truth[j]);
-    }
-  }
-
-  function buildEmbedding(n) {
-    Y = [];
-    for (let i = 0; i < n; i++) Y.push({ x: rnd(-1.2, 1.2), y: rnd(-1.2, 1.2) });
-  }
-
-  function reset(n) {
-    N = n;
-    buildTruth(n);
-    buildEmbedding(n);
-    iter = 0;
-    histGrad = [];
-    histZero = [];
-  }
-
-  // стресс σ = Σ_{i<j} (||yi-yj|| - Dij)²
-  function stressOf(pts) {
+  // то, что минимизируем: сумма квадратов отклонений расстояний
+  function err(Y) {
     let s = 0;
-    for (let i = 0; i < N; i++)
-      for (let j = i + 1; j < N; j++) {
-        const e = dist(pts[i], pts[j]) - D[i][j];
-        s += e * e;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const d = dist(Y[i], Y[j]) - D[i][j];
+        s += d * d;
       }
+    }
     return s;
   }
 
-  // один шаг градиентного спуска (первый порядок)
-  function stepGrad() {
-    const gx = new Array(N).fill(0), gy = new Array(N).fill(0);
-    for (let i = 0; i < N; i++) {
-      for (let j = 0; j < N; j++) {
-        if (i === j) continue;
-        const dx = Y[i].x - Y[j].x, dy = Y[i].y - Y[j].y;
-        const d = Math.sqrt(dx * dx + dy * dy) || 1e-9;
-        // dσ/dyi от пары (i,j): 2(d - Dij) * (yi-yj)/d  (учитываем оба порядка → коэф 2)
-        const c = 2 * (d - D[i][j]) / d;
-        gx[i] += c * dx;
-        gy[i] += c * dy;
+  // среднее отклонение на пару городов, км — величина, понятная человеку
+  function kmErr(Y) {
+    let s = 0, cnt = 0;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) { s += Math.abs(dist(Y[i], Y[j]) - D[i][j]); cnt++; }
+    }
+    return cnt ? s / cnt : 0;
+  }
+
+  function grad(Y) {
+    const g = Y.map(() => ({ x: 0, y: 0 }));
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const d = dist(Y[i], Y[j]);
+        const c = 4 * (d - D[i][j]) / d;
+        const dx = (Y[i].x - Y[j].x) * c, dy = (Y[i].y - Y[j].y) * c;
+        g[i].x += dx; g[i].y += dy;
+        g[j].x -= dx; g[j].y -= dy;
       }
     }
-    for (let i = 0; i < N; i++) {
-      if (i === dragIdx) continue;       // перетаскиваемую точку не двигаем
-      Y[i].x -= lr * gx[i];
-      Y[i].y -= lr * gy[i];
-    }
+    return g;
   }
 
-  // один шаг безградиентного метода: двухточечная случайная проба (ZO-GD).
-  // Берём случайное направление u, оцениваем (f(Y+μu)-f(Y-μu))/(2μ) как градиент.
-  function stepZero() {
-    const mu = 0.08;
-    // случайное направление по всем координатам (2N-мерное)
-    const u = [];
-    let nrm = 0;
-    for (let i = 0; i < 2 * N; i++) { const r = rnd(-1, 1); u.push(r); nrm += r * r; }
-    nrm = Math.sqrt(nrm) || 1e-9;
-    for (let i = 0; i < 2 * N; i++) u[i] /= nrm;
+  // ---------- Нелдера—Мида на 2n переменных ----------
+  function flat(Y) { const v = []; for (const p of Y) { v.push(p.x, p.y); } return v; }
+  function unflat(v) {
+    const Y = [];
+    for (let i = 0; i < v.length; i += 2) Y.push({ x: v[i], y: v[i + 1] });
+    return Y;
+  }
+  function fvec(v) { return err(unflat(v)); }
 
-    const plus = Y.map((p, i) => ({ x: p.x + mu * u[2 * i], y: p.y + mu * u[2 * i + 1] }));
-    const minus = Y.map((p, i) => ({ x: p.x - mu * u[2 * i], y: p.y - mu * u[2 * i + 1] }));
-    const g = (stressOf(plus) - stressOf(minus)) / (2 * mu); // скалярная оценка вдоль u
-    // шаг масштабируем размерностью — честно отражает «проклятие размерности»
-    const step = lr * g * N;
-    for (let i = 0; i < N; i++) {
-      if (i === dragIdx) continue;
-      Y[i].x -= step * u[2 * i];
-      Y[i].y -= step * u[2 * i + 1];
+  function initSimplex(Y0) {
+    const v0 = flat(Y0), dim = v0.length;
+    const pts = [{ v: v0, f: fvec(v0) }];
+    const step = 0.25 * scaleKm;
+    for (let k = 0; k < dim; k++) {
+      const v = v0.slice();
+      v[k] += step;
+      pts.push({ v, f: fvec(v) });
     }
+    pts.sort((a, b) => a.f - b.f);
+    return pts;
   }
 
-  // несколько микрошагов за кадр — чтобы движение было живым, но плавным
-  function advance() {
-    const sub = method === "grad" ? 1 : 3; // безградиентному даём больше проб
-    for (let s = 0; s < sub; s++) {
-      if (method === "grad") stepGrad(); else stepZero();
-      iter++;
+  function nelderMeadStep(pts) {
+    const dim = pts[0].v.length;
+    pts.sort((a, b) => a.f - b.f);
+    const best = pts[0], worst = pts[pts.length - 1], second = pts[pts.length - 2];
+    const cen = new Array(dim).fill(0);
+    for (let i = 0; i < pts.length - 1; i++) {
+      for (let k = 0; k < dim; k++) cen[k] += pts[i].v[k] / (pts.length - 1);
     }
-    const st = stressOf(Y);
-    const h = method === "grad" ? histGrad : histZero;
-    h.push(st);
-    if (h.length > HIST_MAX) h.shift();
-    return st;
+    const mix = (a, b, t) => a.map((x, k) => x + t * (b[k] - x));
+    const refl = mix(cen, worst.v, -1), fr = fvec(refl);
+    if (fr < best.f) {
+      const exp = mix(cen, worst.v, -2), fe = fvec(exp);
+      pts[pts.length - 1] = fe < fr ? { v: exp, f: fe } : { v: refl, f: fr };
+    } else if (fr < second.f) {
+      pts[pts.length - 1] = { v: refl, f: fr };
+    } else {
+      const con = mix(cen, worst.v, 0.5), fc = fvec(con);
+      if (fc < worst.f) {
+        pts[pts.length - 1] = { v: con, f: fc };
+      } else {
+        for (let i = 1; i < pts.length; i++) {
+          const v = mix(best.v, pts[i].v, 0.5);
+          pts[i] = { v, f: fvec(v) };
+        }
+      }
+    }
+    return pts;
+  }
+
+  // ---------- приложить результат к настоящей географии ----------
+  // Из расстояний ориентация не восстанавливается, поэтому карту надо повернуть
+  // и при необходимости отразить — иначе Европа выйдет вверх ногами и не узнается.
+  function geoRef() {
+    const la = LAT.slice(0, n), lo = LON.slice(0, n);
+    const la0 = la.reduce((s, v) => s + v, 0) / n;
+    const k = Math.cos((la0 * Math.PI) / 180);
+    return la.map((v, i) => ({ x: 111.32 * k * lo[i], y: 111.32 * v }));
+  }
+
+  function align(Y, R) {
+    const cy = { x: 0, y: 0 }, cr = { x: 0, y: 0 };
+    for (let i = 0; i < n; i++) { cy.x += Y[i].x / n; cy.y += Y[i].y / n; cr.x += R[i].x / n; cr.y += R[i].y / n; }
+    const A = Y.map((p) => sub(p, cy)), B = R.map((p) => sub(p, cr));
+    let bestOut = null, bestSse = Infinity;
+    for (const mir of [1, -1]) {
+      const Am = A.map((p) => ({ x: p.x, y: mir * p.y }));
+      let aa = 0, bb = 0;
+      for (let i = 0; i < n; i++) {
+        aa += Am[i].x * B[i].x + Am[i].y * B[i].y;
+        bb += Am[i].x * B[i].y - Am[i].y * B[i].x;
+      }
+      const th = Math.atan2(bb, aa), c = Math.cos(th), s = Math.sin(th);
+      const outp = Am.map((p) => ({ x: c * p.x - s * p.y + cr.x, y: s * p.x + c * p.y + cr.y }));
+      let sse = 0;
+      for (let i = 0; i < n; i++) sse += (outp[i].x - R[i].x) ** 2 + (outp[i].y - R[i].y) ** 2;
+      if (sse < bestSse) { bestSse = sse; bestOut = outp; }
+    }
+    return bestOut;
+  }
+
+  // ---------- инициализация задачи ----------
+  function reset() {
+    D = [];
+    for (let i = 0; i < n; i++) D.push(DFULL[i].slice(0, n));
+    let mx = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) mx = Math.max(mx, D[i][j]);
+    scaleKm = mx || 1;
+    const R = 0.35 * scaleKm;
+    Yg = []; Yz = [];
+    for (let i = 0; i < n; i++) {
+      const a = (2 * Math.PI * i) / n, r = R * (0.6 + 0.4 * ((i * 37) % 11) / 11);
+      const p = { x: r * Math.cos(a), y: r * Math.sin(a) };
+      Yg.push({ x: p.x, y: p.y });
+      Yz.push({ x: p.x, y: p.y });
+    }
+    simplex = initSimplex(Yz);
+    stepG = 1e-7;
+    histG = []; histZ = []; iter = 0;
+  }
+
+  // Градиентный шаг с дроблением: фиксированный шаг на таких масштабах (тысячи
+  // километров) заставляет метод перескакивать минимум и выглядеть хуже
+  // безградиентного — что неправда и ломает весь смысл сравнения.
+  function gradStep() {
+    let f0 = err(Yg);
+    const g = grad(Yg);
+    let gn2 = 0;
+    for (const q of g) gn2 += q.x * q.x + q.y * q.y;
+    if (gn2 < 1e-14) return;
+    let t = stepG;
+    for (let k = 0; k < 30; k++) {
+      const cand = Yg.map((p, i) => ({ x: p.x - t * g[i].x, y: p.y - t * g[i].y }));
+      if (err(cand) < f0) { Yg = cand; stepG = t * 1.8; return; }
+      t *= 0.5;
+    }
+    stepG = Math.max(t, 1e-16);
+  }
+
+  function step() {
+    if (!ready) return;
+    for (let s = 0; s < 2; s++) gradStep();
+    for (let s = 0; s < 2; s++) simplex = nelderMeadStep(simplex);
+    Yz = unflat(simplex[0].v);
+
+    iter++;
+    histG.push(kmErr(Yg)); histZ.push(kmErr(Yz));
+    if (histG.length > HIST_MAX) { histG.shift(); histZ.shift(); }
   }
 
   // ---------- отрисовка ----------
-  // авто-масштаб эмбеддинга, чтобы всё помещалось в панель
-  function dataExtent() {
-    let mn = -1.5, mx = 1.5;
-    for (const p of Y.concat(truth)) {
-      mn = Math.min(mn, p.x, p.y);
-      mx = Math.max(mx, p.x, p.y);
-    }
-    const pad = 0.15 * (mx - mn || 1);
-    return [mn - pad, mx + pad];
-  }
-
   function draw() {
     ctx.clearRect(0, 0, W, H);
-
-    const [d0, d1] = dataExtent();
-    const sx = S.scale(d0, d1, plot.x, plot.x + plot.w);
-    const sy = S.scale(d0, d1, plot.y + plot.h, plot.y); // y вверх
-
-    // рамка панели эмбеддинга
-    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
-    ctx.strokeRect(plot.x + 0.5, plot.y + 0.5, plot.w, plot.h);
-    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
-    ctx.fillText("Эмбеддинг (тяни точки)", plot.x, plot.y - 10);
-
-    // целевые точки (серый ореол) — для интуиции «куда сходимся»
-    ctx.fillStyle = "#cfc9b6";
-    for (const p of truth) {
-      ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 4, 0, 2 * Math.PI); ctx.fill();
+    if (!ready) {
+      ctx.fillStyle = P.mut; ctx.font = "14px ui-sans-serif, system-ui";
+      ctx.fillText("Загружаю таблицу расстояний…", 24, 40);
+      return;
     }
+    const Y = method === "grad" ? Yg : Yz;
+    const R = geoRef();
+    const A = align(Y, R);
 
-    // рёбра эмбеддинга, окрашенные по знаку ошибки ||y||-D
-    for (let i = 0; i < N; i++)
-      for (let j = i + 1; j < N; j++) {
-        const e = dist(Y[i], Y[j]) - D[i][j];
-        const a = Math.min(0.5, Math.abs(e) * 0.6);
-        ctx.strokeStyle = (e > 0 ? "192,57,43" : "31,78,121"); // red / blue rgb
-        ctx.strokeStyle = "rgba(" + (e > 0 ? "192,57,43" : "31,78,121") + "," + a.toFixed(3) + ")";
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(sx(Y[i].x), sy(Y[i].y)); ctx.lineTo(sx(Y[j].x), sy(Y[j].y)); ctx.stroke();
-      }
+    const xs = R.map((p) => p.x).concat(A.map((p) => p.x));
+    const ys = R.map((p) => p.y).concat(A.map((p) => p.y));
+    const x0 = Math.min(...xs), x1 = Math.max(...xs);
+    const y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const span = Math.max(x1 - x0, y1 - y0) * 1.16 || 1;
+    const cx = (x0 + x1) / 2, cy2 = (y0 + y1) / 2;
+    const sz = Math.min(plot.w, plot.h);
+    const X = (v) => plot.x + plot.w / 2 + ((v - cx) / span) * sz;
+    const Yp = (v) => plot.y + plot.h / 2 - ((v - cy2) / span) * sz;
 
-    // точки эмбеддинга
-    for (let i = 0; i < N; i++) {
-      const X = sx(Y[i].x), Yp = sy(Y[i].y);
-      ctx.fillStyle = i === dragIdx ? P.gold : P.blue;
-      ctx.beginPath(); ctx.arc(X, Yp, i === dragIdx ? 8 : 6, 0, 2 * Math.PI); ctx.fill();
-      ctx.fillStyle = P.bg;
-      ctx.font = "10px Palatino, serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(String(i + 1), X, Yp);
-      ctx.textBaseline = "alphabetic";
+    ctx.strokeStyle = "#e6e2d4"; ctx.lineWidth = 1;
+    ctx.strokeRect(plot.x, plot.y, plot.w, plot.h);
+
+    ctx.strokeStyle = "#c9c4b4"; ctx.lineWidth = 1;
+    for (let i = 0; i < n; i++) {
+      const px = X(R[i].x), py = Yp(R[i].y);
+      ctx.beginPath();
+      ctx.moveTo(px - 3, py); ctx.lineTo(px + 3, py);
+      ctx.moveTo(px, py - 3); ctx.lineTo(px, py + 3);
+      ctx.stroke();
     }
-
-    // ---------- кривая стресса ----------
-    ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
-    ctx.strokeRect(curve.x + 0.5, curve.y + 0.5, curve.w, curve.h);
-    ctx.fillStyle = P.mut; ctx.font = "12px Palatino, Georgia, serif"; ctx.textAlign = "left";
-    ctx.fillText("Стресс σ(t), лог-шкала", curve.x, curve.y - 10);
-
-    // подпись оси x
-    ctx.fillStyle = P.mut; ctx.font = "11px Palatino, Georgia, serif"; ctx.textAlign = "center";
-    ctx.fillText("итерация t", curve.x + curve.w / 2, curve.y + curve.h + 18);
-
-    if (histGrad.length > 1 || histZero.length > 1) {
-      // лог-шкала по y по объединению обеих историй
-      let lo = Infinity, hi = -Infinity;
-      for (const v of histGrad.concat(histZero)) {
-        const lv = Math.log10(Math.max(v, 1e-6));
-        if (lv < lo) lo = lv; if (lv > hi) hi = lv;
-      }
-      if (hi - lo < 1.0) { hi += 0.5; lo -= 0.5; }
-      const span = Math.max(20, histGrad.length, histZero.length) - 1;
-      const tx = S.scale(0, span, curve.x, curve.x + curve.w);
-      const ty = S.scale(lo, hi, curve.y + curve.h, curve.y);
-
-      // горизонтальные грид-линии по степеням 10
-      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, serif"; ctx.textAlign = "right";
-      const loE = Math.floor(lo), hiE = Math.ceil(hi);
-      for (let e = loE; e <= hiE; e++) {
-        const y = ty(e);
-        if (y < curve.y || y > curve.y + curve.h) continue;
-        ctx.strokeStyle = P.grid; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(curve.x, y); ctx.lineTo(curve.x + curve.w, y); ctx.stroke();
-        ctx.fillStyle = P.mut;
-        ctx.fillText("10" + (e >= 0 ? "" : "⁻") + Math.abs(e), curve.x - 4, y + 3);
-      }
-
-      // числовые тики по оси x (0 … текущий span) — читаемый «стресс vs шаги».
-      // края диапазона выровнены к панели (left/right), чтобы не наезжать
-      // на центральную подпись «итерация t».
-      ctx.fillStyle = P.mut; ctx.font = "10px Palatino, Georgia, serif";
-      const tickY = curve.y + curve.h + 18;
-      ctx.textAlign = "left";
-      ctx.fillText("0", curve.x, tickY);
-      ctx.textAlign = "right";
-      ctx.fillText(String(span), curve.x + curve.w, tickY);
-      ctx.textAlign = "center";
-
-      // две кривые: grad (зелёная) и zero (фиолетовая); неактивная — с alpha 0.35
-      const drawCurve = (hist, color, active) => {
-        if (hist.length < 2) return;
-        const off = Math.max(0, hist.length - HIST_MAX);
-        ctx.globalAlpha = active ? 1 : 0.35;
-        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
-        for (let i = off; i < hist.length; i++) {
-          const X = tx(i - off), Yp = ty(Math.log10(Math.max(hist[i], 1e-6)));
-          i === off ? ctx.moveTo(X, Yp) : ctx.lineTo(X, Yp);
-        }
-        ctx.stroke();
-        // текущая точка
-        const lastIdx = hist.length - 1;
-        const lastX = tx(lastIdx - off);
-        const lastY = ty(Math.log10(Math.max(hist[lastIdx], 1e-6)));
-        ctx.fillStyle = color;
-        ctx.beginPath(); ctx.arc(lastX, lastY, 3.5, 0, 2 * Math.PI); ctx.fill();
-        ctx.globalAlpha = 1;
-      };
-      drawCurve(histGrad, P.green, method === "grad");
-      drawCurve(histZero, P.purple, method === "zero");
+    ctx.strokeStyle = "rgba(150,145,130,0.45)";
+    for (let i = 0; i < n; i++) {
+      ctx.beginPath(); ctx.moveTo(X(R[i].x), Yp(R[i].y)); ctx.lineTo(X(A[i].x), Yp(A[i].y)); ctx.stroke();
     }
-  }
+    ctx.font = "11px ui-sans-serif, system-ui";
+    // сначала все точки, потом подписи — иначе точка ляжет поверх чужого названия
+    for (let i = 0; i < n; i++) {
+      const px = X(A[i].x), py = Yp(A[i].y);
+      ctx.fillStyle = method === "grad" ? P.blue : P.red;
+      ctx.beginPath(); ctx.arc(px, py, 4, 0, 2 * Math.PI); ctx.fill();
+    }
+    // Подписи ставим только там, где они не налезают на уже поставленные:
+    // при 34 городах Европа тесная, и «Нижний Новгород» затирает соседей.
+    const taken = [];
+    const free = (b) => !taken.some((q) =>
+      b.x < q.x + q.w && b.x + b.w > q.x && b.y < q.y + q.h && b.y + b.h > q.y);
+    ctx.fillStyle = "#2d2d31";
+    for (let i = 0; i < n; i++) {
+      const px = X(A[i].x), py = Yp(A[i].y);
+      const label = CITY[i];
+      const tw = ctx.measureText(label).width, th = 12;
+      const cand = [
+        { x: px + 7, y: py - 6 },
+        { x: px - 7 - tw, y: py - 6 },
+        { x: px - tw / 2, y: py + 6 },
+        { x: px - tw / 2, y: py - 18 },
+      ];
+      for (const c of cand) {
+        const box = { x: c.x, y: c.y, w: tw, h: th };
+        if (box.x < plot.x || box.x + tw > plot.x + plot.w) continue;
+        if (!free(box)) continue;
+        taken.push(box);
+        ctx.fillText(label, c.x, c.y + 9);
+        break;
+      }
+    }
+    ctx.fillStyle = P.mut; ctx.font = "12px ui-sans-serif, system-ui";
+    ctx.fillText("восстановлено из расстояний · серое — где город на самом деле", plot.x, plot.y - 8);
 
-  const redraw = S.rafThrottle(draw);
+    ctx.strokeStyle = "#e6e2d4"; ctx.lineWidth = 1;
+    ctx.strokeRect(curve.x, curve.y, curve.w, curve.h);
+    const all = histG.concat(histZ).filter((v) => v > 0);
+    const hi = all.length ? Math.max(...all) : 1;
+    const lo = all.length ? Math.max(Math.min(...all), hi * 1e-4) : 1e-3;
+    const lg = (v) => Math.log10(Math.max(v, lo));
+    const cxp = (i, len) => curve.x + (len < 2 ? 0 : (i / (len - 1)) * curve.w);
+    const cyp = (v) => curve.y + curve.h - ((lg(v) - lg(lo)) / (lg(hi) - lg(lo) || 1)) * curve.h;
 
-  function updateReadout(st) {
+    const line = (h, color, wid) => {
+      if (h.length < 2) return;
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = wid;
+      ctx.beginPath();
+      let started = false;
+      h.forEach((v, i) => {
+        const px = cxp(i, h.length), py = cyp(v);
+        if (!isFinite(px) || !isFinite(py)) return;
+        if (started) ctx.lineTo(px, py); else { ctx.moveTo(px, py); started = true; }
+      });
+      ctx.stroke();
+      ctx.beginPath();          // не оставляем путь следующему примитиву
+      ctx.restore();
+    };
+    line(histZ, P.red, 2);
+    line(histG, P.blue, 2);
+
+    ctx.font = "12px ui-sans-serif, system-ui";
+    ctx.fillStyle = P.mut;
+    ctx.fillText("насколько врут расстояния, км (лог-шкала)", curve.x, curve.y - 8);
+    ctx.fillStyle = P.blue; ctx.fillText("градиентный", curve.x + 8, curve.y + 16);
+    ctx.fillStyle = P.red; ctx.fillText("безградиентный", curve.x + 8, curve.y + 32);
+
     out.set([
-      { k: "метод", v: method === "grad" ? "градиентный" : "безградиентный",
-        color: method === "grad" ? P.green : P.purple },
-      { k: "точек N =", v: String(N), color: P.blue },
-      { k: "итерация", v: String(iter), color: P.mut },
-      { k: "стресс σ =", v: st.toFixed(3), color: P.red },
+      { k: "городов", v: String(n) },
+      { k: "неизвестных", v: String(2 * n) },
+      { k: "шаг", v: String(iter) },
+      { k: "градиентный", v: histG.length ? histG[histG.length - 1].toFixed(0) + " км" : "—", color: P.blue },
+      { k: "безградиентный", v: histZ.length ? histZ[histZ.length - 1].toFixed(0) + " км" : "—", color: P.red },
     ]);
   }
 
-  // ---------- перетаскивание точек ----------
-  function nearestIdx(p) {
-    const [d0, d1] = dataExtent();
-    const sx = S.scale(d0, d1, plot.x, plot.x + plot.w);
-    const sy = S.scale(d0, d1, plot.y + plot.h, plot.y);
-    let best = -1, bestD = 1e9;
-    for (let i = 0; i < N; i++) {
-      const dx = sx(Y[i].x) - p.x, dy = sy(Y[i].y) - p.y;
-      const d = dx * dx + dy * dy;
-      if (d < bestD) { bestD = d; best = i; }
-    }
-    return bestD < 22 * 22 ? best : -1;
-  }
-  function setFromPointer(p) {
-    if (dragIdx < 0) return;
-    const [d0, d1] = dataExtent();
-    const sx = S.scale(d0, d1, plot.x, plot.x + plot.w);
-    const sy = S.scale(d0, d1, plot.y + plot.h, plot.y);
-    Y[dragIdx].x = sx.inv(Math.max(plot.x, Math.min(plot.x + plot.w, p.x)));
-    Y[dragIdx].y = sy.inv(Math.max(plot.y, Math.min(plot.y + plot.h, p.y)));
-  }
-
-  S.dragify(cv.canvas, { w: W, h: H }, {
-    onDown: (p) => { dragIdx = nearestIdx(p); setFromPointer(p); },
-    onMove: (p) => { setFromPointer(p); },
-    onUp: () => { dragIdx = -1; },
-  });
-
   // ---------- контролы ----------
+  S.slider(controls, {
+    label: "Городов", min: 4, max: 34, step: 1, value: n,
+    fmt: (v) => String(v),
+  }, (v) => { n = v; reset(); });
+
   S.segmented(controls, {
-    label: "Метод",
-    value: "grad",
-    options: [
-      { value: "grad", label: "градиентный" },
-      { value: "zero", label: "безградиентный" },
-    ],
+    label: "Показать",
+    options: [{ value: "grad", label: "градиентный" }, { value: "zero", label: "безградиентный" }],
+    value: method,
   }, (v) => { method = v; });
 
-  S.slider(controls, {
-    label: "Число точек N", min: 4, max: 16, step: 1, value: N, fmt: (v) => v | 0,
-  }, (v) => { reset(v | 0); });
+  S.button(controls, "заново", () => reset());
 
-  S.slider(controls, {
-    label: "Скорость / размер шага", min: 0.005, max: 0.15, step: 0.005, value: lr,
-    fmt: (v) => v.toFixed(3),
-  }, (v) => { lr = v; });
+  S.loadData("mds_europe.json").then((d) => {
+    CITY = d.cities; LAT = d.lat; LON = d.lon; DFULL = d.D;
+    reset();
+    ready = true;
+  }).catch((e) => { ready = false; console.error("mds-relax:", e); });
 
-  // ---------- старт: немедленная инициализация + непрерывная анимация ----------
-  reset(N);
+  // S.loop только СОЗДАЁТ цикл — без .start() кадр застывает на заставке.
+  S.loop(() => { step(); draw(); }).start();
   draw();
-
-  S.loop(() => {
-    const st = advance();
-    updateReadout(st);
-    redraw();
-  }).start();
 });
 
 

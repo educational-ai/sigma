@@ -66,12 +66,11 @@ def render() -> str:
     missing: list[str] = []
     # Raw-html блок: внутри .desc живёт $TeX$, который дорисовывает KaTeX уже
     # в браузере — пандоку туда лезть незачем.
-    out = ["```{=html}", '<section class="sigma-tree">', "", "<h2>Все страницы</h2>", ""]
-    n_parts = sum(1 for n in contents if isinstance(n, dict) and "section" in n)
+    out = ["```{=html}", '<section class="sigma-tree">', "", "<h2>Все сюжеты</h2>", ""]
     out.append(
-        f'<p class="lede">{n_parts} части, один сквозной рассказ. Каждая страница '
-        "самодостаточна — читать можно с любой, — а можно подряд. Раскройте часть, "
-        "чтобы увидеть её страницы.</p>"
+        '<p class="lede">Деления на главы нет: каждая страница — законченный '
+        "сюжет, который читается сам по себе. Порядок ниже — рекомендованный, "
+        "но заходить можно с любого места.</p>"
     )
     out.append(
         '<p class="controls">\n'
@@ -81,33 +80,11 @@ def render() -> str:
         '.forEach(d=>d.open=false)">свернуть всё</a>\n</p>'
     )
 
-    # Одиночные страницы верхнего уровня (кроме самой главной) — до частей.
     for node in contents:
-        if isinstance(node, dict) and "section" in node:
-            continue
         for stem, title in entries(node):
             if stem == "index":
                 continue
             out += _leaf(stem, title, desc, missing)
-
-    for node in contents:
-        if not (isinstance(node, dict) and "section" in node):
-            continue
-        kids: list[tuple[str, str]] = []
-        for kid in node.get("contents", []):
-            kids += entries(kid)
-        if not kids:
-            continue
-        first = kids[0][0]
-        out.append("<details>")
-        out.append(
-            f'<summary><a href="{first}.html">{esc(node["section"])}</a></summary>'
-        )
-        out.append("")
-        for stem, title in kids:
-            out += _leaf(stem, title, desc, missing)
-        out.append("</details>")
-        out.append("")
 
     out.append("</section>")
     out.append("```")
