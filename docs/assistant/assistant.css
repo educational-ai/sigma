@@ -540,16 +540,3 @@ select.sigma-algo-input {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   white-space: pre-wrap;
 }
-
-/* Ход мысли модели, пока не пошёл ответ: видно, что она работает, а не висит. */
-.sigma-thinking-live {
-  margin: 6px 0 2px;
-  padding: 6px 10px;
-  border-left: 2px solid #e0dcc8;
-  color: #8a8577;
-  font-size: 11.5px;
-  line-height: 1.45;
-  font-style: italic;
-  max-height: 4.4em;
-  overflow: hidden;
-}

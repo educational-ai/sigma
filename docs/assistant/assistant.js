@@ -710,20 +710,20 @@
       try {
         let lastPaint = 0;
         // Рассуждения приходят в поток СРАЗУ, а первый текст ответа — секунд
-        // через восемь. Без этого блока читатель всё это время смотрит на
-        // неподвижное «Думаю…» и решает, что всё зависло.
-        let think = "", thinkPaint = 0;
-        const thinkEl = el("div", { class: "sigma-thinking-live" });
+        // через восемь. Сам ход мысли читателю не показываем (он для лога), но
+        // по нему видно, что модель реально работает: гоним счётчик секунд,
+        // иначе неподвижное «Думаю…» читается как зависание.
+        const thinkStart = performance.now();
+        let tickPaint = 0;
         ({ content, tool_calls } = await streamCompletion(messages, {
-          onReasoning: (chunk) => {
-            think += chunk;
-            if (!thinkEl.isConnected && statusEl.isConnected) statusEl.after(thinkEl);
+          onReasoning: () => {
             const now = performance.now();
-            if (now - thinkPaint < 150) return;
-            thinkPaint = now;
-            // показываем хвост размышления — видно, что модель работает
-            thinkEl.textContent = think.replace(/\s+/g, " ").slice(-220);
-            sheetBody.scrollTop = sheetBody.scrollHeight;
+            if (now - tickPaint < 500) return;
+            tickPaint = now;
+            if (statusEl.isConnected) {
+              const sec = Math.round((now - thinkStart) / 1000);
+              statusEl.textContent = `Думаю… ${sec} с`;
+            }
           },
           onProgress: (partial) => {
             // Дельты приходят десятками в секунду; рендер с KaTeX на каждой
@@ -731,7 +731,6 @@
             const now = performance.now();
             if (now - lastPaint < 120) return;
             lastPaint = now;
-            if (thinkEl.isConnected) thinkEl.remove();
             if (statusEl.isConnected) statusEl.remove();
             answerEl.innerHTML = renderMarkdown(trimUnfinished(stripThinking(partial)));
             sheetBody.scrollTop = sheetBody.scrollHeight;
